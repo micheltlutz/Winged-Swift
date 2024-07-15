@@ -1,0 +1,123 @@
+.DS_Store
+/.build
+/Packages
+xcuserdata/
+DerivedData/
+.swiftpm/configuration/registries.json
+.swiftpm/xcode/package.xcworkspace/contents.xcworkspacedata
+.netrc
+
+# Swift Package Manager
+.build/
+.swiftpm/
+Package.resolved
+
+# Xcode
+DerivedData/
+*.xcworkspace
+xcuserdata/
+*.xcodeproj/*
+!*.xcodeproj/project.pbxproj
+!*.xcodeproj/xcshareddata/
+!*.xcworkspace/contents.xcworkspacedata
+
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+
+# Custom folder attributes
+Icon?
+._*
+
+# Thumbnails
+._.DS_Store
+
+# Files that might appear in the root of a volume
+.DocumentRevisions-V100
+.fseventsd
+.Spotlight-V100
+.TemporaryItems
+.Trashes
+.VolumeIcon.icns
+
+# Directories potentially created on remote AFP share
+.AppleDB
+.AppleDesktop
+Network Trash Folder
+Temporary Items
+.apdisk
+
+# Windows
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+$RECYCLE.BIN/
+
+# Windows image file caches
+*.stackdump
+
+# Folder config file
+[Dd]esktop.ini
+$RECYCLE.BIN/
+
+# Windows shortcuts
+*.lnk
+
+# Linux
+*~
+# KDE directory preferences
+.directory
+
+# Vim swap files
+[._]*.s[a-v][a-z]
+[._]*.sw[a-p]
+[._]s[a-rt-v][a-z]
+[._]ss[a-gi-z]
+[._]sw[a-p]
+
+# Temporary files created by popular editors
+*.sublime-project
+*.sublime-workspace
+.idea/
+.vscode/
+*.code-workspace
+*.sublime-workspace
+
+# Temporary files created by various IDEs
+*.bak
+*.tmp
+*.backup
+*.orig
+*.log
+
+# Temporary files created by build tools
+*.log
+*.obj
+*.o
+*.pyc
+*.pyo
+*.pid
+*.gz
+*.zip
+*.war
+*.ear
+*.jar
+*.out
+*.class
+*.pyc
+
+# Other temporary files
+*.tmp
+*.temp
+*.old
+*.backup
+
+# Exclude .env files
+.env
+.env.*
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
