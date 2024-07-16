@@ -129,6 +129,15 @@ swift package generate-documentation --target WingedSwift --output-path ./docs
 open ./docs/index.html
 ```
 
+### Preview Documentation
+
+```
+swift package --disable-sandbox preview-documentation --target WingedSwift
+```
+
+-[http://localhost:8080/documentation/wingedswift](http://localhost:8080/documentation/wingedswift)
+
+
 ## Contribution
 
 Contributions are welcome! Please follow the steps below to contribute:
