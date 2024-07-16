@@ -19,7 +19,7 @@ jobs:
       - name: Set up Swift
         uses: fwal/setup-swift@v1
         with:
-          swift-version: '5.5'
+          swift-version: '5.9'
 
       - name: Run Tests
         run: swift test
