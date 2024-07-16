@@ -1,25 +1,33 @@
 name: Deploy DocC Documentation
 
 on:
-  push:
-    branches:
-      - main
+  workflow_run:
+    workflows: ["Run Tests"]
+    types:
+      - completed
 
 jobs:
   build:
+    if: ${{ github.event.workflow_run.conclusion == 'success' }}
     runs-on: macos-latest
+
     steps:
-      - uses: actions/checkout@v2
+      - name: Checkout repository
+        uses: actions/checkout@v2
+
       - name: Set up Swift
         uses: fwal/setup-swift@v1
         with:
           swift-version: '5.5'
+
       - name: Generate DocC Documentation
         run: xcodebuild docbuild -scheme WingedSwift -destination generic/platform=iOS
+
       - name: Export DocC as HTML
         run: |
           DOC_ARCHIVE=$(find ~/Library/Developer/Xcode/DerivedData -name '*.doccarchive' | head -n 1)
           $(xcrun --find docc) process-archive transform-for-static-hosting "$DOC_ARCHIVE" --output-path ./docs --hosting-base-path WingedSwift
+
       - name: Deploy to GitHub Pages
         uses: peaceiris/actions-gh-pages@v3
         with:
