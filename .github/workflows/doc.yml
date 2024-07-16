@@ -13,20 +13,19 @@ jobs:
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v2
-
-      - name: Set up Swift
-        uses: fwal/setup-swift@v1
-        with:
-          swift-version: '5.5'
+        uses: actions/checkout@v4
 
       - name: Generate DocC Documentation
-        run: xcodebuild docbuild -scheme WingedSwift -destination generic/platform=iOS
+        run: swift package generate-documentation --target WingedSwift --output-path ./docs
 
       - name: Export DocC as HTML
-        run: |
-          DOC_ARCHIVE=$(find ~/Library/Developer/Xcode/DerivedData -name '*.doccarchive' | head -n 1)
-          $(xcrun --find docc) process-archive transform-for-static-hosting "$DOC_ARCHIVE" --output-path ./docs --hosting-base-path WingedSwift
+        run: | 
+          swift package --allow-writing-to-directory ./docs \
+          generate-documentation --target WingedSwift \
+          --disable-indexing \
+          --transform-for-static-hosting \
+          --hosting-base-path Winged-Swift \
+          --output-path ./docs
 
       - name: Deploy to GitHub Pages
         uses: peaceiris/actions-gh-pages@v3
