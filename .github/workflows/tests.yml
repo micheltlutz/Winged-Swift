@@ -2,11 +2,9 @@ name: Run Tests
 
 on:
   push:
-    branches:
-      - main
+    branches: [ "main" ]
   pull_request:
-    branches:
-      - main
+    branches: [ "main" ]
 
 jobs:
   test:
@@ -14,12 +12,7 @@ jobs:
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v2
-
-      - name: Set up Swift
-        uses: fwal/setup-swift@v1
-        with:
-          swift-version: '5.5'
+        uses: actions/checkout@v4
 
       - name: Run Tests
         run: swift test
