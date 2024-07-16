@@ -135,7 +135,7 @@ This project is licensed under the MIT License. See the [LICENSE](LICENSE) file 
 
 
 ```bash
-swift package generate-documentation --target YourLibraryName --output-path ./docs
+swift package generate-documentation --target WingedSwift --output-path ./docs
 ```
 
 ```bash
