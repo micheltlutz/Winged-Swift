@@ -7,7 +7,7 @@ public class HTMLTag {
     var children: [HTMLTag]
     var content: String?
     
-    private let selfClosingTags: Set<String> = ["img", "br", "hr", "input", "meta", "link"]
+    private let selfClosingTags: Set<String> = ["img", "br", "hr", "input", "meta", "link", "embed"]
     
     /// Initializes a new HTML tag.
     ///
