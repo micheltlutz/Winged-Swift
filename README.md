@@ -23,7 +23,7 @@ WingedSwift is a DSL (Domain-Specific Language) library for writing HTML efficie
 
 To add WingedSwift to your project, add the following line to your `Package.swift` file:
 
-``swift
+```swift
 dependencies: [
     .package(url: "https://github.com/your-username/WingedSwift.git", from: "1.0.0")
 ]
@@ -125,6 +125,10 @@ To generate the DocC documentation, use the following command in the terminal:
 swift package generate-documentation --target WingedSwift --output-path ./docs
 ```
 
+```bash
+open ./docs/index.html
+```
+
 ## Contribution
 
 Contributions are welcome! Please follow the steps below to contribute:
@@ -138,12 +142,3 @@ Contributions are welcome! Please follow the steps below to contribute:
 ## License
 
 This project is licensed under the MIT License. See the [LICENSE](LICENSE) file for more details.
-
-
-```bash
-swift package generate-documentation --target WingedSwift --output-path ./docs
-```
-
-```bash
-open ./docs/index.html
-```
