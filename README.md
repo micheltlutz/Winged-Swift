@@ -31,6 +31,7 @@ dependencies: [
 ]
 ```
 
+
 And include `WingedSwift` as a dependency in your target:
 
 ```swift
@@ -39,6 +40,12 @@ targets: [
         name: "YourTarget",
         dependencies: ["WingedSwift"]),
 ]
+```
+
+To include in Vapor project use this line code in `executableTarget`.
+
+```swift
+.product(name: "WingedSwift", package: "Winged-Swift")
 ```
 
 ## Usage
