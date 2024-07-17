@@ -117,7 +117,7 @@ print(embed.render())
 
 ## Documentation
 
-The complete documentation is available [here](docs/index.html).
+The complete documentation is available [here soon]().
 
 ### Generating the Documentation
 
