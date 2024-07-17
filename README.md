@@ -135,7 +135,7 @@ open ./docs/index.html
 swift package --disable-sandbox preview-documentation --target WingedSwift
 ```
 
--[http://localhost:8080/documentation/wingedswift](http://localhost:8080/documentation/wingedswift)
+- [http://localhost:8080/documentation/wingedswift](http://localhost:8080/documentation/wingedswift)
 
 
 ## Contribution
