@@ -6,7 +6,9 @@
 [![Reviewed by Hound](https://img.shields.io/badge/Reviewed_by-Hound-8E64B0.svg)](https://houndci.com)
 # =============
 
-WingedSwift is a DSL (Domain-Specific Language) library for writing HTML efficiently using 100% Swift.
+WingedSwift is an innovative Domain-Specific Language (DSL) library for efficient HTML writing in Swift. Mirroring its Python counterpart, WingedSwift is based on the DSL concept, focusing on simplification and specificity in HTML generation. Using the Composite design pattern, the library enables developers to construct HTML structures in a logical, organized, and reusable manner.
+
+This library is created to be fully independent, not requiring integration with specific server frameworks or front-end libraries. This offers developers the freedom to use WingedSwift across a variety of projects, from simple static pages to complex web applications, keeping the code clean, readable, and efficient.
 
 ## Table of Contents
 
