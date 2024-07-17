@@ -14,10 +14,17 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
+      - name: Build
+        run: swift build
+
       - name: Run Tests
         run: swift test --enable-code-coverage
+
+      - name: Generate coverage report
+        run: xcrun llvm-cov export -format=lcov .build/debug/WingedSwiftPackageTests.xctest/Contents/MacOS/WingedSwiftPackageTests -instr-profile=.build/debug/codecov/default.profdata > coverage.lcov
 
       - name: Upload coverage reports to Codecov
         uses: codecov/codecov-action@v4.0.1
         with:
+          files: coverage.lcov
           token: ${{ secrets.CODECOV_TOKEN }}

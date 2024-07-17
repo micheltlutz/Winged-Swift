@@ -1,0 +1,29 @@
+disabled_rules: # rule identifiers to exclude from running
+  - large_tuple
+  - trailing_whitespace
+  - type_body_length
+  - cyclomatic_complexity
+  - function_parameter_count
+
+excluded: # paths to ignore during linting. Takes precedence over `included`.
+  - Carthage
+  - Pods
+  - .build
+  - Tests
+
+type_name:
+    min_length: 1
+    max_length: 40
+
+line_length:
+  warning: 150
+  error: 300
+  ignores_comments: true
+  ignores_urls: true
+  ignores_function_declarations: true
+  ### works up until this config rule
+  ignores_interpolated_strings: true
+
+function_body_length:
+  warning: 60
+  error: 80

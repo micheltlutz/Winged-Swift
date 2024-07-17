@@ -26,8 +26,8 @@ final class HTMLTagTests: XCTestCase {
         let document = html {
             Div(children: [
                 P(content: "This is a paragraph."),
-                Img(src: "image.png", alt: "An image"),
-                ])
+                Img(src: "image.png", alt: "An image")
+            ])
         }
         
         let expected = """
