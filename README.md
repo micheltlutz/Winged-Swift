@@ -12,12 +12,17 @@ This library is created to be fully independent, not requiring integration with 
 
 ## Table of Contents
 
+- [Demo](#demo)
 - [Installation](#installation)
 - [Usage](#usage)
   - [Usage Examples](#usage-examples)
 - [Documentation](#documentation)
 - [Contribution](#contribution)
 - [License](#license)
+
+## Demo
+
+- [https://github.com/micheltlutz/WingedSwiftDemoVapor](https://github.com/micheltlutz/WingedSwiftDemoVapor)
 
 ## Installation
 
