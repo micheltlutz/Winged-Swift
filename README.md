@@ -21,6 +21,7 @@ This library is created to be fully independent, not requiring integration with 
 
 ## Table of Contents
 
+- [Swift Package Index](https://swiftpackageindex.com/micheltlutz/Winged-Swift)
 - [Demo](#demo)
 - [Installation](#installation)
 - [Usage](#usage)
