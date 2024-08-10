@@ -1,7 +1,7 @@
 import Foundation
 
 /// Represents an HTML tag.
-public class HTMLTag {
+open class HTMLTag {
     let name: String
     var attributes: [Attribute]
     var children: [HTMLTag]
