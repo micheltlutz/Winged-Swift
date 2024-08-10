@@ -1,4 +1,7 @@
-// The Swift Programming Language
-// https://docs.swift.org/swift-book
+import Foundation
 
-let WINGED_VERSION = "1.1.0"
+enum WingedSwift: String {
+    case VERSION = "1.1.0"
+    case AUTHOR = "Michel Anderson Lutz Teixeira"
+    case CONTACT = "https://micheltlutz.me"
+}
