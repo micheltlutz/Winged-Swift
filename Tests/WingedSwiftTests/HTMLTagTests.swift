@@ -148,4 +148,17 @@ final class HTMLTagTests: XCTestCase {
         """
         XCTAssertEqual(document.render(), expected)
     }
+    
+    func testHTMLScript() {
+        let document = html {
+            Script(
+                content: "alert('Hello World');"
+            )
+        }
+        
+        let expected = """
+        <html><script type="text/javascript">alert('Hello World');</script></html>
+        """
+        XCTAssertEqual(document.render(), expected)
+    }
 }
