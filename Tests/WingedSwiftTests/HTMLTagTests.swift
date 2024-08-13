@@ -161,4 +161,29 @@ final class HTMLTagTests: XCTestCase {
         """
         XCTAssertEqual(document.render(), expected)
     }
+    
+    func testMetaWithName() {
+        let document = html {
+            Meta(name: "description", content: "A description of the page")
+            Meta(attributes: [Attribute(key: "charset", value: "utf-8")])
+        }
+        
+        let expected = """
+        <html><meta name="description" content="A description of the page" /><meta charset="utf-8" /></html>
+        """
+        XCTAssertEqual(document.render(), expected)
+    }
+    
+    func testHTMLTitle() {
+        let document = html {
+            Title(
+                content: "Title my site"
+            )
+        }
+        
+        let expected = """
+        <html><title>Title my site</title></html>
+        """
+        XCTAssertEqual(document.render(), expected)
+    }
 }
