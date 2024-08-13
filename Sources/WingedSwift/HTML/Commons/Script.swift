@@ -9,7 +9,7 @@ public class Script: HTMLTag {
     ///   - attributes: Additional attributes of the <script> tag.
     ///   - content: The content of the <script> tag.
     public init(type: String = "text/javascript", attributes: [Attribute] = [], content: String? = nil) {
-        var allAttributes: [Attribute] = []
+        var allAttributes = attributes
 
         allAttributes.append(Attribute(key: "type", value: type))
         super.init("script", attributes: allAttributes, content: content)
