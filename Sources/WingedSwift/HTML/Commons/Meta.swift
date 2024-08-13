@@ -14,4 +14,13 @@ public class Meta: HTMLTag {
         allAttributes.append(Attribute(key: "content", value: content))
         super.init("meta", attributes: allAttributes)
     }
+    
+    /// Initializes a new <meta> tag.
+    ///
+    /// - Parameters:
+    ///   - attributes: Additional attributes of the <meta> tag.
+    public init(attributes: [Attribute] = []) {
+        let allAttributes = attributes
+        super.init("meta", attributes: allAttributes)
+    }
 }
