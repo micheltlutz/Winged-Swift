@@ -186,4 +186,37 @@ final class HTMLTagTests: XCTestCase {
         """
         XCTAssertEqual(document.render(), expected)
     }
+    
+    func testHTMLSpan() {
+        let htmlTag = Span()
+            .addAttribute(Attribute(key: "class", value: "text"))
+            .setContent("Hello, World!")
+        
+        let expected = "<span class=\"text\">Hello, World!</span>"
+        XCTAssertEqual(htmlTag.render(), expected)
+    }
+    
+    func testHTMLButton() {
+        let document = html {
+            Button(attributes: [Attribute(key: "class", value: "button-class")])
+        }
+        
+        let expected = """
+        <html><button class="button-class" type="button"></button></html>
+        """
+        XCTAssertEqual(document.render(), expected)
+    }
+    
+    func testHTMLButtonChildren() {
+        let document = html {
+            Button(attributes: [Attribute(key: "class", value: "button-class")], children: [
+                Span(attributes: [Attribute(key: "class", value: "icon-bar")])
+            ])
+        }
+        
+        let expected = """
+        <html><button class="button-class" type="button"><span class="icon-bar"></span></button></html>
+        """
+        XCTAssertEqual(document.render(), expected)
+    }
 }

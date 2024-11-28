@@ -42,7 +42,7 @@ To add WingedSwift to your project, add the following line to your `Package.swif
 
 ```swift
 dependencies: [
-    .package(url: "https://github.com/micheltlutz/Winged-Swift.git", from: "1.1.0")
+    .package(url: "https://github.com/micheltlutz/Winged-Swift.git", from: "1.2.2")
 ]
 ```
 
