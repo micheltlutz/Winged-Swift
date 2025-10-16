@@ -6,7 +6,7 @@ At Winged-Python, we take security seriously. We welcome and appreciate responsi
 
 If you discover a security vulnerability in this project, please follow these steps to report it:
 
-1. **Privately Notify Us**: Please send an email to [michel_lutz@icloud.com](mailto:michel_lutz@icloud.com]) with details of the vulnerability. Please do not disclose the issue publicly until we have had a chance to review and address it.
+1. **Privately Notify Us**: Please send an email to [michel@michetlutz.me](mailto:michel@michetlutz.me]) with details of the vulnerability. Please do not disclose the issue publicly until we have had a chance to review and address it.
 
 2. **Provide Information**: In your email, include a clear description of the vulnerability, steps to reproduce it, and any supporting documentation or proof-of-concept code.
 
@@ -19,6 +19,7 @@ If you discover a security vulnerability in this project, please follow these st
 We strive to support and provide security updates for the latest stable version of Winged-Python. If you are using an older version, we encourage you to update to the latest release to ensure you have access to security patches and enhancements.
 
 ## Security Best Practices
+
 
 To enhance the security of your Winged-Python installation, we recommend following these best practices:
 

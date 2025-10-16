@@ -8,7 +8,8 @@ public class Div: HTMLTag {
     ///   - attributes: The attributes of the <div> tag.
     ///   - children: The children tags of the <div> tag.
     ///   - content: The content of the <div> tag.
-    public init(attributes: [Attribute] = [], children: [HTMLTag] = [], content: String? = nil) {
-        super.init("div", attributes: attributes, children: children, content: content)
+    ///   - escapeContent: If true, escapes HTML special characters in content. Default is true for security.
+    public init(attributes: [Attribute] = [], children: [HTMLTag] = [], content: String? = nil, escapeContent: Bool = true) {
+        super.init("div", attributes: attributes, children: children, content: content, escapeContent: escapeContent)
     }
 }

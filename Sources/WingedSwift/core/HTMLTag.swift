@@ -16,11 +16,16 @@ open class HTMLTag {
     ///   - attributes: The attributes of the HTML tag.
     ///   - children: The children tags of the HTML tag.
     ///   - content: The content of the HTML tag.
-    public init(_ name: String, attributes: [Attribute] = [], children: [HTMLTag] = [], content: String? = nil) {
+    ///   - escapeContent: If true, escapes HTML special characters in content. Default is true for security.
+    public init(_ name: String, attributes: [Attribute] = [], children: [HTMLTag] = [], content: String? = nil, escapeContent: Bool = true) {
         self.name = name
         self.attributes = attributes
         self.children = children
-        self.content = content
+        if let content = content {
+            self.content = escapeContent ? HTMLEscape.escape(content) : content
+        } else {
+            self.content = nil
+        }
     }
     
     /// Adds an attribute to the HTML tag.
@@ -45,18 +50,34 @@ open class HTMLTag {
     
     /// Sets the content of the HTML tag.
     ///
-    /// - Parameter content: The content to be set.
+    /// - Parameters:
+    ///   - content: The content to be set.
+    ///   - escape: If true, escapes HTML special characters. Default is true for security.
     /// - Returns: The HTMLTag instance.
     @discardableResult
-    public func setContent(_ content: String) -> HTMLTag {
-        self.content = content
+    public func setContent(_ content: String, escape: Bool = true) -> HTMLTag {
+        self.content = escape ? HTMLEscape.escape(content) : content
         return self
     }
     
     /// Renders the HTML tag as a string.
     ///
+    /// - Parameters:
+    ///   - pretty: If true, formats the HTML with indentation and line breaks. Default is false.
+    ///   - indentLevel: The current indentation level (used internally for recursion).
     /// - Returns: The rendered HTML string.
-    public func render() -> String {
+    public func render(pretty: Bool = false, indentLevel: Int = 0) -> String {
+        if !pretty {
+            return renderCompact()
+        }
+        
+        return renderPretty(indentLevel: indentLevel)
+    }
+    
+    /// Renders the HTML tag as a compact string (no formatting).
+    ///
+    /// - Returns: The rendered HTML string without formatting.
+    private func renderCompact() -> String {
         var result = "<\(name)"
         
         for attribute in attributes {
@@ -73,9 +94,58 @@ open class HTMLTag {
             }
             
             for child in children {
-                result += child.render()
+                result += child.renderCompact()
             }
             
+            result += "</\(name)>"
+        }
+        
+        return result
+    }
+    
+    /// Renders the HTML tag with pretty formatting (indentation and line breaks).
+    ///
+    /// - Parameter indentLevel: The current indentation level.
+    /// - Returns: The formatted HTML string.
+    private func renderPretty(indentLevel: Int = 0) -> String {
+        let indent = String(repeating: "  ", count: indentLevel)
+        let nextIndent = String(repeating: "  ", count: indentLevel + 1)
+        var result = "\(indent)<\(name)"
+        
+        // Add attributes
+        for attribute in attributes {
+            result += " \(attribute.key)=\"\(attribute.value)\""
+        }
+        
+        // Handle self-closing tags
+        if selfClosingTags.contains(name) {
+            result += " />"
+            return result
+        }
+        
+        result += ">"
+        
+        // Handle inline content (no children)
+        if let content = content, children.isEmpty {
+            result += content
+            result += "</\(name)>"
+            return result
+        }
+        
+        // Handle tags with children
+        if !children.isEmpty {
+            result += "\n"
+            for child in children {
+                result += child.renderPretty(indentLevel: indentLevel + 1)
+                result += "\n"
+            }
+            result += "\(indent)</\(name)>"
+        } else if let content = content {
+            // Content with no children
+            result += "\n\(nextIndent)\(content)\n"
+            result += "\(indent)</\(name)>"
+        } else {
+            // Empty tag
             result += "</\(name)>"
         }
         

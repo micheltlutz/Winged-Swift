@@ -10,8 +10,9 @@ public class Attribute {
     /// - Parameters:
     ///   - key: The attribute name.
     ///   - value: The attribute value.
-    public init(key: String, value: String) {
+    ///   - escape: If true, escapes HTML special characters in the value. Default is true for security.
+    public init(key: String, value: String, escape: Bool = true) {
         self.key = key
-        self.value = value
+        self.value = escape ? HTMLEscape.escapeAttribute(value) : value
     }
 }

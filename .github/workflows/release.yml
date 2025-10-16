@@ -1,0 +1,64 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - 'v*.*.*'
+
+jobs:
+  create-release:
+    name: Create Release
+    runs-on: macos-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
+    
+    - name: Setup Swift
+      uses: swift-actions/setup-swift@v2
+      with:
+        swift-version: '5.10'
+    
+    - name: Build
+      run: swift build -c release
+    
+    - name: Run tests
+      run: swift test
+    
+    - name: Extract version from tag
+      id: get_version
+      run: echo "VERSION=${GITHUB_REF#refs/tags/v}" >> $GITHUB_OUTPUT
+    
+    - name: Extract changelog for this version
+      id: changelog
+      run: |
+        VERSION="${{ steps.get_version.outputs.VERSION }}"
+        CHANGELOG=$(sed -n "/## \[$VERSION\]/,/## \[/p" CHANGELOG.md | sed '$d')
+        echo "CHANGELOG<<EOF" >> $GITHUB_OUTPUT
+        echo "$CHANGELOG" >> $GITHUB_OUTPUT
+        echo "EOF" >> $GITHUB_OUTPUT
+    
+    - name: Create Release
+      uses: actions/create-release@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        tag_name: ${{ github.ref }}
+        release_name: Release ${{ steps.get_version.outputs.VERSION }}
+        body: |
+          ## What's Changed
+          
+          ${{ steps.changelog.outputs.CHANGELOG }}
+          
+          ## Installation
+          
+          ```swift
+          .package(url: "https://github.com/micheltlutz/Winged-Swift.git", from: "${{ steps.get_version.outputs.VERSION }}")
+          ```
+          
+          **Full Changelog**: https://github.com/${{ github.repository }}/compare/v${{ steps.get_version.outputs.VERSION }}...main
+        draft: false
+        prerelease: false
+
