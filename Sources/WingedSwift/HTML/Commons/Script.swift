@@ -8,10 +8,11 @@ public class Script: HTMLTag {
     ///   - type: The typeof script default is `text/javascript`.
     ///   - attributes: Additional attributes of the <script> tag.
     ///   - content: The content of the <script> tag.
-    public init(type: String = "text/javascript", attributes: [Attribute] = [], content: String? = nil) {
+    ///   - escapeContent: If true, escapes HTML special characters in content. Default is false for script tags.
+    public init(type: String = "text/javascript", attributes: [Attribute] = [], content: String? = nil, escapeContent: Bool = false) {
         var allAttributes = attributes
 
-        allAttributes.append(Attribute(key: "type", value: type))
-        super.init("script", attributes: allAttributes, content: content)
+        allAttributes.append(Attribute(key: "type", value: type, escape: false))
+        super.init("script", attributes: allAttributes, content: content, escapeContent: escapeContent)
     }
 }

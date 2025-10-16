@@ -1,30 +1,75 @@
-name: Run Tests
+name: Tests
 
 on:
   push:
-    branches: [ "main" ]
+    branches: [ main, develop ]
   pull_request:
-    branches: [ "main" ]
+    branches: [ main, develop ]
 
 jobs:
   test:
-    runs-on: macos-latest
-
+    name: Test on ${{ matrix.os }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ubuntu-latest, macos-latest]
+        swift-version: ['5.9', '5.10']
+    
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
-
-      - name: Build
-        run: swift build
-
-      - name: Run Tests
-        run: swift test --enable-code-coverage
-
-      - name: Generate coverage report
-        run: xcrun llvm-cov export -format=lcov .build/debug/WingedSwiftPackageTests.xctest/Contents/MacOS/WingedSwiftPackageTests -instr-profile=.build/debug/codecov/default.profdata > coverage.lcov
-
-      - name: Upload coverage reports to Codecov
-        uses: codecov/codecov-action@v4.0.1
-        with:
-          files: coverage.lcov
-          token: ${{ secrets.CODECOV_TOKEN }}
+    - name: Checkout code
+      uses: actions/checkout@v4
+    
+    - name: Setup Swift
+      uses: swift-actions/setup-swift@v2
+      with:
+        swift-version: ${{ matrix.swift-version }}
+    
+    - name: Swift version
+      run: swift --version
+    
+    - name: Build
+      run: swift build -v
+    
+    - name: Run tests
+      run: swift test -v
+  
+  coverage:
+    name: Code Coverage
+    runs-on: macos-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+    
+    - name: Setup Swift
+      uses: swift-actions/setup-swift@v2
+      with:
+        swift-version: '5.10'
+    
+    - name: Run tests with coverage
+      run: swift test --enable-code-coverage
+    
+    - name: Generate coverage report
+      run: |
+        xcrun llvm-cov export -format="lcov" \
+          .build/debug/WingedSwiftPackageTests.xctest/Contents/MacOS/WingedSwiftPackageTests \
+          -instr-profile .build/debug/codecov/default.profdata > coverage.lcov
+    
+    - name: Upload coverage to Codecov
+      uses: codecov/codecov-action@v4
+      with:
+        files: ./coverage.lcov
+        token: ${{ secrets.CODECOV_TOKEN }}
+        fail_ci_if_error: false
+  
+  lint:
+    name: SwiftLint
+    runs-on: macos-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+    
+    - name: SwiftLint
+      uses: norio-nomura/action-swiftlint@3.2.1
+      continue-on-error: true

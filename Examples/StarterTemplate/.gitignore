@@ -1,0 +1,31 @@
+# Swift
+.build/
+.swiftpm/
+*.xcodeproj
+*.xcworkspace
+DerivedData/
+*.ipa
+*.dSYM.zip
+*.dSYM
+
+# Build output
+dist/
+*.generated.*
+
+# macOS
+.DS_Store
+._*
+.Spotlight-V100
+.Trashes
+
+# IDEs
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# Dependencies
+Packages/
+Package.resolved
+

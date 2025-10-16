@@ -6,7 +6,7 @@ At Winged-Python, we take security seriously. We welcome and appreciate responsi
 
 If you discover a security vulnerability in this project, please follow these steps to report it:
 
-1. **Privately Notify Us**: Please send an email to [michel_lutz@icloud.com](mailto:michel_lutz@icloud.com]) with details of the vulnerability. Please do not disclose the issue publicly until we have had a chance to review and address it.
+1. **Privately Notify Us**: Please send an email to [michel@michetlutz.me](mailto:michel@michetlutz.me]) with details of the vulnerability. Please do not disclose the issue publicly until we have had a chance to review and address it.
 
 2. **Provide Information**: In your email, include a clear description of the vulnerability, steps to reproduce it, and any supporting documentation or proof-of-concept code.
 

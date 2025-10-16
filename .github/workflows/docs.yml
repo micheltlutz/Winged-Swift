@@ -1,0 +1,37 @@
+name: Documentation
+
+on:
+  push:
+    branches: [ main ]
+  workflow_dispatch:
+
+jobs:
+  build-docs:
+    name: Build and Deploy Documentation
+    runs-on: macos-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+    
+    - name: Setup Swift
+      uses: swift-actions/setup-swift@v2
+      with:
+        swift-version: '5.10'
+    
+    - name: Build documentation
+      run: |
+        swift package --allow-writing-to-directory ./docs \
+          generate-documentation --target WingedSwift \
+          --output-path ./docs \
+          --transform-for-static-hosting \
+          --hosting-base-path Winged-Swift
+    
+    - name: Deploy to GitHub Pages
+      uses: peaceiris/actions-gh-pages@v3
+      if: github.ref == 'refs/heads/main'
+      with:
+        github_token: ${{ secrets.GITHUB_TOKEN }}
+        publish_dir: ./docs
+        force_orphan: true
+
