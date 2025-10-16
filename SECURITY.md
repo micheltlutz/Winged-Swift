@@ -20,6 +20,7 @@ We strive to support and provide security updates for the latest stable version 
 
 ## Security Best Practices
 
+
 To enhance the security of your Winged-Python installation, we recommend following these best practices:
 
 - Keep your dependencies up to date.
