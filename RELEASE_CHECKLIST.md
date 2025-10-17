@@ -132,7 +132,9 @@ let package = Package(
     targets: [
         .executableTarget(
             name: "TestWingedSwift",
-            dependencies: ["WingedSwift"]
+            dependencies: [
+                .product(name: "WingedSwift", package: "Winged-Swift")
+            ]
         )
     ]
 )

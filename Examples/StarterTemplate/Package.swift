@@ -12,7 +12,9 @@ let package = Package(
     targets: [
         .executableTarget(
             name: "MyStaticSite",
-            dependencies: ["WingedSwift"],
+            dependencies: [
+                .product(name: "WingedSwift", package: "Winged-Swift")
+            ],
             path: "Sources"
         )
     ]

@@ -172,7 +172,10 @@ And include `WingedSwift` as a dependency in your target:
 targets: [
     .target(
         name: "YourTarget",
-        dependencies: ["WingedSwift"]),
+        dependencies: [
+            .product(name: "WingedSwift", package: "Winged-Swift")
+        ]
+    )
 ]
 ```
 
@@ -291,7 +294,9 @@ let package = Package(
     targets: [
         .executableTarget(
             name: "WingedSwiftTest",
-            dependencies: ["WingedSwift"]
+            dependencies: [
+                .product(name: "WingedSwift", package: "Winged-Swift")
+            ]
         )
     ]
 )
