@@ -1,4 +1,3 @@
-
 import Foundation
 
 /// A generator for creating static HTML files from HTMLTag structures.
