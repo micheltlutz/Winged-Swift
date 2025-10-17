@@ -7,30 +7,35 @@ on:
     branches: [ main, develop ]
 
 jobs:
-  test:
-    name: Test on ${{ matrix.os }} with Swift ${{ matrix.swift-version }}
-    runs-on: ${{ matrix.os }}
-    strategy:
-      fail-fast: false
-      matrix:
-        os: [ubuntu-latest, macos-13]
-        swift-version: ['5.9', '5.10']
+  test-macos:
+    name: Test on macOS
+    runs-on: macos-13
     
     steps:
     - name: Checkout code
       uses: actions/checkout@v4
     
-    - name: Setup Swift (Linux)
-      if: runner.os == 'Linux'
-      uses: swift-actions/setup-swift@v2
-      with:
-        swift-version: ${{ matrix.swift-version }}
+    - name: Swift version
+      run: swift --version
     
-    - name: Setup Swift (macOS)
-      if: runner.os == 'macOS'
-      run: |
-        # Use system Swift on macOS to avoid Xcode compatibility issues
-        swift --version
+    - name: Build
+      run: swift build -v
+    
+    - name: Run tests
+      run: swift test -v
+  
+  test-linux:
+    name: Test on Linux
+    runs-on: ubuntu-latest
+    container:
+      image: swift:5.10
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+    
+    - name: Swift version
+      run: swift --version
     
     - name: Build
       run: swift build -v
