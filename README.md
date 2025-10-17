@@ -3,12 +3,8 @@
 ![main](https://github.com/micheltlutz/Winged-Swift/actions/workflows/tests.yml/badge.svg?branch=main)
 [![codecov](https://codecov.io/gh/micheltlutz/Winged-Swift/graph/badge.svg?token=3pxQp1KgnV)](https://codecov.io/gh/micheltlutz/Winged-Swift)
 [![Reviewed by Hound](https://img.shields.io/badge/Reviewed_by-Hound-8E64B0.svg)](https://houndci.com)
-
-
 ![Swift Versions](https://img.shields.io/badge/Swift-5.5%2B-orange.svg?style=flat)
 [![Platform Compatibility](https://img.shields.io/endpoint?url=https://swiftpackageindex.com/api/packages/micheltlutz/Winged-Swift/badge?type=platforms)](https://swiftpackageindex.com/micheltlutz/Winged-Swift)
-
-
 [![](https://img.shields.io/endpoint?url=https://swiftpackageindex.com/api/packages/micheltlutz/Winged-Swift/badge?type=swift-versions)](https://swiftpackageindex.com/micheltlutz/Winged-Swift)
 
 
@@ -29,9 +25,9 @@ This library is created to be fully independent, not requiring integration with 
 - 🌍 **Cross-Platform**: Works on macOS, Linux, and Windows
 - 🤝 **Open Source**: MIT licensed, contributions welcome!
 
-## 🙋‍♂️ We Need Your Help!
+## 🙋‍♂️ I Need Your Help!
 
-WingedSwift is an **open-source project** maintained by the community. We're actively looking for contributors! Whether you're:
+WingedSwift is an **open-source project** maintained by the community. I actively looking for contributors! Whether you're:
 
 - 🐛 A bug hunter
 - ✨ A feature enthusiast  
@@ -734,8 +730,9 @@ Check our [Issues](https://github.com/micheltlutz/Winged-Swift/issues) for:
 
 - 💭 **Discussions**: [GitHub Discussions](https://github.com/micheltlutz/Winged-Swift/discussions)
 - 🐛 **Issues**: [Report bugs or request features](https://github.com/micheltlutz/Winged-Swift/issues)
-- 📧 **Email**: Contact via [micheltlutz.me](https://micheltlutz.me)
-- 🐦 **Twitter**: [@micheltlutz](https://twitter.com/micheltlutz)
+- 📧 **Email**: Contact via [michel@micheltlutz.me](mailto:michel@micheltlutz.me)
+- 📧 **Site**:[micheltlutz.me](https://michel@micheltlutz.me)
+- 📧 **Linkedin**:[My Linkedin](https://www.linkedin.com/in/michellutz/)
 
 ### Stay Updated
 
