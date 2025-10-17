@@ -61,7 +61,7 @@ WingedSwift is an **open-source project** maintained by the community. I activel
 
 ```swift
 // 1. Add to Package.swift
-.package(url: "https://github.com/micheltlutz/Winged-Swift.git", from: "1.3.2")
+.package(url: "https://github.com/micheltlutz/Winged-Swift.git", from: "1.3.3")
 
 // 2. Import and use
 import WingedSwift
@@ -161,7 +161,7 @@ To add WingedSwift to your project, add the following line to your `Package.swif
 
 ```swift
 dependencies: [
-    .package(url: "https://github.com/micheltlutz/Winged-Swift.git", from: "1.3.2")
+    .package(url: "https://github.com/micheltlutz/Winged-Swift.git", from: "1.3.3")
 ]
 ```
 
@@ -642,7 +642,7 @@ The complete documentation is available [here soon]().
 To generate the DocC documentation, use the following command in the terminal:
 
 ```bash
-swift package generate-documentation --target WingedSwift --output-path ./docs
+swift package --allow-writing-to-directory ./docs generate-documentation --target WingedSwift --output-path ./docs
 ```
 
 ```bash
@@ -711,7 +711,7 @@ Please note that this project is released with a [Code of Conduct](CODE_OF_CONDU
 
 WingedSwift is actively maintained and welcoming contributions!
 
-- ✅ **Current Version**: 1.3.2
+- ✅ **Current Version**: 1.3.3
 - 🚀 **Status**: Active Development
 - 📈 **Test Coverage**: High
 - 🔄 **Release Cycle**: Regular updates
