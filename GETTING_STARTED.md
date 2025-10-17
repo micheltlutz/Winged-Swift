@@ -49,7 +49,7 @@ import PackageDescription
 let package = Package(
     name: "MeuSiteSwift",
     dependencies: [
-        .package(url: "https://github.com/micheltlutz/Winged-Swift.git", from: "1.3.0")
+        .package(url: "https://github.com/micheltlutz/Winged-Swift.git", from: "1.3.2")
     ],
     targets: [
         .executableTarget(

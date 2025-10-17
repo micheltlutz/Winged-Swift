@@ -86,7 +86,7 @@ Edite `Package.swift`:
 
 ```swift
 dependencies: [
-    .package(url: "https://github.com/micheltlutz/Winged-Swift.git", from: "1.3.0")
+    .package(url: "https://github.com/micheltlutz/Winged-Swift.git", from: "1.3.2")
 ]
 ```
 
@@ -142,7 +142,7 @@ git tag -d v1.3.0
 
 # Recriar
 git tag -a v1.3.0 -m "Release v1.3.0"
-git push origin v1.3.0
+git push origin v1.3.1
 ```
 
 ### "Updates were rejected"
