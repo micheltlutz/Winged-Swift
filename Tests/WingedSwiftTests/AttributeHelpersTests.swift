@@ -84,4 +84,3 @@ final class AttributeHelpersTests: XCTestCase {
         XCTAssertTrue(result.contains("required=\"true\""))
     }
 }
-

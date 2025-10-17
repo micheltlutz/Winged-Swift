@@ -19,7 +19,7 @@ let layout = SiteLayout(
 let homePage = layout.render(
     title: "Home",
     currentPage: "home",
-    content: Main(children: [
+    content: MainTag(children: [
         Section(children: [
             Div(children: [
                 H2(content: "Bem-vindo! 🎉"),
@@ -58,7 +58,7 @@ let homePage = layout.render(
 let aboutPage = layout.render(
     title: "Sobre",
     currentPage: "about",
-    content: Main(children: [
+    content: MainTag(children: [
         Article(children: [
             H2(content: "Sobre Este Site"),
             P(content: "Este site foi criado usando WingedSwift, uma biblioteca Swift para geração de HTML."),
@@ -80,7 +80,9 @@ try generator.generate(page: homePage, to: "index.html", pretty: true)
 try generator.generate(page: aboutPage, to: "about.html", pretty: true)
 
 // Copiar assets
-try generator.copyAsset(from: "./Assets", to: ".")
+try generator.copyAsset(from: "./Assets/css", to: "css")
+// Descomentar se você tiver imagens:
+// try generator.copyAsset(from: "./Assets/images", to: "images")
 
 // Gerar sitemap
 let sitemapUrls = [
@@ -96,7 +98,7 @@ print("🌐 Para visualizar: cd dist && python3 -m http.server 8000")
 
 // === HELPERS ===
 
-func createFeatureCard(icon: String, title: String, description: String) -> Div {
+func createFeatureCard(icon: String, title: String, description: String) -> HTMLTag {
     return Div(children: [
         Div(content: icon, escapeContent: false).addClass("feature-icon"),
         H3(content: title),

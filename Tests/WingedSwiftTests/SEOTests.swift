@@ -119,4 +119,3 @@ final class SEOTests: XCTestCase {
         XCTAssertTrue(result.contains("charset=\"UTF-8\""))
     }
 }
-

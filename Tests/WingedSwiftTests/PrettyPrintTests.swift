@@ -58,4 +58,3 @@ final class PrettyPrintTests: XCTestCase {
         XCTAssertTrue(result.contains("/>"))
     }
 }
-

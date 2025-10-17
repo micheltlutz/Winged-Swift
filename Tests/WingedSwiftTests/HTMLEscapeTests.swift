@@ -69,4 +69,3 @@ final class HTMLEscapeTests: XCTestCase {
         XCTAssertEqual(escaped, "value with &quot;quotes&quot;")
     }
 }
-

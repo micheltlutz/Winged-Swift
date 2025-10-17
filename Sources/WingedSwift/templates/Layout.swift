@@ -52,4 +52,3 @@ extension Layout {
         return render(content: container)
     }
 }
-

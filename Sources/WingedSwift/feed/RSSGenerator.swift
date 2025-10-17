@@ -102,7 +102,7 @@ public class RSSGenerator {
     public let managingEditor: String?
     
     /// The email address for the webmaster (optional).
-    public let webMaster: String?
+    public let webmaster: String?
     
     /// Initializes a new RSS generator.
     ///
@@ -113,7 +113,7 @@ public class RSSGenerator {
     ///   - language: The language of the feed (optional).
     ///   - copyright: The copyright notice (optional).
     ///   - managingEditor: The managing editor email (optional).
-    ///   - webMaster: The webmaster email (optional).
+    ///   - webmaster: The webmaster email (optional).
     public init(
         title: String,
         link: String,
@@ -121,7 +121,7 @@ public class RSSGenerator {
         language: String? = nil,
         copyright: String? = nil,
         managingEditor: String? = nil,
-        webMaster: String? = nil
+        webmaster: String? = nil
     ) {
         self.title = title
         self.link = link
@@ -129,7 +129,7 @@ public class RSSGenerator {
         self.language = language
         self.copyright = copyright
         self.managingEditor = managingEditor
-        self.webMaster = webMaster
+        self.webmaster = webmaster
     }
     
     /// Generates the RSS feed XML.
@@ -157,8 +157,8 @@ public class RSSGenerator {
             xml += "    <managingEditor>\(escapeXML(managingEditor))</managingEditor>\n"
         }
         
-        if let webMaster = webMaster {
-            xml += "    <webMaster>\(escapeXML(webMaster))</webMaster>\n"
+        if let webmaster = webmaster {
+            xml += "    <webMaster>\(escapeXML(webmaster))</webMaster>\n"
         }
         
         // Add items
@@ -206,4 +206,3 @@ public class RSSGenerator {
         return result
     }
 }
-

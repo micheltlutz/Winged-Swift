@@ -12,4 +12,3 @@ public class H2: HTMLTag {
         super.init("h2", attributes: attributes, content: content, escapeContent: escapeContent)
     }
 }
-

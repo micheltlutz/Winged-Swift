@@ -48,17 +48,15 @@ import PackageDescription
 
 let package = Package(
     name: "MeuSiteSwift",
-    platforms: [
-        .macOS(.v13)
-    ],
     dependencies: [
-        // Adicionar WingedSwift
-        .package(url: "https://github.com/micheltlutz/Winged-Swift.git", from: "1.3.0")
+        .package(url: "https://github.com/micheltlutz/Winged-Swift.git", from: "1.3.2")
     ],
     targets: [
         .executableTarget(
             name: "MeuSiteSwift",
-            dependencies: ["WingedSwift"]
+            dependencies: [
+                .product(name: "WingedSwift", package: "Winged-Swift")
+            ]
         )
     ]
 )
@@ -92,7 +90,7 @@ let homePage = html {
         ])
         .addClass("header"),
         
-        Main(children: [
+        MainTag(children: [
             Article(children: [
                 H2(content: "Sobre este site"),
                 P(content: "Este é um site estático gerado com Swift usando WingedSwift!"),
@@ -255,7 +253,7 @@ import WingedSwift
 
 struct HomePage {
     static func create(layout: BaseLayout) -> HTMLTag {
-        let content = Main(children: [
+        let content = MainTag(children: [
             Article(children: [
                 H2(content: "Bem-vindo!"),
                 P(content: "Este é um exemplo de site gerado com WingedSwift."),
@@ -386,7 +384,7 @@ let layout = BaseLayout(
 // === PÁGINAS ===
 
 // Home
-let homePage = layout.render(content: Main(children: [
+let homePage = layout.render(content: MainTag(children: [
     Article(children: [
         H2(content: "Últimos Posts"),
         Ul(children: [
@@ -398,7 +396,7 @@ let homePage = layout.render(content: Main(children: [
 ]).addClass("container"))
 
 // Post 1
-let post1 = layout.render(content: Main(children: [
+let post1 = layout.render(content: MainTag(children: [
     Article(children: [
         H2(content: "Meu Primeiro Post"),
         Time(datetime: "2024-10-16", content: "16 de Outubro, 2024"),
@@ -408,7 +406,7 @@ let post1 = layout.render(content: Main(children: [
 ]).addClass("container"))
 
 // Sobre
-let aboutPage = layout.render(content: Main(children: [
+let aboutPage = layout.render(content: MainTag(children: [
     Article(children: [
         H2(content: "Sobre Mim"),
         P(content: "Desenvolvedor Swift apaixonado por criar sites estáticos!"),

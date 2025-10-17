@@ -10,13 +10,14 @@ Este diretório contém os workflows do GitHub Actions para o projeto WingedSwif
 
 **O que faz:**
 - ✅ Roda testes em múltiplos sistemas operacionais (Ubuntu, macOS)
-- ✅ Testa com múltiplas versões do Swift (5.9, 5.10)
+- ✅ Usa Docker container oficial do Swift para Linux
 - ✅ Gera relatórios de cobertura de código
 - ✅ Envia cobertura para Codecov
 - ✅ Executa SwiftLint para verificação de código
 
 **Jobs:**
-- `test`: Executa testes em matriz de OS e versões Swift
+- `test-macos`: Executa testes no macOS 13
+- `test-linux`: Executa testes no Ubuntu com Swift Docker (swift:5.10)
 - `coverage`: Gera e envia cobertura de código
 - `lint`: Verifica qualidade do código com SwiftLint
 

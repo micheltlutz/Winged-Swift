@@ -14,4 +14,3 @@ public class Mark: HTMLTag {
         super.init("mark", attributes: attributes, content: content, escapeContent: escapeContent)
     }
 }
-

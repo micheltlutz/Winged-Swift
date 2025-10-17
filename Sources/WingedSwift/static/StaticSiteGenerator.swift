@@ -151,4 +151,3 @@ public class StaticSiteGenerator {
         try content.write(toFile: fullPath, atomically: true, encoding: .utf8)
     }
 }
-

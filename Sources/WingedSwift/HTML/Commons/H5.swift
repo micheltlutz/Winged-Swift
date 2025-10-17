@@ -12,4 +12,3 @@ public class H5: HTMLTag {
         super.init("h5", attributes: attributes, content: content, escapeContent: escapeContent)
     }
 }
-

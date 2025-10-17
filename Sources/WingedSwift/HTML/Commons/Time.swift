@@ -19,4 +19,3 @@ public class Time: HTMLTag {
         super.init("time", attributes: allAttributes, content: content, escapeContent: escapeContent)
     }
 }
-

@@ -13,4 +13,3 @@ public class Article: HTMLTag {
         super.init("article", attributes: attributes, children: children)
     }
 }
-
