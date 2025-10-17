@@ -26,7 +26,7 @@ class SiteLayout: Layout {
                 Header(children: [
                     Nav(children: [
                         Div(children: [
-                            A(href: "index.html", content: siteName, escapeContent: false)
+                            A(href: "index.html", content: siteName)
                                 .addClass("logo")
                         ]),
                         Ul(children: [
@@ -53,7 +53,7 @@ class SiteLayout: Layout {
                     P(children: [
                         HTMLTag("span", content: "Criado com ", escapeContent: false),
                         A(href: "https://github.com/micheltlutz/Winged-Swift", 
-                          content: "WingedSwift", escapeContent: false),
+                          content: "WingedSwift"),
                         HTMLTag("span", content: " 🚀", escapeContent: false)
                     ])
                 ])
