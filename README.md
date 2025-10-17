@@ -46,15 +46,17 @@ WingedSwift is an **open-source project** maintained by the community. We're act
 - [Why WingedSwift?](#-why-wingedswift)
 - [We Need Your Help!](#️-we-need-your-help)
 - [Quick Start](#-quick-start)
-- [Getting Started Guide](#-getting-started-from-scratch)
+- [Getting Started from Scratch](#-getting-started-from-scratch)
 - [Installation](#installation)
-  - [Production Use](#swift-package-manager-production)
-  - [Local Development](#local-development-for-contributors)
 - [Demo](#demo)
 - [Usage](#usage)
 - [Features](#features)
+- [Platform Support](#-platform-support)
 - [Documentation](#documentation)
 - [Contributing](#-contributing)
+- [Project Status](#-project-status)
+- [Community & Support](#-community--support)
+- [Changelog](#-changelog)
 - [License](#license)
 
 ## 🚀 Quick Start
@@ -63,7 +65,7 @@ WingedSwift is an **open-source project** maintained by the community. We're act
 
 ```swift
 // 1. Add to Package.swift
-.package(url: "https://github.com/micheltlutz/Winged-Swift.git", from: "1.3.0")
+.package(url: "https://github.com/micheltlutz/Winged-Swift.git", from: "1.3.2")
 
 // 2. Import and use
 import WingedSwift
@@ -163,7 +165,7 @@ To add WingedSwift to your project, add the following line to your `Package.swif
 
 ```swift
 dependencies: [
-    .package(url: "https://github.com/micheltlutz/Winged-Swift.git", from: "1.3.0")
+    .package(url: "https://github.com/micheltlutz/Winged-Swift.git", from: "1.3.2")
 ]
 ```
 
@@ -190,150 +192,24 @@ To include in Vapor project use this line code in `executableTarget`:
 
 ### Local Development (For Contributors)
 
-If you want to contribute or use a local version during development:
-
-#### 1. Fork and Clone
+Want to contribute? Here's how to test your changes locally:
 
 ```bash
-# Fork the repository on GitHub first, then:
+# 1. Fork and clone
 git clone https://github.com/YOUR_USERNAME/Winged-Swift.git
 cd Winged-Swift
 
-# Add upstream remote
-git remote add upstream https://github.com/micheltlutz/Winged-Swift.git
-```
+# 2. Test it works
+swift build && swift test
 
-#### 2. Use Local Package in Your Project
-
-In your project's `Package.swift`, reference the local path:
-
-```swift
-// Option A: Using local path
+# 3. Use in your test project
+# In your project's Package.swift:
 dependencies: [
-    .package(path: "../Winged-Swift")  // Relative path to local WingedSwift
-]
-
-// Option B: Using file URL
-dependencies: [
-    .package(url: "file:///Users/YOUR_USERNAME/Developer/Winged-Swift", branch: "main")
+    .package(path: "../Winged-Swift")
 ]
 ```
 
-#### 3. Development Workflow
-
-```bash
-# Create a feature branch
-cd Winged-Swift
-git checkout -b feature/my-awesome-feature
-
-# Make your changes and test
-swift build
-swift test
-
-# Commit and push
-git add .
-git commit -m "Add: my awesome feature"
-git push origin feature/my-awesome-feature
-
-# Create Pull Request on GitHub
-```
-
-#### 4. Keep Your Fork Updated
-
-```bash
-# Fetch latest changes from upstream
-git fetch upstream
-
-# Merge upstream changes to your main branch
-git checkout main
-git merge upstream/main
-
-# Push updates to your fork
-git push origin main
-```
-
-### Xcode Project Setup
-
-You can also open the package directly in Xcode:
-
-```bash
-cd Winged-Swift
-open Package.swift
-```
-
-Or use Xcode's File → Open → select `Package.swift`
-
-### Testing Your Changes in a Real Project
-
-Create a test project to validate your changes:
-
-```bash
-# 1. Create a test project directory
-mkdir ~/WingedSwiftTest
-cd ~/WingedSwiftTest
-
-# 2. Initialize a new Swift package
-swift package init --type executable
-
-# 3. Edit Package.swift to use your local WingedSwift
-```
-
-Edit `Package.swift`:
-
-```swift
-// swift-tools-version: 5.9
-import PackageDescription
-
-let package = Package(
-    name: "WingedSwiftTest",
-    dependencies: [
-        // Use your local fork for testing
-        .package(path: "../Winged-Swift")
-        // Or use file URL
-        // .package(url: "file:///Users/YOUR_USERNAME/Developer/Winged-Swift", branch: "feature/my-feature")
-    ],
-    targets: [
-        .executableTarget(
-            name: "WingedSwiftTest",
-            dependencies: [
-                .product(name: "WingedSwift", package: "Winged-Swift")
-            ]
-        )
-    ]
-)
-```
-
-Edit `Sources/main.swift`:
-
-```swift
-import WingedSwift
-
-// Test your changes here
-let page = html {
-    Head(children: [
-        Meta(charset: "UTF-8"),
-        Title(content: "Testing WingedSwift")
-    ])
-    Body(children: [
-        H1(content: "Testing My Changes"),
-        P(content: "This is a test of my new feature!")
-    ])
-}
-
-print(page.render(pretty: true))
-```
-
-Run your test:
-
-```bash
-swift run
-```
-
-This workflow allows you to:
-- ✅ Test your changes in a real-world scenario
-- ✅ Verify the API is user-friendly
-- ✅ Catch integration issues early
-- ✅ Ensure documentation matches implementation
+**For complete development workflow**, see [CONTRIBUTING.md](CONTRIBUTING.md)
 
 ## Usage
 
@@ -788,150 +664,58 @@ swift package --disable-sandbox preview-documentation --target WingedSwift
 
 ## 🤝 Contributing
 
-**WingedSwift is an open-source project and we welcome contributions from the community!** Whether you're fixing bugs, adding features, improving documentation, or sharing ideas, your help is appreciated.
+**We love contributions!** WingedSwift is an open-source project and your help makes it better.
 
-### Ways to Contribute
-
-- 🐛 **Report Bugs**: Open an issue with details about the problem
-- ✨ **Suggest Features**: Share your ideas for new functionality
-- 📝 **Improve Documentation**: Help make our docs clearer and more comprehensive
-- 🔧 **Submit Code**: Fix bugs or implement new features
-- 💬 **Help Others**: Answer questions in issues and discussions
-- 🌍 **Translate**: Help translate documentation to other languages
-
-### Getting Started with Contributions
-
-#### 1. Set Up Your Development Environment
+### Quick Start for Contributors
 
 ```bash
-# Fork the repository on GitHub
-# Clone your fork
+# 1. Fork & Clone
 git clone https://github.com/YOUR_USERNAME/Winged-Swift.git
 cd Winged-Swift
 
-# Add upstream remote
-git remote add upstream https://github.com/micheltlutz/Winged-Swift.git
+# 2. Verify it works
+swift build && swift test
 
-# Install dependencies and verify everything works
-swift build
-swift test
+# 3. Create a feature branch
+git checkout -b feature/my-awesome-feature
+
+# 4. Make changes, test, and submit PR
 ```
 
-#### 2. Create a Feature Branch
+### Ways to Contribute
 
-```bash
-# Always create a new branch for your changes
-git checkout -b feature/my-feature-name
+- 🐛 **Report Bugs** - Open an issue
+- ✨ **Request Features** - Share your ideas
+- 🔧 **Submit Code** - Fix bugs or add features
+- 📝 **Improve Docs** - Help others understand
+- 💬 **Help Others** - Answer questions
+- 🌍 **Translate** - Make it accessible worldwide
 
-# Or for bug fixes
-git checkout -b fix/bug-description
-```
+### **📖 Read the Complete Guide**
 
-#### 3. Make Your Changes
+For detailed instructions on:
+- Setting up your development environment
+- Code style guidelines
+- Testing requirements
+- Commit message format
+- Pull request process
+- And much more...
 
-- Write clean, readable code following Swift conventions
-- Add tests for new functionality
-- Update documentation as needed
-- Run tests to ensure nothing breaks: `swift test`
-- Format your code consistently
-
-#### 4. Test Your Changes
-
-```bash
-# Run all tests
-swift test
-
-# Build the project
-swift build
-
-# Test with your own example project using local path
-# (See "Local Development" section above)
-```
-
-#### 5. Commit and Push
-
-```bash
-# Stage your changes
-git add .
-
-# Commit with a clear message
-git commit -m "Add: support for new HTML tag XYZ"
-# or
-git commit -m "Fix: XSS escaping issue in attributes"
-# or
-git commit -m "Docs: improve SEO helpers examples"
-
-# Push to your fork
-git push origin feature/my-feature-name
-```
-
-#### 6. Open a Pull Request
-
-1. Go to your fork on GitHub
-2. Click "New Pull Request"
-3. Select your branch
-4. Fill in the PR template with:
-   - Description of changes
-   - Why the change is needed
-   - Any related issues
-   - Testing performed
-5. Submit and wait for review
-
-### Commit Message Guidelines
-
-Use clear, descriptive commit messages:
-
-- **Add**: `Add: new Feature component`
-- **Fix**: `Fix: escape HTML in attribute values`
-- **Update**: `Update: SEO helpers with new OG tags`
-- **Docs**: `Docs: add examples for Layout system`
-- **Test**: `Test: add tests for Pretty Print feature`
-- **Refactor**: `Refactor: simplify HTMLTag rendering logic`
-
-### Code Style Guidelines
-
-- Follow Swift API Design Guidelines
-- Use meaningful variable and function names
-- Add documentation comments for public APIs
-- Keep functions focused and single-purpose
-- Write tests for new features
-- Ensure all tests pass before submitting PR
-
-### Testing
-
-We aim for high test coverage. When adding features:
-
-```bash
-# Run tests
-swift test
-
-# Run specific test
-swift test --filter HTMLEscapeTests
-
-# Generate test coverage (requires additional tools)
-swift test --enable-code-coverage
-```
-
-### Need Help?
-
-- 📖 Check [CONTRIBUTING.md](CONTRIBUTING.md) for detailed guidelines
-- 💬 Open a Discussion for questions
-- 📧 Contact: [Michel Lutz](https://micheltlutz.me)
-- 🐦 Twitter: [@micheltlutz](https://twitter.com/micheltlutz)
+**See our complete [Contributing Guide](CONTRIBUTING.md)**
 
 ### Recognition
 
-All contributors will be recognized in our repository. Thank you for helping make WingedSwift better! 🙏
+All contributors are recognized in our release notes. Thank you for making WingedSwift better! 🙏
 
 ### Code of Conduct
 
-Please note that this project is released with a [Contributor Code of Conduct](CODE_OF_CONDUCT.md). By participating in this project you agree to abide by its terms.
+Please note that this project is released with a [Code of Conduct](CODE_OF_CONDUCT.md). By participating, you agree to abide by its terms.
 
 ## 📊 Project Status
 
 WingedSwift is actively maintained and welcoming contributions!
 
-- ✅ **Current Version**: 1.3.0
+- ✅ **Current Version**: 1.3.2
 - 🚀 **Status**: Active Development
 - 📈 **Test Coverage**: High
 - 🔄 **Release Cycle**: Regular updates
