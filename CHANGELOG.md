@@ -92,6 +92,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **XSS Protection**: All user content is now automatically escaped by default
 - Attribute values are also escaped to prevent injection attacks
 
+### Platform Support
+- **Cross-Platform**: Fully compatible with macOS, Linux, and Windows
+- Uses only Foundation APIs (no platform-specific code)
+- CI tests run on both Ubuntu and macOS
+- Perfect for server-side Swift deployments
+
 ### Documentation
 - Completely updated README with:
   - Pretty print examples

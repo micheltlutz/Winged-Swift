@@ -48,11 +48,7 @@ import PackageDescription
 
 let package = Package(
     name: "MeuSiteSwift",
-    platforms: [
-        .macOS(.v13)
-    ],
     dependencies: [
-        // Adicionar WingedSwift
         .package(url: "https://github.com/micheltlutz/Winged-Swift.git", from: "1.3.0")
     ],
     targets: [

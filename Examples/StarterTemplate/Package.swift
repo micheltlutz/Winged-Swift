@@ -3,9 +3,6 @@ import PackageDescription
 
 let package = Package(
     name: "MyStaticSite",
-    platforms: [
-        .macOS(.v13)
-    ],
     dependencies: [
         .package(url: "https://github.com/micheltlutz/Winged-Swift.git", from: "1.3.0")
     ],

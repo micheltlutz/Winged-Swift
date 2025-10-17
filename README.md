@@ -26,6 +26,7 @@ This library is created to be fully independent, not requiring integration with 
 - 🎨 **Modern**: Full HTML5 support with semantic tags
 - 📱 **SEO-Ready**: Built-in Open Graph and Twitter Cards
 - 🛠️ **Static Sites**: Complete static site generation tools
+- 🌍 **Cross-Platform**: Works on macOS, Linux, and Windows
 - 🤝 **Open Source**: MIT licensed, contributions welcome!
 
 ## 🙋‍♂️ We Need Your Help!
@@ -708,8 +709,57 @@ try generator.generate(page: page, to: "blog/first-post.html", pretty: true)
 - ✅ **Layout System**: Reusable templates with the Layout protocol
 - ✅ **Sitemap & RSS**: Automatic sitemap.xml and RSS feed generation
 - ✅ **Asset Management**: Easy copying and organizing of assets
-- ✅ **Well Tested**: Comprehensive test coverage
-- ✅ **Zero Dependencies**: Pure Swift implementation
+- ✅ **Cross-Platform**: Works on macOS, Linux, and Windows
+- ✅ **Well Tested**: Comprehensive test coverage (CI runs on macOS & Linux)
+- ✅ **Zero Dependencies**: Pure Swift implementation (Foundation only)
+
+## 🌍 Platform Support
+
+WingedSwift is **cross-platform** and works on:
+
+- ✅ **macOS** (10.15+)
+- ✅ **Linux** (Ubuntu, Debian, Fedora, etc.)
+- ✅ **Windows** (with Swift for Windows)
+
+### Why Cross-Platform?
+
+- Uses **only Foundation APIs** - no platform-specific code
+- Perfect for **server-side Swift** deployments
+- **CI/CD friendly** - runs on any platform
+- Deploy static sites from **any environment**
+
+### Tested On
+
+Our GitHub Actions CI tests on:
+- Ubuntu Latest (Linux)
+- macOS Latest
+
+See our [test workflow](.github/workflows/tests.yml) for details.
+
+### Linux Example
+
+```bash
+# On Ubuntu/Debian
+apt-get update
+apt-get install -y swift
+
+# Create your site
+swift package init --type executable
+# Edit Package.swift and main.swift
+swift run
+
+# Deploy from Linux server! 🚀
+```
+
+**Note**: When creating projects, **do not specify `platforms`** in your `Package.swift` to maintain cross-platform compatibility.
+
+```swift
+// ❌ Don't do this (restricts to macOS only)
+platforms: [.macOS(.v13)]
+
+// ✅ Do this (works everywhere)
+// Just omit the platforms field
+```
 
 ## Documentation
 
