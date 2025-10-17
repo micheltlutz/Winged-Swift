@@ -86,7 +86,7 @@ Edite `Package.swift`:
 
 ```swift
 dependencies: [
-    .package(url: "https://github.com/micheltlutz/Winged-Swift.git", from: "1.3.2")
+    .package(url: "https://github.com/micheltlutz/Winged-Swift.git", from: "1.3.0")
 ]
 ```
 

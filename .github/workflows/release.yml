@@ -5,6 +5,10 @@ on:
     tags:
       - 'v*.*.*'
 
+permissions:
+  contents: write
+  pull-requests: read
+
 jobs:
   create-release:
     name: Create Release
@@ -33,18 +37,15 @@ jobs:
       id: changelog
       run: |
         VERSION="${{ steps.get_version.outputs.VERSION }}"
-        CHANGELOG=$(sed -n "/## \[$VERSION\]/,/## \[/p" CHANGELOG.md | sed '$d')
+        CHANGELOG=$(sed -n "/## \[$VERSION\]/,/## \[/p" CHANGELOG.md | sed '$d' || echo "No changelog found")
         echo "CHANGELOG<<EOF" >> $GITHUB_OUTPUT
         echo "$CHANGELOG" >> $GITHUB_OUTPUT
         echo "EOF" >> $GITHUB_OUTPUT
     
     - name: Create Release
-      uses: actions/create-release@v1
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      uses: softprops/action-gh-release@v1
       with:
-        tag_name: ${{ github.ref }}
-        release_name: Release ${{ steps.get_version.outputs.VERSION }}
+        name: Release ${{ steps.get_version.outputs.VERSION }}
         body: |
           ## What's Changed
           
@@ -52,11 +53,16 @@ jobs:
           
           ## Installation
           
+          Add this to your `Package.swift`:
+          
           ```swift
           .package(url: "https://github.com/micheltlutz/Winged-Swift.git", from: "${{ steps.get_version.outputs.VERSION }}")
           ```
           
-          **Full Changelog**: https://github.com/${{ github.repository }}/compare/v${{ steps.get_version.outputs.VERSION }}...main
+          **Full Changelog**: https://github.com/${{ github.repository }}/blob/main/CHANGELOG.md
         draft: false
         prerelease: false
+        generate_release_notes: true
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 

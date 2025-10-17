@@ -642,7 +642,7 @@ The complete documentation is available [here soon]().
 To generate the DocC documentation, use the following command in the terminal:
 
 ```bash
-swift package generate-documentation --target WingedSwift --output-path ./docs
+swift package --allow-writing-to-directory ./docs generate-documentation --target WingedSwift --output-path ./docs
 ```
 
 ```bash
