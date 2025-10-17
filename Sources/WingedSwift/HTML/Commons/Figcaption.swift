@@ -14,4 +14,3 @@ public class Figcaption: HTMLTag {
         super.init("figcaption", attributes: attributes, content: content, escapeContent: escapeContent)
     }
 }
-

@@ -95,4 +95,3 @@ final class CSSHelpersTests: XCTestCase {
         XCTAssertTrue(result.contains("style=\"padding: 20px;\""))
     }
 }
-

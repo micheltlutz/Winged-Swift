@@ -13,4 +13,3 @@ public class Figure: HTMLTag {
         super.init("figure", attributes: attributes, children: children)
     }
 }
-

@@ -125,4 +125,3 @@ public struct SitemapGenerator {
         return result
     }
 }
-

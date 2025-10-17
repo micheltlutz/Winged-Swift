@@ -14,4 +14,3 @@ public class H1: HTMLTag {
         super.init("h1", attributes: attributes, content: content, escapeContent: escapeContent)
     }
 }
-

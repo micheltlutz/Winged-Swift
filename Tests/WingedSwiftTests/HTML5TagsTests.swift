@@ -90,4 +90,3 @@ final class HTML5TagsTests: XCTestCase {
         }
     }
 }
-

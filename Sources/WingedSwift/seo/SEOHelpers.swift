@@ -218,4 +218,3 @@ public struct SEO {
         return tags
     }
 }
-

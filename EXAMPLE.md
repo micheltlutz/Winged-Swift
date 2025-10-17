@@ -634,7 +634,7 @@ let rssGenerator = RSSGenerator(
     language: "pt-BR",
     copyright: "© 2024 Meu Blog",
     managingEditor: "editor@exemplo.com (Editor)",
-    webMaster: "webmaster@exemplo.com (Webmaster)"
+    webmaster: "webmaster@exemplo.com (Webmaster)"
 )
 
 let posts = [

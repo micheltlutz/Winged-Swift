@@ -5,6 +5,7 @@ disabled_rules:
   - line_length
   - trailing_whitespace
   - file_length
+  - inclusive_language  # RSS spec uses webMaster tag (industry standard)
 
 # Rules to enable
 opt_in_rules:
@@ -33,7 +34,7 @@ identifier_name:
   max_length: 60
 
 type_name:
-  min_length: 3
+  min_length: 1  # Allow short names for HTML tags (A, P, H1, etc)
   max_length: 50
 
 function_body_length:
