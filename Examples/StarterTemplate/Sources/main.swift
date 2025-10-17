@@ -81,7 +81,8 @@ try generator.generate(page: aboutPage, to: "about.html", pretty: true)
 
 // Copiar assets
 try generator.copyAsset(from: "./Assets/css", to: "css")
-try generator.copyAsset(from: "./Assets/images", to: "images")
+// Descomentar se você tiver imagens:
+// try generator.copyAsset(from: "./Assets/images", to: "images")
 
 // Gerar sitemap
 let sitemapUrls = [
