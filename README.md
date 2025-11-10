@@ -151,7 +151,19 @@ MyStaticSite/
 
 ## Demo
 
-- [https://github.com/micheltlutz/WingedSwiftDemoVapor](https://github.com/micheltlutz/WingedSwiftDemoVapor)
+### Example Projects
+
+- [WingedSwiftDemoVapor](https://github.com/micheltlutz/WingedSwiftDemoVapor) - Demo project showing WingedSwift integration
+
+### Real-World Sites Built with WingedSwift
+
+Check out these production sites created with WingedSwift:
+
+- **[NFC Forge](https://nfc-forge.micheltlutz.me)** — Landing page for the freemium iOS app that writes NFC tags with guided flows, bulk production mode, chip password protection, tag templates, and iCloud sync.
+- **[RideKeeper](https://ridekeeper.micheltlutz.me)** — Showcase site for the motorcycle maintenance companion app, highlighting multi-motorcycle garage management, fuel tracking, tire monitoring, and upcoming smart reminders.
+- **[ML3dPrint](https://ml3dprint.com.br)** — Catalog site for custom 3D-printed keychains and accessories, featuring NFC-enabled options, personalized orders, and a brand story crafted around technology and motorcycles.
+
+Built with ❤️ using WingedSwift - showcasing the power of Swift for static site generation!
 
 ## Installation
 
@@ -635,27 +647,45 @@ platforms: [.macOS(.v13)]
 
 ## Documentation
 
-The complete documentation is available [here soon]().
+The complete documentation is available at:
+
+**🌐 [https://micheltlutz.github.io/Winged-Swift/](https://micheltlutz.github.io/Winged-Swift/)**
+
+📖 **Setup Guide:** See [GITHUB_PAGES_SETUP.md](GITHUB_PAGES_SETUP.md) for detailed instructions on configuring GitHub Pages.
 
 ### Generating the Documentation
 
 To generate the DocC documentation, use the following command in the terminal:
 
 ```bash
-swift package --allow-writing-to-directory ./docs generate-documentation --target WingedSwift --output-path ./docs
+swift package --allow-writing-to-directory ./docs generate-documentation --target WingedSwift --output-path ./docs --transform-for-static-hosting --hosting-base-path /Winged-Swift
 ```
 
+**Important:** The generated documentation uses absolute paths and must be served via HTTP, not opened directly as a file.
+
+#### Viewing Documentation Locally
+
+**Option 1: Use Preview Mode (Recommended - Easiest)**
 ```bash
-open ./docs/index.html
-```
-
-### Preview Documentation
-
-```
 swift package --disable-sandbox preview-documentation --target WingedSwift
 ```
+Then access: [http://localhost:8080/documentation/wingedswift](http://localhost:8080/documentation/wingedswift)
 
-- [http://localhost:8080/documentation/wingedswift](http://localhost:8080/documentation/wingedswift)
+This is the simplest way to preview documentation locally. No setup needed!
+
+**Option 2: Serve Generated Docs with HTTP Server**
+
+The generated documentation uses absolute paths designed for GitHub Pages. To view it locally, you need to serve it with a proper HTTP server structure.
+
+**Using the provided script:**
+```bash
+./Scripts/view-docs.sh
+```
+This script creates a temporary directory structure and serves the docs correctly.
+
+**Note:** The generated documentation in `docs/` is optimized for GitHub Pages deployment. For local development, the preview mode (Option 1) is recommended as it's simpler and doesn't require manual server setup.
+
+**Important:** Do not open `docs/index.html` directly in a browser (file://). It will show a blank page because it uses absolute paths designed for GitHub Pages hosting.
 
 
 ## 🤝 Contributing

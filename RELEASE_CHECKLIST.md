@@ -126,7 +126,7 @@ import PackageDescription
 let package = Package(
     name: "TestWingedSwift",
     dependencies: [
-        .package(url: "https://github.com/micheltlutz/Winged-Swift.git", from: "1.3.2")
+        .package(url: "https://github.com/micheltlutz/Winged-Swift.git", from: "1.3.3")
     ],
     targets: [
         .executableTarget(
