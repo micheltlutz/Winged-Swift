@@ -106,7 +106,11 @@ See [Contributing](#-contributing) for detailed guidelines.
 
 **Complete Tutorial**: See [GETTING_STARTED.md](GETTING_STARTED.md) for a step-by-step guide.
 
+**Tutorial em PT-BR**: Leia o artigo “[Criando uma Página Estática com WingedSwift e Tailwind CSS](https://micheltlutz.medium.com/criando-uma-p%C3%A1gina-est%C3%A1tica-com-wingedswift-e-tailwind-css-42578f235be9)” no Medium, com walkthrough completo em português.
+
 **Ready-to-use Template**: Copy and start coding in minutes!
+
+**Tailwind CSS Example**: Explore the [`post-winged-swift`](https://github.com/micheltlutz/post-winged-swift) repository for a reference project already integrated with Tailwind CSS.
 
 ```bash
 # 1. Copy starter template
