@@ -2,50 +2,50 @@ import Foundation
 import WingedSwift
 
 // === SETUP ===
-print("🔨 Gerando site...")
+print("🔨 Generating site...")
 
 let generator = StaticSiteGenerator(outputDirectory: "./dist")
 try generator.clean()
 
 // === LAYOUT ===
 let layout = SiteLayout(
-    siteName: "Meu Site",
-    description: "Site criado com WingedSwift"
+    siteName: "My Site",
+    description: "Site created with WingedSwift"
 )
 
-// === PÁGINAS ===
+// === PAGES ===
 
-// Página inicial
+// Home page
 let homePage = layout.render(
     title: "Home",
     currentPage: "home",
     content: MainTag(children: [
         Section(children: [
             Div(children: [
-                H2(content: "Bem-vindo! 🎉"),
-                P(content: "Este é um site estático gerado com WingedSwift."),
-                P(content: "Edite Sources/main.swift para personalizar seu site!")
+                H2(content: "Welcome! 🎉"),
+                P(content: "This is a static site generated with WingedSwift."),
+                P(content: "Edit Sources/main.swift to customize your site!")
             ])
             .addClass("hero")
         ]),
         
         Section(children: [
-            H2(content: "Recursos"),
+            H2(content: "Features"),
             Div(children: [
                 createFeatureCard(
                     icon: "⚡️",
-                    title: "Rápido",
-                    description: "Geração de HTML em tempo de compilação"
+                    title: "Fast",
+                    description: "HTML generation at build time"
                 ),
                 createFeatureCard(
                     icon: "🔒",
-                    title: "Seguro",
-                    description: "Proteção XSS automática"
+                    title: "Secure",
+                    description: "Automatic XSS protection"
                 ),
                 createFeatureCard(
                     icon: "🎯",
                     title: "Type-Safe",
-                    description: "Aproveite o sistema de tipos do Swift"
+                    description: "Leverage the Swift type system"
                 )
             ])
             .addClass("features-grid")
@@ -54,17 +54,17 @@ let homePage = layout.render(
     .addClass("container")
 )
 
-// Página sobre
+// About page
 let aboutPage = layout.render(
-    title: "Sobre",
+    title: "About",
     currentPage: "about",
     content: MainTag(children: [
         Article(children: [
-            H2(content: "Sobre Este Site"),
-            P(content: "Este site foi criado usando WingedSwift, uma biblioteca Swift para geração de HTML."),
-            P(content: "WingedSwift permite criar sites estáticos de forma type-safe e eficiente."),
+            H2(content: "About This Site"),
+            P(content: "This site was created using WingedSwift, a Swift library for HTML generation."),
+            P(content: "WingedSwift lets you build static sites in a type-safe, efficient way."),
             
-            H3(content: "Tecnologias"),
+            H3(content: "Technologies"),
             Ul(children: [
                 Li(content: "Swift 5.9+"),
                 Li(content: "WingedSwift 1.3.0"),
@@ -75,26 +75,26 @@ let aboutPage = layout.render(
     .addClass("container")
 )
 
-// === GERAR SITE ===
+// === GENERATE SITE ===
 try generator.generate(page: homePage, to: "index.html", pretty: true)
 try generator.generate(page: aboutPage, to: "about.html", pretty: true)
 
-// Copiar assets
+// Copy assets
 try generator.copyAsset(from: "./Assets/css", to: "css")
-// Descomentar se você tiver imagens:
+// Uncomment if you have images:
 // try generator.copyAsset(from: "./Assets/images", to: "images")
 
-// Gerar sitemap
+// Generate sitemap
 let sitemapUrls = [
-    SitemapURL(loc: "https://meusite.com/", priority: 1.0),
-    SitemapURL(loc: "https://meusite.com/about.html", priority: 0.8)
+    SitemapURL(loc: "https://mysite.com/", priority: 1.0),
+    SitemapURL(loc: "https://mysite.com/about.html", priority: 0.8)
 ]
 let sitemap = SitemapGenerator.generate(urls: sitemapUrls)
 try generator.writeFile(content: sitemap, to: "sitemap.xml")
 
-print("✅ Site gerado com sucesso!")
-print("📂 Arquivos em: ./dist")
-print("🌐 Para visualizar: cd dist && python3 -m http.server 8000")
+print("✅ Site generated successfully!")
+print("📂 Files available at: ./dist")
+print("🌐 To preview: cd dist && python3 -m http.server 8000")
 
 // === HELPERS ===
 

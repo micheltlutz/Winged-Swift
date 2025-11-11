@@ -106,7 +106,10 @@ See [Contributing](#-contributing) for detailed guidelines.
 
 **Complete Tutorial**: See [GETTING_STARTED.md](GETTING_STARTED.md) for a step-by-step guide.
 
-**Tutorial em PT-BR**: Leia o artigo “[Criando uma Página Estática com WingedSwift e Tailwind CSS](https://micheltlutz.medium.com/criando-uma-p%C3%A1gina-est%C3%A1tica-com-wingedswift-e-tailwind-css-42578f235be9)” no Medium, com walkthrough completo em português.
+- **Tutorial em PT-BR**: Leia o artigo “[Criando uma Página Estática com WingedSwift e Tailwind CSS](https://micheltlutz.medium.com/criando-uma-p%C3%A1gina-est%C3%A1tica-com-wingedswift-e-tailwind-css-42578f235be9)”
+
+- **Tutorial EN-US**: Read de post "[Building a Static Page with WingedSwift and Tailwind CSS](https://micheltlutz.medium.com/building-a-static-page-with-wingedswift-and-tailwind-css-5b0c91de4fba)" 
+
 
 **Ready-to-use Template**: Copy and start coding in minutes!
 

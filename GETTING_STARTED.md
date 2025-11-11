@@ -1,59 +1,59 @@
-# 🚀 Getting Started - Criando Seu Primeiro Projeto com WingedSwift
+# 🚀 Getting Started - Building Your First WingedSwift Project
 
-Este guia mostra como criar um projeto do zero usando WingedSwift para gerar sites estáticos.
+This guide walks you through creating a project from scratch using WingedSwift to generate static sites.
 
-## 📋 Pré-requisitos
+## 📋 Prerequisites
 
-- Swift 5.9 ou superior
-- Xcode ou linha de comando do Swift instalados
+- Swift 5.9 or newer
+- Xcode or the Swift command-line tools installed
 
-Verifique sua versão:
+Check your version:
 ```bash
 swift --version
 ```
 
 ---
 
-## 🎯 Método 1: Projeto Mínimo (Recomendado para Iniciantes)
+## 🎯 Method 1: Minimal Project (Recommended for Beginners)
 
-### Passo 1: Criar Diretório do Projeto
+### Step 1: Create the Project Directory
 
 ```bash
-# Criar diretório do projeto
-mkdir MeuSiteSwift
-cd MeuSiteSwift
+# Create the project directory
+mkdir MySwiftSite
+cd MySwiftSite
 ```
 
-### Passo 2: Inicializar Swift Package
+### Step 2: Initialize the Swift Package
 
 ```bash
-# Criar um executável Swift
+# Create a Swift executable
 swift package init --type executable
 
-# Estrutura criada:
-# MeuSiteSwift/
+# Generated structure:
+# MySwiftSite/
 # ├── Package.swift
 # ├── Sources/
 # │   └── main.swift
 # └── Tests/
 ```
 
-### Passo 3: Configurar Package.swift
+### Step 3: Configure `Package.swift`
 
-Edite o arquivo `Package.swift`:
+Edit the `Package.swift` file:
 
 ```swift
 // swift-tools-version: 5.9
 import PackageDescription
 
 let package = Package(
-    name: "MeuSiteSwift",
+    name: "MySwiftSite",
     dependencies: [
         .package(url: "https://github.com/micheltlutz/Winged-Swift.git", from: "1.3.3")
     ],
     targets: [
         .executableTarget(
-            name: "MeuSiteSwift",
+            name: "MySwiftSite",
             dependencies: [
                 .product(name: "WingedSwift", package: "Winged-Swift")
             ]
@@ -62,85 +62,85 @@ let package = Package(
 )
 ```
 
-### Passo 4: Criar Seu Site (Sources/main.swift)
+### Step 4: Create Your Site (`Sources/main.swift`)
 
-Substitua o conteúdo de `Sources/main.swift`:
+Replace the contents of `Sources/main.swift`:
 
 ```swift
 import Foundation
 import WingedSwift
 
-// 1. Configurar gerador de site estático
+// 1. Configure the static site generator
 let generator = StaticSiteGenerator(outputDirectory: "./dist")
 
-// 2. Limpar diretório de saída
+// 2. Clean the output directory
 try generator.clean()
 
-// 3. Criar página inicial
+// 3. Create the home page
 let homePage = html {
     Head(children: [
         Meta(charset: "UTF-8"),
         Meta(name: "viewport", content: "width=device-width, initial-scale=1.0"),
-        Title(content: "Meu Primeiro Site com WingedSwift")
+        Title(content: "My First Site with WingedSwift")
     ])
     
     Body(children: [
         Header(children: [
-            H1(content: "🎉 Bem-vindo ao WingedSwift!")
+            H1(content: "🎉 Welcome to WingedSwift!")
         ])
         .addClass("header"),
         
         MainTag(children: [
             Article(children: [
-                H2(content: "Sobre este site"),
-                P(content: "Este é um site estático gerado com Swift usando WingedSwift!"),
-                P(content: "É rápido, type-safe e divertido de criar.")
+                H2(content: "About this site"),
+                P(content: "This is a static site generated with Swift using WingedSwift!"),
+                P(content: "It’s fast, type-safe, and fun to build.")
             ])
         ])
         .addClass("container"),
         
         Footer(children: [
-            P(content: "Criado com ❤️ usando WingedSwift")
+            P(content: "Built with ❤️ using WingedSwift")
         ])
         .addClass("footer")
     ])
 }
 
-// 4. Gerar HTML
+// 4. Generate the HTML
 try generator.generate(page: homePage, to: "index.html", pretty: true)
 
-print("✅ Site gerado com sucesso em ./dist/index.html")
+print("✅ Site successfully generated at ./dist/index.html")
 ```
 
-### Passo 5: Executar e Gerar o Site
+### Step 5: Build and Generate the Site
 
 ```bash
-# Buildar e executar
+# Build and run
 swift run
 
-# Output: ✅ Site gerado com sucesso em ./dist/index.html
+# Output: ✅ Site successfully generated at ./dist/index.html
 ```
 
-### Passo 6: Visualizar o Site
+### Step 6: Preview the Site
 
 ```bash
-# Abrir no navegador
+# Open in the browser
 open dist/index.html
 
-# Ou servir com Python (HTTP server simples)
+# Or serve with Python (simple HTTP server)
 cd dist
 python3 -m http.server 8000
-# Acesse: http://localhost:8000
+# Visit: http://localhost:8000
 ```
 
 ---
 
-## 🎨 Método 2: Projeto Completo com CSS
+## 🎨 Method 2: Full Project with CSS
 
-### Estrutura Organizada
+### Organized Structure
 
 ```bash
-MeuSiteSwift/
+MySwiftSite/
 ├── Package.swift
 ├── Sources/
 │   ├── main.swift
@@ -152,15 +152,15 @@ MeuSiteSwift/
 ├── Assets/
 │   ├── css/
 │   │   └── style.css
-│   └── images/
-└── dist/           # Gerado automaticamente
+│   └── images/     # Optional assets
+└── dist/           # Generated automatically
 ```
 
-### Setup Completo
+### Complete Setup
 
-#### 1. Package.swift (igual ao Método 1)
+#### 1. `Package.swift` (same as Method 1)
 
-#### 2. Assets/css/style.css
+#### 2. `Assets/css/style.css`
 
 ```css
 * {
@@ -204,7 +204,7 @@ article {
 }
 ```
 
-#### 3. Sources/Layouts/BaseLayout.swift
+#### 3. `Sources/Layouts/BaseLayout.swift`
 
 ```swift
 import WingedSwift
@@ -237,7 +237,7 @@ class BaseLayout: Layout {
                 content,
                 
                 Footer(children: [
-                    P(content: "© 2024 Meu Site. Feito com WingedSwift 🚀")
+                    P(content: "© 2024 My Site. Built with WingedSwift 🚀")
                 ])
                 .addClass("footer")
             ])
@@ -246,7 +246,7 @@ class BaseLayout: Layout {
 }
 ```
 
-#### 4. Sources/Pages/HomePage.swift
+#### 4. `Sources/Pages/HomePage.swift`
 
 ```swift
 import WingedSwift
@@ -255,9 +255,9 @@ struct HomePage {
     static func create(layout: BaseLayout) -> HTMLTag {
         let content = MainTag(children: [
             Article(children: [
-                H2(content: "Bem-vindo!"),
-                P(content: "Este é um exemplo de site gerado com WingedSwift."),
-                P(content: "Você pode criar sites estáticos incríveis usando Swift!")
+                H2(content: "Welcome!"),
+                P(content: "This is a sample site generated with WingedSwift."),
+                P(content: "You can build amazing static sites using Swift!")
             ])
         ])
         .addClass("container")
@@ -267,34 +267,34 @@ struct HomePage {
 }
 ```
 
-#### 5. Sources/main.swift
+#### 5. `Sources/main.swift`
 
 ```swift
 import Foundation
 import WingedSwift
 
-// Setup
+// Configuration
 let generator = StaticSiteGenerator(outputDirectory: "./dist")
 try generator.clean()
 
 // Layout
 let layout = BaseLayout(
-    title: "Meu Site Swift",
-    description: "Site estático gerado com WingedSwift"
+    title: "My Swift Site",
+    description: "Static site generated with WingedSwift"
 )
 
-// Páginas
+// Pages
 let home = HomePage.create(layout: layout)
 
-// Gerar
+// Generate
 try generator.generate(page: home, to: "index.html", pretty: true)
 try generator.copyAsset(from: "./Assets/css", to: "css")
 
-print("✅ Site gerado com sucesso!")
-print("📂 Abra: dist/index.html")
+print("✅ Site generated successfully!")
+print("📂 Open: dist/index.html")
 ```
 
-#### 6. Executar
+#### 6. Run
 
 ```bash
 swift run
@@ -303,16 +303,16 @@ open dist/index.html
 
 ---
 
-## 🌐 Método 3: Projeto com Live Server
+## 🌐 Method 3: Project with Live Server
 
-### Adicionar Script de Desenvolvimento
+### Add a Development Script
 
-Crie `Scripts/dev.sh`:
+Create `Scripts/dev.sh`:
 
 ```bash
 #!/bin/bash
 
-echo "🔨 Building and generating site..."
+echo "🔨 Building and generating the site..."
 swift run
 
 echo "🌐 Starting local server..."
@@ -320,27 +320,27 @@ echo "📱 Open: http://localhost:8000"
 cd dist && python3 -m http.server 8000
 ```
 
-Tornar executável:
+Make it executable:
 
 ```bash
 chmod +x Scripts/dev.sh
 ```
 
-Usar:
+Run it:
 
 ```bash
 ./Scripts/dev.sh
 ```
 
-### Watch Mode (Opcional)
+### Watch Mode (Optional)
 
-Instalar `fswatch`:
+Install `fswatch`:
 
 ```bash
 brew install fswatch
 ```
 
-Criar `Scripts/watch.sh`:
+Create `Scripts/watch.sh`:
 
 ```bash
 #!/bin/bash
@@ -354,7 +354,7 @@ fswatch -o Sources/ | while read f; do
 done
 ```
 
-Usar:
+Run it:
 
 ```bash
 chmod +x Scripts/watch.sh
@@ -364,33 +364,33 @@ cd dist && python3 -m http.server 8000
 
 ---
 
-## 📦 Projeto Exemplo Completo - Multi-páginas
+## 📦 Complete Multi-Page Sample Project
 
-### Sources/main.swift
+### `Sources/main.swift`
 
 ```swift
 import Foundation
 import WingedSwift
 
-// === CONFIGURAÇÃO ===
+// === CONFIGURATION ===
 let generator = StaticSiteGenerator(outputDirectory: "./dist")
 try generator.clean()
 
 let layout = BaseLayout(
-    title: "Meu Blog Swift",
-    description: "Um blog criado com WingedSwift"
+    title: "My Swift Blog",
+    description: "A blog created with WingedSwift"
 )
 
-// === PÁGINAS ===
+// === PAGES ===
 
 // Home
 let homePage = layout.render(content: MainTag(children: [
     Article(children: [
-        H2(content: "Últimos Posts"),
+        H2(content: "Latest Posts"),
         Ul(children: [
-            Li(children: [A(href: "post1.html", content: "Meu Primeiro Post")]),
-            Li(children: [A(href: "post2.html", content: "Aprendendo Swift")]),
-            Li(children: [A(href: "about.html", content: "Sobre Mim")])
+            Li(children: [A(href: "post1.html", content: "My First Post")]),
+            Li(children: [A(href: "post2.html", content: "Learning Swift")]),
+            Li(children: [A(href: "about.html", content: "About Me")])
         ])
     ])
 ]).addClass("container"))
@@ -398,55 +398,55 @@ let homePage = layout.render(content: MainTag(children: [
 // Post 1
 let post1 = layout.render(content: MainTag(children: [
     Article(children: [
-        H2(content: "Meu Primeiro Post"),
-        Time(datetime: "2024-10-16", content: "16 de Outubro, 2024"),
-        P(content: "Este é meu primeiro post criado com WingedSwift!"),
-        A(href: "index.html", content: "← Voltar")
+        H2(content: "My First Post"),
+        Time(datetime: "2024-10-16", content: "October 16, 2024"),
+        P(content: "This is my first post created with WingedSwift!"),
+        A(href: "index.html", content: "← Back")
     ])
 ]).addClass("container"))
 
-// Sobre
+// About
 let aboutPage = layout.render(content: MainTag(children: [
     Article(children: [
-        H2(content: "Sobre Mim"),
-        P(content: "Desenvolvedor Swift apaixonado por criar sites estáticos!"),
-        A(href: "index.html", content: "← Voltar")
+        H2(content: "About Me"),
+        P(content: "Swift developer passionate about building static sites!"),
+        A(href: "index.html", content: "← Back")
     ])
 ]).addClass("container"))
 
-// === GERAR ===
+// === GENERATE ===
 try generator.generate(page: homePage, to: "index.html", pretty: true)
 try generator.generate(page: post1, to: "post1.html", pretty: true)
 try generator.generate(page: aboutPage, to: "about.html", pretty: true)
 
-// Copiar assets
+// Copy assets
 try generator.copyAsset(from: "./Assets/css", to: "css")
 
 // SEO: Sitemap
 let urls = [
-    SitemapURL(loc: "https://meusite.com/", priority: 1.0),
-    SitemapURL(loc: "https://meusite.com/post1.html", priority: 0.8),
-    SitemapURL(loc: "https://meusite.com/about.html", priority: 0.7)
+    SitemapURL(loc: "https://my-site.com/", priority: 1.0),
+    SitemapURL(loc: "https://my-site.com/post1.html", priority: 0.8),
+    SitemapURL(loc: "https://my-site.com/about.html", priority: 0.7)
 ]
 let sitemap = SitemapGenerator.generate(urls: urls)
 try generator.writeFile(content: sitemap, to: "sitemap.xml")
 
-print("✅ Site completo gerado!")
-print("📄 Páginas: index.html, post1.html, about.html")
+print("✅ Complete site generated!")
+print("📄 Pages: index.html, post1.html, about.html")
 print("🗺️  Sitemap: sitemap.xml")
 ```
 
 ---
 
-## 🚀 Deploy
+## 🚀 Deployment
 
 ### GitHub Pages
 
 ```bash
-# Gerar site
+# Generate the site
 swift run
 
-# Commit e push
+# Commit and push
 git add dist/
 git commit -m "Deploy site"
 git subtree push --prefix dist origin gh-pages
@@ -454,7 +454,7 @@ git subtree push --prefix dist origin gh-pages
 
 ### Netlify
 
-1. Criar `netlify.toml`:
+1. Create `netlify.toml`:
 
 ```toml
 [build]
@@ -467,8 +467,8 @@ git subtree push --prefix dist origin gh-pages
   status = 200
 ```
 
-2. Conectar repositório no Netlify
-3. Deploy automático!
+2. Connect your repository in Netlify
+3. Automatic deploy!
 
 ### Vercel
 
@@ -491,21 +491,21 @@ git subtree push --prefix dist origin gh-pages
 
 ---
 
-## 📚 Próximos Passos
+## 📚 Next Steps
 
-1. **Explorar Exemplos**: Veja [EXAMPLE.md](EXAMPLE.md)
-2. **Ler Documentação**: [README.md](README.md)
-3. **Ver Demo**: [WingedSwiftDemoVapor](https://github.com/micheltlutz/WingedSwiftDemoVapor)
-4. **Contribuir**: [CONTRIBUTING.md](CONTRIBUTING.md)
+1. **Explore Examples**: See [EXAMPLE.md](EXAMPLE.md)
+2. **Read the Documentation**: [README.md](README.md)
+3. **Check the Demo**: [WingedSwiftDemoVapor](https://github.com/micheltlutz/WingedSwiftDemoVapor)
+4. **Contribute**: [CONTRIBUTING.md](CONTRIBUTING.md)
 
 ---
 
-## 💡 Dicas
+## 💡 Tips
 
 ### Performance
 
 ```swift
-// Para sites grandes, gere em paralelo
+// For larger sites, generate in parallel
 let pages = [(home, "index.html"), (about, "about.html")]
 
 DispatchQueue.concurrentPerform(iterations: pages.count) { index in
@@ -517,15 +517,15 @@ DispatchQueue.concurrentPerform(iterations: pages.count) { index in
 ### Debug
 
 ```swift
-// Ver HTML gerado
+// Inspect the generated HTML
 let page = html { /* ... */ }
 print(page.render(pretty: true))
 ```
 
-### Reutilização
+### Reuse
 
 ```swift
-// Criar componentes reutilizáveis
+// Create reusable components
 func createCard(title: String, content: String) -> Div {
     return Div(children: [
         H3(content: title),
@@ -536,25 +536,25 @@ func createCard(title: String, content: String) -> Div {
 
 ---
 
-## 🆘 Problemas Comuns
+## 🆘 Common Issues
 
-**Erro: "No such module 'WingedSwift'"**
-- Execute: `swift package resolve`
+**Error: "No such module 'WingedSwift'"**  
+- Run: `swift package resolve`
 
-**Site não atualiza**
-- Delete `.build` e reconstrua: `rm -rf .build && swift run`
+**Site does not update**  
+- Delete `.build` and rebuild: `rm -rf .build && swift run`
 
-**CSS não carrega**
-- Verifique o caminho relativo em `Link(href: "css/style.css")`
-- Certifique-se de copiar assets: `generator.copyAsset()`
+**CSS not loading**  
+- Check the relative path in `Link(href: "css/style.css")`
+- Ensure assets are copied with `generator.copyAsset()`
 
 ---
 
-## 📞 Suporte
+## 📞 Support
 
-- 📖 Documentação: [README.md](README.md)
+- 📖 Documentation: [README.md](README.md)
 - 🐛 Issues: [GitHub Issues](https://github.com/micheltlutz/Winged-Swift/issues)
-- 💬 Discussões: [GitHub Discussions](https://github.com/micheltlutz/Winged-Swift/discussions)
+- 💬 Discussions: [GitHub Discussions](https://github.com/micheltlutz/Winged-Swift/discussions)
 
-**Divirta-se criando sites com Swift! 🚀**
+**Have fun building sites with Swift! 🚀**
 
