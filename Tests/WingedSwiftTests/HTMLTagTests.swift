@@ -18,7 +18,7 @@ final class HTMLTagTests: XCTestCase {
             Attribute(key: "height", value: "100")
         ])
         
-        let expected = "<img width=\"100\" height=\"100\" src=\"image.png\" alt=\"An image\" />"
+        let expected = "<img width=\"100\" height=\"100\" src=\"image.png\" alt=\"An image\">"
         XCTAssertEqual(htmlTag.render(), expected)
     }
     
@@ -31,7 +31,7 @@ final class HTMLTagTests: XCTestCase {
         }
         
         let expected = """
-        <html><div><p>This is a paragraph.</p><img src="image.png" alt="An image" /></div></html>
+        <html><div><p>This is a paragraph.</p><img src="image.png" alt="An image"></div></html>
         """
         XCTAssertEqual(document.render(), expected)
     }
@@ -144,7 +144,7 @@ final class HTMLTagTests: XCTestCase {
         }
         
         let expected = """
-        <html><head><meta name="description" content="A description of the page" /><link href="styles.css" rel="stylesheet" /></head><body><header><nav><a href="#home">Home</a><a href="#about">About</a><a href="#contact">Contact</a></nav></header><main><p>Welcome to our website!</p></main><footer><p>© 2024 Company, Inc.</p></footer></body></html>
+        <html><head><meta name="description" content="A description of the page"><link href="styles.css" rel="stylesheet"></head><body><header><nav><a href="#home">Home</a><a href="#about">About</a><a href="#contact">Contact</a></nav></header><main><p>Welcome to our website!</p></main><footer><p>© 2024 Company, Inc.</p></footer></body></html>
         """
         XCTAssertEqual(document.render(), expected)
     }
@@ -169,7 +169,7 @@ final class HTMLTagTests: XCTestCase {
         }
         
         let expected = """
-        <html><meta name="description" content="A description of the page" /><meta charset="utf-8" /></html>
+        <html><meta name="description" content="A description of the page"><meta charset="utf-8"></html>
         """
         XCTAssertEqual(document.render(), expected)
     }

@@ -6,9 +6,13 @@ open class HTMLTag {
     var attributes: [Attribute]
     var children: [HTMLTag]
     var content: String?
-    
+
     private let selfClosingTags: Set<String> = ["img", "br", "hr", "input", "meta", "link", "embed"]
-    
+
+    /// When `true`, void elements render with an XHTML trailing slash (`<img … />`).
+    /// Default is `false` for HTML5 (`<img …>`).
+    public static var xhtmlSelfClosing: Bool = false
+
     /// Initializes a new HTML tag.
     ///
     /// - Parameters:
@@ -27,7 +31,7 @@ open class HTMLTag {
             self.content = nil
         }
     }
-    
+
     /// Adds an attribute to the HTML tag.
     ///
     /// - Parameter attribute: The attribute to add.
@@ -37,7 +41,7 @@ open class HTMLTag {
         attributes.append(attribute)
         return self
     }
-    
+
     /// Adds a child tag to the HTML tag.
     ///
     /// - Parameter child: The child HTML tag.
@@ -47,7 +51,7 @@ open class HTMLTag {
         children.append(child)
         return self
     }
-    
+
     /// Sets the content of the HTML tag.
     ///
     /// - Parameters:
@@ -59,80 +63,89 @@ open class HTMLTag {
         self.content = escape ? HTMLEscape.escape(content) : content
         return self
     }
-    
+
     /// Renders the HTML tag as a string.
     ///
     /// - Parameters:
     ///   - pretty: If true, formats the HTML with indentation and line breaks. Default is false.
     ///   - indentLevel: The current indentation level (used internally for recursion).
     /// - Returns: The rendered HTML string.
-    public func render(pretty: Bool = false, indentLevel: Int = 0) -> String {
+    open func render(pretty: Bool = false, indentLevel: Int = 0) -> String {
         if !pretty {
             return renderCompact()
         }
-        
+
         return renderPretty(indentLevel: indentLevel)
     }
-    
+
+    /// Renders attribute list for opening tags.
+    private func renderAttributes() -> String {
+        var result = ""
+        for attribute in attributes {
+            if attribute.isBoolean {
+                result += " \(attribute.key)"
+            } else {
+                result += " \(attribute.key)=\"\(attribute.value)\""
+            }
+        }
+        return result
+    }
+
+    /// Closing token for void elements (`>` in HTML5, ` />` when `xhtmlSelfClosing` is true).
+    private func selfClosingSuffix() -> String {
+        HTMLTag.xhtmlSelfClosing ? " />" : ">"
+    }
+
     /// Renders the HTML tag as a compact string (no formatting).
     ///
     /// - Returns: The rendered HTML string without formatting.
-    private func renderCompact() -> String {
+    open func renderCompact() -> String {
         var result = "<\(name)"
-        
-        for attribute in attributes {
-            result += " \(attribute.key)=\"\(attribute.value)\""
-        }
-        
+        result += renderAttributes()
+
         if selfClosingTags.contains(name) {
-            result += " />"
+            result += selfClosingSuffix()
         } else {
             result += ">"
-            
+
             if let content = content {
                 result += content
             }
-            
+
             for child in children {
                 result += child.renderCompact()
             }
-            
+
             result += "</\(name)>"
         }
-        
+
         return result
     }
-    
+
     /// Renders the HTML tag with pretty formatting (indentation and line breaks).
     ///
     /// - Parameter indentLevel: The current indentation level.
     /// - Returns: The formatted HTML string.
-    private func renderPretty(indentLevel: Int = 0) -> String {
+    open func renderPretty(indentLevel: Int = 0) -> String {
         let indent = String(repeating: "  ", count: indentLevel)
         let nextIndent = String(repeating: "  ", count: indentLevel + 1)
         var result = "\(indent)<\(name)"
-        
-        // Add attributes
-        for attribute in attributes {
-            result += " \(attribute.key)=\"\(attribute.value)\""
-        }
-        
-        // Handle self-closing tags
+
+        result += renderAttributes()
+
         if selfClosingTags.contains(name) {
-            result += " />"
+            result += selfClosingSuffix()
             return result
         }
-        
+
         result += ">"
-        
-        // Handle inline content (no children)
+
         if let content = content, children.isEmpty {
             result += content
             result += "</\(name)>"
             return result
         }
-        
-        // Handle tags with children
+
         if !children.isEmpty {
             result += "\n"
             for child in children {
@@ -141,14 +154,12 @@ open class HTMLTag {
             }
             result += "\(indent)</\(name)>"
         } else if let content = content {
-            // Content with no children
             result += "\n\(nextIndent)\(content)\n"
             result += "\(indent)</\(name)>"
         } else {
-            // Empty tag
             result += "</\(name)>"
         }
-        
+
         return result
     }
 }

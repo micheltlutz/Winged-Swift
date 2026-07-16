@@ -8,9 +8,10 @@ public class H1: HTMLTag {
     ///
     /// - Parameters:
     ///   - attributes: The attributes of the <h1> tag.
+    ///   - children: Nested tags inside the heading (e.g. `A`).
     ///   - content: The content of the <h1> tag.
     ///   - escapeContent: If true, escapes HTML special characters in content. Default is true for security.
-    public init(attributes: [Attribute] = [], content: String? = nil, escapeContent: Bool = true) {
-        super.init("h1", attributes: attributes, content: content, escapeContent: escapeContent)
+    public init(attributes: [Attribute] = [], children: [HTMLTag] = [], content: String? = nil, escapeContent: Bool = true) {
+        super.init("h1", attributes: attributes, children: children, content: content, escapeContent: escapeContent)
     }
 }

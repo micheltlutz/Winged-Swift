@@ -7,10 +7,18 @@ public class A: HTMLTag {
     /// - Parameters:
     ///   - href: The URL the link points to.
     ///   - attributes: Additional attributes of the <a> tag.
-    ///   - content: The content of the <a> tag.
-    public init(href: String, attributes: [Attribute] = [], content: String? = nil) {
+    ///   - children: Nested tags inside the link (e.g. `Img`, `I`, `Span`).
+    ///   - content: Text content of the <a> tag.
+    ///   - escapeContent: If true, escapes HTML special characters in content. Default is true for security.
+    public init(
+        href: String,
+        attributes: [Attribute] = [],
+        children: [HTMLTag] = [],
+        content: String? = nil,
+        escapeContent: Bool = true
+    ) {
         var allAttributes = attributes
         allAttributes.append(Attribute(key: "href", value: href))
-        super.init("a", attributes: allAttributes, content: content)
+        super.init("a", attributes: allAttributes, children: children, content: content, escapeContent: escapeContent)
     }
 }

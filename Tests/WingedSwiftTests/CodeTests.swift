@@ -33,7 +33,7 @@ final class CodeTests: XCTestCase {
         let embed = Embed(src: "video.mp4", type: "video/mp4")
 
         let expected = """
-        <embed src="video.mp4" type="video/mp4" />
+        <embed src="video.mp4" type="video/mp4">
         """
         XCTAssertEqual(embed.render(), expected)
     }

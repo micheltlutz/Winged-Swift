@@ -55,6 +55,7 @@ final class PrettyPrintTests: XCTestCase {
         
         // Then
         XCTAssertTrue(result.contains("<img"))
-        XCTAssertTrue(result.contains("/>"))
+        XCTAssertFalse(result.contains("/>"))
+        XCTAssertTrue(result.hasSuffix(">"))
     }
 }

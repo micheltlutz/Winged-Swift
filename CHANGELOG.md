@@ -5,6 +5,28 @@ All notable changes to WingedSwift will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.4.0] - 2026-07-15
+
+### Added
+
+- **`RawHTML`**: render raw markup without a wrapper element (fragments / imported HTML).
+- **`Attribute.boolean(_:)`**: boolean attributes render as ` key` only (`hidden`, `checked`, `required`, `disabled`, …).
+- **`HTMLFragmentBuilder`** + **`fragment { }`**: build flat tag lists; `buildArray` supports `map`/`for` of cards and filters.
+- New tags: **`I`**, **`Br`**, **`Hr`**, **`Strong`**, **`Em`**, **`Small`**.
+- **`A`** and **`H1`…`H6`**: accept `children: [HTMLTag]` (e.g. `<h3><a>…</a></h3>`, `<a><img></a>`).
+
+### Changed
+
+- **HTML5 void elements** by default: `<img>`, `<br>`, `<input>`, etc. without trailing ` />`. Set `HTMLTag.xhtmlSelfClosing = true` for XHTML-style output.
+- **`Button`**: optional `type` (`button` / `submit` / `reset`); no longer unconditionally forces `type="button"` when a type is already present or `nil` is passed.
+- **`Label`**: `for` is optional (CMP / wrapping labels).
+- **`Input`**: `name` is optional.
+- **`Section`**: aligned with `Div` (`content` + `escapeContent`).
+
+### Tests
+
+- Unit coverage for RawHTML, boolean attrs, HTML5/XHTML self-closing, fragments + `buildArray`, `I` + `A(children:)`, flexible form tags.
+
 ## [1.3.2] - 2024-10-17
 
 ### Fixed

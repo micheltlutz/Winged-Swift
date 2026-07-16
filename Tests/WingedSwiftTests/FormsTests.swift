@@ -17,7 +17,7 @@ final class FormTests: XCTestCase {
         ])
 
         let expected = """
-        <form action="/submit"><fieldset><label for="name">Name</label><input type="text" name="name" /></fieldset><fieldset><label for="message">Message</label><textarea name="message"></textarea></fieldset><input type="submit" name="submit" value="Send" /></form>
+        <form action="/submit"><fieldset><label for="name">Name</label><input type="text" name="name"></fieldset><fieldset><label for="message">Message</label><textarea name="message"></textarea></fieldset><input type="submit" name="submit" value="Send"></form>
         """
         XCTAssertEqual(form.render(), expected)
     }
@@ -48,7 +48,7 @@ final class FormTests: XCTestCase {
         let input = Input(type: "text", name: "username", value: "JohnDoe")
 
         let expected = """
-        <input type="text" name="username" value="JohnDoe" />
+        <input type="text" name="username" value="JohnDoe">
         """
         XCTAssertEqual(input.render(), expected)
     }
@@ -69,7 +69,7 @@ final class FormTests: XCTestCase {
         ])
 
         let expected = """
-        <fieldset><label for="name">Name</label><input type="text" name="name" /></fieldset>
+        <fieldset><label for="name">Name</label><input type="text" name="name"></fieldset>
         """
         XCTAssertEqual(fieldset.render(), expected)
     }
