@@ -82,3 +82,28 @@ import Testing
         #expect(server.resolve("/about/missing/") == nil)
     }
 }
+
+@Suite struct HTTPServerErrorTests {
+
+    @Test func refusesToStartOnATakenPort() async throws {
+        let port = UInt16.random(in: 20_000...60_000)
+        let root = FileManager.default.temporaryDirectory.path
+
+        // Hold the port with a first server, then a second one must fail rather than hang.
+        let thread = Thread { try? HTTPServer(root: root, port: port).run() }
+        thread.stackSize = 512 * 1024
+        thread.start()
+        try await Task.sleep(nanoseconds: 300_000_000)
+
+        #expect(throws: HTTPServer.ServerError.self) {
+            try HTTPServer(root: root, port: port).run()
+        }
+    }
+
+    @Test func namesWhatWentWrong() {
+        #expect(HTTPServer.ServerError.socketFailed.description.contains("socket"))
+        #expect(HTTPServer.ServerError.bindFailed(port: 8000).description.contains("8000"))
+        #expect(HTTPServer.ServerError.bindFailed(port: 8000).description.contains("already in use"))
+        #expect(HTTPServer.ServerError.listenFailed.description.contains("listen"))
+    }
+}

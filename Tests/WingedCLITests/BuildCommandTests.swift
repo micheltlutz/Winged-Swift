@@ -1,3 +1,4 @@
+import ArgumentParser
 import Foundation
 import Testing
 @testable import WingedCLI
@@ -99,19 +100,19 @@ import Testing
         }
     }
 
-    /// Compiles and runs a real (dependency-free) package the way `winged build` does.
-    @Test func buildsAndRunsTheProductWritingToTheOutputDirectory() throws {
-        let path = try makePackage(named: "Generator", manifest: """
+    /// A dependency-free package that stands in for a site generator: it writes a page into the
+    /// directory it is given, which is exactly the contract `winged build` relies on.
+    private func makeGeneratorPackage(named name: String) throws -> String {
+        let path = try makePackage(named: name, manifest: """
         // swift-tools-version: 6.0
         import PackageDescription
 
         let package = Package(
-            name: "Generator",
-            targets: [.executableTarget(name: "Generator")]
+            name: "\(name)",
+            targets: [.executableTarget(name: "\(name)")]
         )
         """)
 
-        // Stand in for a site generator: write a page into the directory it is given.
         try """
         import Foundation
 
@@ -119,14 +120,30 @@ import Testing
         try FileManager.default.createDirectory(atPath: output, withIntermediateDirectories: true)
         try "<!DOCTYPE html>\\n<h1>built</h1>".write(toFile: output + "/index.html",
                                                     atomically: true, encoding: .utf8)
-        """.write(to: URL(fileURLWithPath: path).appendingPathComponent("Sources/Generator/main.swift"),
+        """.write(to: URL(fileURLWithPath: path).appendingPathComponent("Sources/\(name)/main.swift"),
                   atomically: true, encoding: .utf8)
+        return path
+    }
+
+    /// Compiles and runs a real package the way `winged build` does.
+    @Test func buildsAndRunsTheProductWritingToTheOutputDirectory() throws {
+        let path = try makeGeneratorPackage(named: "Generator")
 
         let outputPath = try Build.build(projectPath: path, output: "dist", release: false)
 
         #expect(outputPath == URL(fileURLWithPath: path).appendingPathComponent("dist").path)
         let page = try String(contentsOfFile: outputPath + "/index.html", encoding: .utf8)
         #expect(page.contains("<h1>built</h1>"))
+    }
+
+    @Test func theCommandItselfBuildsIntoTheRequestedDirectory() throws {
+        let path = try makeGeneratorPackage(named: "Commanded")
+
+        var command = try Build.parse(["--path", path, "--output", "site"])
+        try command.run()
+
+        let page = URL(fileURLWithPath: path).appendingPathComponent("site/index.html")
+        #expect(FileManager.default.fileExists(atPath: page.path))
     }
 
     /// Note: this test makes `swift build` print real compiler errors into the test log.
