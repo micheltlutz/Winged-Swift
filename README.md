@@ -176,7 +176,7 @@ Check out these production sites created with WingedSwift:
 
 - **[NFC Forge](https://nfc-forge.micheltlutz.me)** — Landing page for the freemium iOS app that writes NFC tags with guided flows, bulk production mode, chip password protection, tag templates, and iCloud sync.
 - **[RideKeeper](https://ridekeeper.micheltlutz.me)** — Showcase site for the motorcycle maintenance companion app, highlighting multi-motorcycle garage management, fuel tracking, tire monitoring, and upcoming smart reminders.
-- **[ML3dPrint](https://ml3dprint.com.br)** — Catalog site for custom 3D-printed keychains and accessories, featuring NFC-enabled options, personalized orders, and a brand story crafted around technology and motorcycles.
+- **[Michel Lütz](https://micheltlutz.me)**: Consulting site of WingedSwift's author, covering mobile architecture, engineering strategy and responsible GenAI adoption, with service offerings, projects, articles and talks.
 
 Built with ❤️ using WingedSwift - showcasing the power of Swift for static site generation!
 
