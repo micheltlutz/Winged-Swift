@@ -113,6 +113,27 @@ else
     else
         fail "the winged CLI smoke test failed"
         tail -20 "$CLI_LOG"
+
+        # Narrow it down: is the scaffolded product itself unrunnable here, or only when
+        # spawned through `winged`?
+        PRODUCT="$CLI_DIR/SmokeSite/.build/debug/SmokeSite"
+        printf "\n--- diagnostics ---\n"
+        echo "uname: $(uname -mrs)"
+        echo "swift: $(swift --version 2>&1 | head -1)"
+        if [ -f "$PRODUCT" ]; then
+            ls -l "$PRODUCT"
+            file "$PRODUCT" 2>&1 | head -1
+            codesign -dv "$PRODUCT" 2>&1 | head -3
+            echo "--- running the product directly:"
+            "$PRODUCT" "$CLI_DIR/SmokeSite/dist-direct"
+            echo "direct exit: $?"
+        else
+            echo "no product at $PRODUCT"
+            ls -R "$CLI_DIR/SmokeSite/.build/debug" 2>/dev/null | head -10
+        fi
+        echo "--- swift run from bash:"
+        (cd "$CLI_DIR/SmokeSite" && swift run SmokeSite dist-bash > /dev/null 2>&1)
+        echo "bash swift run exit: $?"
     fi
 fi
 

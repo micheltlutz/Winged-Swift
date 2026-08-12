@@ -5,9 +5,15 @@ enum Shell {
         let command: String
         let status: Int32
         let output: String
+        var wasSignalled = false
 
         var description: String {
-            "`\(command)` failed with status \(status)\n\(output)"
+            // A signal is worth naming: status 9 reads like an exit code, but it means the
+            // process was killed from outside — usually the OS reclaiming memory.
+            let reason = wasSignalled
+                ? "was killed by signal \(status)\(status == SIGKILL ? " (SIGKILL — often the OS running out of memory)" : "")"
+                : "failed with status \(status)"
+            return "`\(command)` \(reason)\n\(output)"
         }
     }
 
@@ -24,7 +30,8 @@ enum Shell {
         guard process.terminationStatus == 0 else {
             throw Failure(command: arguments.joined(separator: " "),
                           status: process.terminationStatus,
-                          output: "")
+                          output: "",
+                          wasSignalled: process.terminationReason == .uncaughtSignal)
         }
         return process.terminationStatus
     }
@@ -47,7 +54,8 @@ enum Shell {
         guard process.terminationStatus == 0 else {
             throw Failure(command: arguments.joined(separator: " "),
                           status: process.terminationStatus,
-                          output: output)
+                          output: output,
+                          wasSignalled: process.terminationReason == .uncaughtSignal)
         }
         return output
     }
