@@ -1,0 +1,12 @@
+# Coverage configuration.
+#
+# Only the CLI's `@main` declaration is ignored: it has no logic to test. Everything else —
+# including the CLI's path resolution, mime mapping, manifest parsing, file watcher and
+# scaffolder — has its own unit tests. The blocking server and watch loops that cannot run
+# in-process are covered end to end by `Scripts/verify.sh`, which CI runs on every pull request
+# but which produces no coverage data.
+#
+# The thresholds are deliberately left at Codecov's defaults: red here means write a test.
+
+ignore:
+  - "Sources/WingedCLI/Winged.swift"

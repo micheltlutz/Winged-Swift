@@ -77,7 +77,7 @@ struct Serve: ParsableCommand {
         }
     }
 
-    private func signature(of paths: [String]) -> [String: Date] {
+    func signature(of paths: [String]) -> [String: Date] {
         var result: [String: Date] = [:]
         let manager = FileManager.default
 
