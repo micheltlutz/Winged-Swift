@@ -1,7 +1,7 @@
 import Foundation
 
 /// Represents a URL entry in a sitemap.
-public struct SitemapURL {
+public struct SitemapURL: Sendable {
     /// The location (URL) of the page.
     public let loc: String
     
@@ -45,7 +45,7 @@ public struct SitemapURL {
 /// let sitemap = SitemapGenerator.generate(urls: urls)
 /// try generator.writeFile(content: sitemap, to: "sitemap.xml")
 /// ```
-public struct SitemapGenerator {
+public struct SitemapGenerator: Sendable {
     
     /// Generates an XML sitemap from an array of URLs.
     ///

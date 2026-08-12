@@ -17,14 +17,16 @@ extension HTMLTag {
     /// // Result: <div class="container mx-auto"></div>
     /// ```
     @discardableResult
-    public func addClass(_ className: String) -> HTMLTag {
-        // Find existing class attribute
+    public func addClass(_ className: String) -> Self {
+        // Only the incoming value is escaped: the stored value is already escaped, and
+        // re-escaping it on every call would turn `&amp;` into `&amp;amp;`.
+        let escaped = HTMLEscape.escapeAttribute(className)
         if let classIndex = attributes.firstIndex(where: { $0.key == "class" }) {
             let existingClass = attributes[classIndex].value
-            let newValue = "\(existingClass) \(className)"
+            let newValue = "\(existingClass) \(escaped)"
             attributes[classIndex] = Attribute(key: "class", value: newValue, escape: false)
         } else {
-            attributes.append(Attribute(key: "class", value: className, escape: false))
+            attributes.append(Attribute(key: "class", value: escaped, escape: false))
         }
         return self
     }
@@ -41,7 +43,7 @@ extension HTMLTag {
     /// // Result: <div class="flex items-center justify-between"></div>
     /// ```
     @discardableResult
-    public func addClasses(_ classNames: [String]) -> HTMLTag {
+    public func addClasses(_ classNames: [String]) -> Self {
         for className in classNames {
             addClass(className)
         }
@@ -63,10 +65,10 @@ extension HTMLTag {
     /// // Result: <div id="main-content" class="container"></div>
     /// ```
     @discardableResult
-    public func setId(_ id: String) -> HTMLTag {
+    public func setId(_ id: String) -> Self {
         // Remove existing id if present
         attributes.removeAll { $0.key == "id" }
-        attributes.append(Attribute(key: "id", value: id, escape: false))
+        attributes.append(Attribute(key: "id", value: id))
         return self
     }
     
@@ -82,10 +84,10 @@ extension HTMLTag {
     /// // Result: <div style="color: red; margin: 10px;"></div>
     /// ```
     @discardableResult
-    public func setStyle(_ style: String) -> HTMLTag {
+    public func setStyle(_ style: String) -> Self {
         // Remove existing style if present
         attributes.removeAll { $0.key == "style" }
-        attributes.append(Attribute(key: "style", value: style, escape: false))
+        attributes.append(Attribute(key: "style", value: style))
         return self
     }
 }

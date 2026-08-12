@@ -4,7 +4,7 @@ This guide walks you through creating a project from scratch using WingedSwift t
 
 ## 📋 Prerequisites
 
-- Swift 5.9 or newer
+- Swift 6.0 or newer (Xcode 16+)
 - Xcode or the Swift command-line tools installed
 
 Check your version:
@@ -13,6 +13,17 @@ swift --version
 ```
 
 ---
+
+## ⚡️ Method 0: The `winged` CLI (fastest)
+
+```bash
+winged new MySwiftSite      # add --tailwind for a Tailwind setup
+cd MySwiftSite
+winged serve --watch        # http://localhost:8000, rebuilds on every change
+```
+
+That scaffolds `Package.swift`, a layout, components, assets and an `AGENTS.md`. The rest of this
+guide builds the same thing by hand, so you know what each piece does.
 
 ## 🎯 Method 1: Minimal Project (Recommended for Beginners)
 
@@ -43,13 +54,13 @@ swift package init --type executable
 Edit the `Package.swift` file:
 
 ```swift
-// swift-tools-version: 5.9
+// swift-tools-version: 6.0
 import PackageDescription
 
 let package = Package(
     name: "MySwiftSite",
     dependencies: [
-        .package(url: "https://github.com/micheltlutz/Winged-Swift.git", from: "1.3.3")
+        .package(url: "https://github.com/micheltlutz/Winged-Swift.git", from: "2.0.0")
     ],
     targets: [
         .executableTarget(
@@ -76,38 +87,36 @@ let generator = StaticSiteGenerator(outputDirectory: "./dist")
 // 2. Clean the output directory
 try generator.clean()
 
-// 3. Create the home page
-let homePage = html {
-    Head(children: [
-        Meta(charset: "UTF-8"),
-        Meta(name: "viewport", content: "width=device-width, initial-scale=1.0"),
-        Title(content: "My First Site with WingedSwift")
-    ])
-    
-    Body(children: [
-        Header(children: [
-            H1(content: "🎉 Welcome to WingedSwift!")
-        ])
-        .addClass("header"),
-        
-        MainTag(children: [
-            Article(children: [
-                H2(content: "About this site"),
-                P(content: "This is a static site generated with Swift using WingedSwift!"),
-                P(content: "It’s fast, type-safe, and fun to build.")
-            ])
-        ])
-        .addClass("container"),
-        
-        Footer(children: [
-            P(content: "Built with ❤️ using WingedSwift")
-        ])
-        .addClass("footer")
-    ])
+// 3. Create the home page.
+//    `Document` owns the doctype and the <html lang="…"> element; each container takes its
+//    children as a trailing closure, where `if`, `for` and `map` all work.
+let homePage = Document(lang: "en") {
+    Meta(charset: "UTF-8")
+    Meta(name: "viewport", content: "width=device-width, initial-scale=1.0")
+    Title(content: "My First Site with WingedSwift")
+} body: {
+    Header {
+        H1(content: "🎉 Welcome to WingedSwift!")
+    }
+    .addClass("header")
+
+    MainTag {
+        Article {
+            H2(content: "About this site")
+            P(content: "This is a static site generated with Swift using WingedSwift!")
+            P(content: "It’s fast, type-safe, and fun to build.")
+        }
+    }
+    .addClass("container")
+
+    Footer {
+        P(content: "Built with ❤️ using WingedSwift")
+    }
+    .addClass("footer")
 }
 
 // 4. Generate the HTML
-try generator.generate(page: homePage, to: "index.html", pretty: true)
+try generator.generate(document: homePage, to: "index.html")
 
 print("✅ Site successfully generated at ./dist/index.html")
 ```
@@ -127,9 +136,8 @@ swift run
 # Open in the browser
 open dist/index.html
 
-# Or serve with Python (simple HTTP server)
-cd dist
-python3 -m http.server 8000
+# Or serve it (and rebuild on every change)
+winged serve --watch
 # Visit: http://localhost:8000
 ```
 
@@ -209,38 +217,30 @@ article {
 ```swift
 import WingedSwift
 
-class BaseLayout: Layout {
+/// Returns a `Document`, so it does not need the `Layout` protocol (which wraps a single tag).
+struct BaseLayout {
     let title: String
     let description: String
     
-    init(title: String, description: String) {
-        self.title = title
-        self.description = description
-    }
-    
-    func render(content: HTMLTag) -> HTMLTag {
-        return html {
-            Head(children: [
-                Meta(charset: "UTF-8"),
-                Meta(name: "viewport", content: "width=device-width, initial-scale=1.0"),
-                Meta(name: "description", content: description),
-                Title(content: title),
-                Link(href: "css/style.css", rel: "stylesheet")
-            ])
-            
-            Body(children: [
-                Header(children: [
-                    H1(content: title)
-                ])
-                .addClass("header"),
-                
-                content,
-                
-                Footer(children: [
-                    P(content: "© 2024 My Site. Built with WingedSwift 🚀")
-                ])
-                .addClass("footer")
-            ])
+    func page(@HTMLFragmentBuilder content: () -> [HTMLTag]) -> Document {
+        Document(lang: "en") {
+            Meta(charset: "UTF-8")
+            Meta(name: "viewport", content: "width=device-width, initial-scale=1.0")
+            Meta(name: "description", content: description)
+            Title(content: title)
+            Link(href: "/css/style.css", rel: "stylesheet")
+        } body: {
+            Header {
+                H1(content: title)
+            }
+            .addClass("header")
+
+            MainTag(children: content()).addClass("container")
+
+            Footer {
+                P(content: "© 2026 My Site. Built with WingedSwift 🚀")
+            }
+            .addClass("footer")
         }
     }
 }
@@ -252,17 +252,14 @@ class BaseLayout: Layout {
 import WingedSwift
 
 struct HomePage {
-    static func create(layout: BaseLayout) -> HTMLTag {
-        let content = MainTag(children: [
-            Article(children: [
-                H2(content: "Welcome!"),
-                P(content: "This is a sample site generated with WingedSwift."),
+    static func create(layout: BaseLayout) -> Document {
+        layout.page {
+            Article {
+                H2(content: "Welcome!")
+                P(content: "This is a sample site generated with WingedSwift.")
                 P(content: "You can build amazing static sites using Swift!")
-            ])
-        ])
-        .addClass("container")
-        
-        return layout.render(content: content)
+            }
+        }
     }
 }
 ```
@@ -287,7 +284,7 @@ let layout = BaseLayout(
 let home = HomePage.create(layout: layout)
 
 // Generate
-try generator.generate(page: home, to: "index.html", pretty: true)
+try generator.generate(document: home, to: "index.html")
 try generator.copyAsset(from: "./Assets/css", to: "css")
 
 print("✅ Site generated successfully!")
@@ -303,63 +300,25 @@ open dist/index.html
 
 ---
 
-## 🌐 Method 3: Project with Live Server
+## 🌐 Method 3: Live Preview
 
-### Add a Development Script
-
-Create `Scripts/dev.sh`:
+The CLI has a server and a file watcher built in — no script, no Python:
 
 ```bash
-#!/bin/bash
-
-echo "🔨 Building and generating the site..."
-swift run
-
-echo "🌐 Starting local server..."
-echo "📱 Open: http://localhost:8000"
-cd dist && python3 -m http.server 8000
+winged serve --watch
+# ▶ Building MySwiftSite
+# ✅ Serving dist/ on http://localhost:8000
+#    Watching for changes — Ctrl-C to stop.
 ```
 
-Make it executable:
+Every save to `Sources/` or `assets/` regenerates the site; refresh the page to see it.
+
+### Watch Mode Without the CLI
+
+If you would rather not use `winged serve`, `fswatch` plus any static server works:
 
 ```bash
-chmod +x Scripts/dev.sh
-```
-
-Run it:
-
-```bash
-./Scripts/dev.sh
-```
-
-### Watch Mode (Optional)
-
-Install `fswatch`:
-
-```bash
-brew install fswatch
-```
-
-Create `Scripts/watch.sh`:
-
-```bash
-#!/bin/bash
-
-echo "👀 Watching for changes..."
-
-fswatch -o Sources/ | while read f; do
-    echo "♻️  Changes detected, rebuilding..."
-    swift run
-    echo "✅ Site regenerated!"
-done
-```
-
-Run it:
-
-```bash
-chmod +x Scripts/watch.sh
-./Scripts/watch.sh &
-cd dist && python3 -m http.server 8000
+fswatch -o Sources/ assets/ | while read _; do swift run; done
 ```
 
 ---
@@ -383,41 +342,49 @@ let layout = BaseLayout(
 
 // === PAGES ===
 
+let posts = [
+    (slug: "post1.html", title: "My First Post"),
+    (slug: "post2.html", title: "Learning Swift")
+]
+
 // Home
-let homePage = layout.render(content: MainTag(children: [
-    Article(children: [
-        H2(content: "Latest Posts"),
-        Ul(children: [
-            Li(children: [A(href: "post1.html", content: "My First Post")]),
-            Li(children: [A(href: "post2.html", content: "Learning Swift")]),
-            Li(children: [A(href: "about.html", content: "About Me")])
-        ])
-    ])
-]).addClass("container"))
+let homePage = layout.page {
+    Article {
+        H2(content: "Latest Posts")
+        Ul {
+            for post in posts {
+                Li { A(href: post.slug, content: post.title) }
+            }
+            Li { A(href: "about.html", content: "About Me") }
+        }
+    }
+}
 
 // Post 1
-let post1 = layout.render(content: MainTag(children: [
-    Article(children: [
-        H2(content: "My First Post"),
-        Time(datetime: "2024-10-16", content: "October 16, 2024"),
-        P(content: "This is my first post created with WingedSwift!"),
+let post1 = layout.page {
+    Article {
+        H2(content: "My First Post")
+        Time(datetime: "2026-08-11", content: "August 11, 2026")
+        P(content: "This is my first post created with WingedSwift!")
         A(href: "index.html", content: "← Back")
-    ])
-]).addClass("container"))
+    }
+}
 
 // About
-let aboutPage = layout.render(content: MainTag(children: [
-    Article(children: [
-        H2(content: "About Me"),
-        P(content: "Swift developer passionate about building static sites!"),
+let aboutPage = layout.page {
+    Article {
+        H2(content: "About Me")
+        P(content: "Swift developer passionate about building static sites!")
         A(href: "index.html", content: "← Back")
-    ])
-]).addClass("container"))
+    }
+}
 
 // === GENERATE ===
-try generator.generate(page: homePage, to: "index.html", pretty: true)
-try generator.generate(page: post1, to: "post1.html", pretty: true)
-try generator.generate(page: aboutPage, to: "about.html", pretty: true)
+try generator.generateMultiple(documents: [
+    (document: homePage, path: "index.html"),
+    (document: post1, path: "post1.html"),
+    (document: aboutPage, path: "about.html")
+])
 
 // Copy assets
 try generator.copyAsset(from: "./Assets/css", to: "css")
@@ -504,13 +471,22 @@ git subtree push --prefix dist origin gh-pages
 
 ### Performance
 
-```swift
-// For larger sites, generate in parallel
-let pages = [(home, "index.html"), (about, "about.html")]
+Rendering writes into a single buffer, so a page costs one allocation rather than one per tag —
+generating sequentially is fast enough for thousands of pages.
 
-DispatchQueue.concurrentPerform(iterations: pages.count) { index in
-    let (page, path) = pages[index]
-    try? generator.generate(page: page, to: path, pretty: true)
+A tag tree is a mutable object graph and deliberately not `Sendable`: if you do parallelise, build
+and render each page inside its own task and move only the resulting `String` between them.
+
+```swift
+let rendered = await withTaskGroup(of: (String, String).self) { group in
+    for (page, path) in pages {
+        group.addTask { (page.render(.pretty), path) }   // page built inside this task
+    }
+    return await group.reduce(into: [(String, String)]()) { $0.append($1) }
+}
+
+for (html, path) in rendered {
+    try generator.writeFile(content: html, to: path)
 }
 ```
 
@@ -518,8 +494,8 @@ DispatchQueue.concurrentPerform(iterations: pages.count) { index in
 
 ```swift
 // Inspect the generated HTML
-let page = html { /* ... */ }
-print(page.render(pretty: true))
+let page = Document { Title(content: "T") } body: { H1(content: "Hi") }
+print(page.render(.pretty))
 ```
 
 ### Reuse

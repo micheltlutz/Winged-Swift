@@ -1,19 +1,20 @@
-import XCTest
+import Foundation
+import Testing
 @testable import WingedSwift
 
-final class PrettyPrintTests: XCTestCase {
-    func testPrettyPrintSimpleTag() {
+@Suite struct PrettyPrintTests {
+    @Test func testPrettyPrintSimpleTag() {
         // Given
         let div = Div(content: "Hello World", escapeContent: false)
         
         // When
-        let result = div.render(pretty: true)
+        let result = div.render(.pretty)
         
         // Then
-        XCTAssertEqual(result, "<div>Hello World</div>")
+        #expect(result == "<div>Hello World</div>")
     }
     
-    func testPrettyPrintWithChildren() {
+    @Test func testPrettyPrintWithChildren() {
         // Given
         let div = Div(children: [
             P(content: "Paragraph 1", escapeContent: false),
@@ -21,7 +22,7 @@ final class PrettyPrintTests: XCTestCase {
         ])
         
         // When
-        let result = div.render(pretty: true)
+        let result = div.render(.pretty)
         
         // Then
         let expected = """
@@ -30,32 +31,32 @@ final class PrettyPrintTests: XCTestCase {
           <p>Paragraph 2</p>
         </div>
         """
-        XCTAssertEqual(result, expected)
+        #expect(result == expected)
     }
     
-    func testCompactRenderStillWorks() {
+    @Test func testCompactRenderStillWorks() {
         // Given
         let div = Div(children: [
             P(content: "Test", escapeContent: false)
         ])
         
         // When
-        let result = div.render(pretty: false)
+        let result = div.render(.compact)
         
         // Then
-        XCTAssertEqual(result, "<div><p>Test</p></div>")
+        #expect(result == "<div><p>Test</p></div>")
     }
     
-    func testSelfClosingTagPrettyPrint() {
+    @Test func testSelfClosingTagPrettyPrint() {
         // Given
         let img = Img(src: "test.jpg", alt: "Test")
         
         // When
-        let result = img.render(pretty: true)
+        let result = img.render(.pretty)
         
         // Then
-        XCTAssertTrue(result.contains("<img"))
-        XCTAssertFalse(result.contains("/>"))
-        XCTAssertTrue(result.hasSuffix(">"))
+        #expect(result.contains("<img"))
+        #expect(!(result.contains("/>")))
+        #expect(result.hasSuffix(">"))
     }
 }

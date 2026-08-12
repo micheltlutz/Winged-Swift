@@ -1,8 +1,9 @@
-import XCTest
+import Foundation
+import Testing
 @testable import WingedSwift
 
-final class HTMLEscapeTests: XCTestCase {
-    func testEscapeBasicHTML() {
+@Suite struct HTMLEscapeTests {
+    @Test func testEscapeBasicHTML() {
         // Given
         let unsafe = "<script>alert('XSS')</script>"
         
@@ -10,10 +11,32 @@ final class HTMLEscapeTests: XCTestCase {
         let safe = HTMLEscape.escape(unsafe)
         
         // Then
-        XCTAssertEqual(safe, "&lt;script&gt;alert(&#x27;XSS&#x27;)&lt;&#x2F;script&gt;")
+        #expect(safe == "&lt;script&gt;alert(&#x27;XSS&#x27;)&lt;/script&gt;")
     }
-    
-    func testEscapeAmpersand() {
+
+    @Test func testSlashesAreKeptByDefault() {
+        // Given
+        let text = "Published on 11/08/2026 — see /docs/getting-started"
+
+        // When
+        let escaped = HTMLEscape.escape(text)
+
+        // Then
+        #expect(escaped == text)
+    }
+
+    @Test func testSlashesCanBeEscapedExplicitly() {
+        // Given
+        let text = "</script>"
+
+        // When
+        let escaped = HTMLEscape.escape(text, escapeSlashes: true)
+
+        // Then
+        #expect(escaped == "&lt;&#x2F;script&gt;")
+    }
+
+    @Test func testEscapeAmpersand() {
         // Given
         let text = "Tom & Jerry"
         
@@ -21,10 +44,10 @@ final class HTMLEscapeTests: XCTestCase {
         let escaped = HTMLEscape.escape(text)
         
         // Then
-        XCTAssertEqual(escaped, "Tom &amp; Jerry")
+        #expect(escaped == "Tom &amp; Jerry")
     }
     
-    func testEscapeQuotes() {
+    @Test func testEscapeQuotes() {
         // Given
         let text = "He said \"Hello\""
         
@@ -32,10 +55,10 @@ final class HTMLEscapeTests: XCTestCase {
         let escaped = HTMLEscape.escape(text)
         
         // Then
-        XCTAssertEqual(escaped, "He said &quot;Hello&quot;")
+        #expect(escaped == "He said &quot;Hello&quot;")
     }
     
-    func testHTMLTagEscapesContentByDefault() {
+    @Test func testHTMLTagEscapesContentByDefault() {
         // Given
         let p = P(content: "<script>alert('XSS')</script>")
         
@@ -43,11 +66,11 @@ final class HTMLEscapeTests: XCTestCase {
         let result = p.render()
         
         // Then
-        XCTAssertFalse(result.contains("<script>"))
-        XCTAssertTrue(result.contains("&lt;script&gt;"))
+        #expect(!(result.contains("<script>")))
+        #expect(result.contains("&lt;script&gt;"))
     }
     
-    func testHTMLTagCanDisableEscape() {
+    @Test func testHTMLTagCanDisableEscape() {
         // Given
         let p = P(content: "<b>Bold</b>", escapeContent: false)
         
@@ -55,10 +78,10 @@ final class HTMLEscapeTests: XCTestCase {
         let result = p.render()
         
         // Then
-        XCTAssertTrue(result.contains("<b>Bold</b>"))
+        #expect(result.contains("<b>Bold</b>"))
     }
     
-    func testAttributeEscape() {
+    @Test func testAttributeEscape() {
         // Given
         let value = "value with \"quotes\""
         
@@ -66,6 +89,6 @@ final class HTMLEscapeTests: XCTestCase {
         let escaped = HTMLEscape.escapeAttribute(value)
         
         // Then
-        XCTAssertEqual(escaped, "value with &quot;quotes&quot;")
+        #expect(escaped == "value with &quot;quotes&quot;")
     }
 }

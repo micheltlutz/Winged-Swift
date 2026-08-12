@@ -9,7 +9,7 @@ on:
 jobs:
   test-macos:
     name: Test on macOS
-    runs-on: macos-13
+    runs-on: macos-14
     
     steps:
     - name: Checkout code
@@ -28,7 +28,7 @@ jobs:
     name: Test on Linux
     runs-on: ubuntu-latest
     container:
-      image: swift:5.10
+      image: swift:6.0
     
     steps:
     - name: Checkout code
@@ -45,7 +45,7 @@ jobs:
   
   coverage:
     name: Code Coverage
-    runs-on: macos-13
+    runs-on: macos-14
     
     steps:
     - name: Checkout code
@@ -71,9 +71,23 @@ jobs:
         fail_ci_if_error: false
       continue-on-error: true
   
+  verify:
+    name: Verify (build, test, lint, catalog, render)
+    runs-on: macos-14
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Install SwiftLint
+      run: brew install swiftlint
+
+    - name: Run verification script
+      run: ./Scripts/verify.sh
+
   lint:
     name: SwiftLint
-    runs-on: macos-13
+    runs-on: macos-14
     
     steps:
     - name: Checkout code

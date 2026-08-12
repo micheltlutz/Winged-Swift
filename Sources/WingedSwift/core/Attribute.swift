@@ -1,7 +1,7 @@
 import Foundation
 
 /// Represents an HTML attribute with a key and a value.
-public class Attribute {
+public struct Attribute: Sendable {
     let key: String
     let value: String
     /// When true, the attribute renders as ` key` with no `="value"` (e.g. `hidden`, `checked`).

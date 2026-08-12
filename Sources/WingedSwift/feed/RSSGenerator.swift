@@ -1,7 +1,7 @@
 import Foundation
 
 /// Represents an item in an RSS feed.
-public struct RSSItem {
+public struct RSSItem: Sendable {
     /// The title of the item.
     public let title: String
     
@@ -82,7 +82,7 @@ public struct RSSItem {
 /// let rss = generator.generate(items: items)
 /// try siteGenerator.writeFile(content: rss, to: "feed.xml")
 /// ```
-public class RSSGenerator {
+public final class RSSGenerator: Sendable {
     /// The title of the RSS feed.
     public let title: String
     

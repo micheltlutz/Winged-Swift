@@ -1,0 +1,10 @@
+import type { Config } from "tailwindcss"
+
+// Tailwind scans the GENERATED HTML, not the Swift sources — run `winged build` first.
+export default {
+  content: ["./dist/**/*.html"],
+  theme: {
+    extend: {}
+  },
+  plugins: []
+} satisfies Config

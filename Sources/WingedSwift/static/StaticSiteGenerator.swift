@@ -16,7 +16,7 @@ import Foundation
 ///
 /// try generator.generate(page: page, to: "index.html", pretty: true)
 /// ```
-public class StaticSiteGenerator {
+public final class StaticSiteGenerator: Sendable {
     /// The base output directory where files will be generated.
     public let outputDirectory: String
     
@@ -27,6 +27,45 @@ public class StaticSiteGenerator {
         self.outputDirectory = outputDirectory
     }
     
+    /// Writes a ``Document`` to disk, doctype and language included.
+    ///
+    /// - Parameters:
+    ///   - document: The document to write.
+    ///   - path: The relative path where the file will be saved (e.g. `"index.html"`).
+    ///   - options: How to format the markup. Defaults to ``RenderOptions/pretty``.
+    /// - Throws: An error if the file cannot be written.
+    ///
+    /// ## Example
+    /// ```swift
+    /// try generator.generate(document: homePage, to: "index.html")
+    /// ```
+    public func generate(document: Document, to path: String, options: RenderOptions = .pretty) throws {
+        try writeFile(content: document.render(options), to: path)
+    }
+
+    /// Writes several documents in one operation.
+    ///
+    /// - Parameters:
+    ///   - documents: The documents and the paths to write them to.
+    ///   - options: How to format the markup. Defaults to ``RenderOptions/pretty``.
+    /// - Throws: An error if any file cannot be written.
+    ///
+    /// ## Example
+    /// ```swift
+    /// try generator.generateMultiple(documents: [
+    ///     (document: home, path: "index.html"),
+    ///     (document: about, path: "about/index.html")
+    /// ])
+    /// ```
+    public func generateMultiple(
+        documents: [(document: Document, path: String)],
+        options: RenderOptions = .pretty
+    ) throws {
+        for (document, path) in documents {
+            try generate(document: document, to: path, options: options)
+        }
+    }
+
     /// Generates a single HTML page and writes it to disk.
     ///
     /// - Parameters:
@@ -47,7 +86,7 @@ public class StaticSiteGenerator {
         if doctype {
             html = "<!DOCTYPE html>\n"
         }
-        html += page.render(pretty: pretty)
+        html += page.render(pretty ? .pretty : .compact)
         
         // Write to file
         try html.write(toFile: fullPath, atomically: true, encoding: .utf8)

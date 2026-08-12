@@ -1,0 +1,28 @@
+import WingedSwift
+
+/// The content of the site, kept apart from its markup.
+enum Content {
+    struct Feature {
+        let icon: String
+        let title: String
+        let body: String
+    }
+
+    static let features = [
+        Feature(icon: "⚡️", title: "Fast", body: "Static HTML, nothing to boot at request time."),
+        Feature(icon: "🔒", title: "Safe", body: "Content is escaped by default."),
+        Feature(icon: "🧩", title: "Composable", body: "Pages are Swift functions returning tags.")
+    ]
+}
+
+/// Reusable pieces of markup. A component is a function that returns an `HTMLTag`.
+enum Components {
+    static func featureCard(_ feature: Content.Feature) -> HTMLTag {
+        Div {
+            Span(content: feature.icon).addClass("card-icon")
+            H3(content: feature.title)
+            P(content: feature.body)
+        }
+        .addClass("card")
+    }
+}

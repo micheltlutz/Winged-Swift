@@ -2,8 +2,9 @@ import Foundation
 
 /// An HTML node that renders raw markup without a wrapper element.
 ///
-/// Use `RawHTML` for imported HTML snippets or for aggregating a fragment of tags
-/// without introducing an extra container (unlike wrapping content in a `Div`).
+/// Use `RawHTML` for imported HTML snippets — an SVG, an embed code — that you already have as a
+/// string. It is never escaped. To group tags without an extra element, use ``Fragment`` instead:
+/// it keeps the children as a tree, so pretty printing still works.
 public class RawHTML: HTMLTag {
     private let raw: String
 
@@ -15,20 +16,10 @@ public class RawHTML: HTMLTag {
         super.init("", attributes: [], children: [], content: nil, escapeContent: false)
     }
 
-    public override func render(pretty: Bool = false, indentLevel: Int = 0) -> String {
-        if pretty {
-            let indent = String(repeating: "  ", count: indentLevel)
-            return "\(indent)\(raw)"
+    public override func write(into output: inout String, options: RenderOptions, indentLevel: Int = 0) {
+        if options.pretty {
+            output += String(repeating: options.indent, count: indentLevel)
         }
-        return raw
-    }
-
-    public override func renderCompact() -> String {
-        raw
-    }
-
-    public override func renderPretty(indentLevel: Int = 0) -> String {
-        let indent = String(repeating: "  ", count: indentLevel)
-        return "\(indent)\(raw)"
+        output += raw
     }
 }

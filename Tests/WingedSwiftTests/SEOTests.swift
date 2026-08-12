@@ -1,8 +1,9 @@
-import XCTest
+import Foundation
+import Testing
 @testable import WingedSwift
 
-final class SEOTests: XCTestCase {
-    func testOpenGraphMetaTags() {
+@Suite struct SEOTests {
+    @Test func testOpenGraphMetaTags() {
         // When
         let tags = SEO.openGraph(
             title: "Test Page",
@@ -12,17 +13,17 @@ final class SEOTests: XCTestCase {
         )
         
         // Then
-        XCTAssertEqual(tags.count, 5)
+        #expect(tags.count == 5)
         
         let rendered = tags.map { $0.render() }.joined()
-        XCTAssertTrue(rendered.contains("property=\"og:title\""))
-        XCTAssertTrue(rendered.contains("content=\"Test Page\""))
-        XCTAssertTrue(rendered.contains("property=\"og:description\""))
-        XCTAssertTrue(rendered.contains("property=\"og:image\""))
-        XCTAssertTrue(rendered.contains("property=\"og:url\""))
+        #expect(rendered.contains("property=\"og:title\""))
+        #expect(rendered.contains("content=\"Test Page\""))
+        #expect(rendered.contains("property=\"og:description\""))
+        #expect(rendered.contains("property=\"og:image\""))
+        #expect(rendered.contains("property=\"og:url\""))
     }
     
-    func testOpenGraphArticle() {
+    @Test func testOpenGraphArticle() {
         // When
         let tags = SEO.openGraphArticle(
             title: "Article Title",
@@ -35,13 +36,13 @@ final class SEOTests: XCTestCase {
         
         // Then
         let rendered = tags.map { $0.render() }.joined()
-        XCTAssertTrue(rendered.contains("property=\"og:type\""))
-        XCTAssertTrue(rendered.contains("content=\"article\""))
-        XCTAssertTrue(rendered.contains("property=\"article:author\""))
-        XCTAssertTrue(rendered.contains("property=\"article:published_time\""))
+        #expect(rendered.contains("property=\"og:type\""))
+        #expect(rendered.contains("content=\"article\""))
+        #expect(rendered.contains("property=\"article:author\""))
+        #expect(rendered.contains("property=\"article:published_time\""))
     }
     
-    func testTwitterCardMetaTags() {
+    @Test func testTwitterCardMetaTags() {
         // When
         let tags = SEO.twitterCard(
             title: "Test Page",
@@ -53,13 +54,13 @@ final class SEOTests: XCTestCase {
         
         // Then
         let rendered = tags.map { $0.render() }.joined()
-        XCTAssertTrue(rendered.contains("name=\"twitter:card\""))
-        XCTAssertTrue(rendered.contains("name=\"twitter:title\""))
-        XCTAssertTrue(rendered.contains("name=\"twitter:site\""))
-        XCTAssertTrue(rendered.contains("content=\"@testsite\""))
+        #expect(rendered.contains("name=\"twitter:card\""))
+        #expect(rendered.contains("name=\"twitter:title\""))
+        #expect(rendered.contains("name=\"twitter:site\""))
+        #expect(rendered.contains("content=\"@testsite\""))
     }
     
-    func testCommonSEOTags() {
+    @Test func testCommonSEOTags() {
         // When
         let tags = SEO.common(
             title: "Test",
@@ -70,14 +71,14 @@ final class SEOTests: XCTestCase {
         
         // Then
         let rendered = tags.map { $0.render() }.joined()
-        XCTAssertTrue(rendered.contains("charset=\"UTF-8\""))
-        XCTAssertTrue(rendered.contains("name=\"viewport\""))
-        XCTAssertTrue(rendered.contains("name=\"description\""))
-        XCTAssertTrue(rendered.contains("name=\"keywords\""))
-        XCTAssertTrue(rendered.contains("content=\"swift, html\""))
+        #expect(rendered.contains("charset=\"UTF-8\""))
+        #expect(rendered.contains("name=\"viewport\""))
+        #expect(rendered.contains("name=\"description\""))
+        #expect(rendered.contains("name=\"keywords\""))
+        #expect(rendered.contains("content=\"swift, html\""))
     }
     
-    func testCompleteSEOTags() {
+    @Test func testCompleteSEOTags() {
         // When
         let tags = SEO.complete(
             title: "Test",
@@ -88,15 +89,15 @@ final class SEOTests: XCTestCase {
         
         // Then
         // Should include common + OG + Twitter tags
-        XCTAssertTrue(tags.count > 10)
+        #expect(tags.count > 10)
         
         let rendered = tags.map { $0.render() }.joined()
-        XCTAssertTrue(rendered.contains("charset=\"UTF-8\""))
-        XCTAssertTrue(rendered.contains("property=\"og:title\""))
-        XCTAssertTrue(rendered.contains("name=\"twitter:card\""))
+        #expect(rendered.contains("charset=\"UTF-8\""))
+        #expect(rendered.contains("property=\"og:title\""))
+        #expect(rendered.contains("name=\"twitter:card\""))
     }
     
-    func testMetaWithProperty() {
+    @Test func testMetaWithProperty() {
         // Given
         let meta = Meta(property: "og:title", content: "Test Title")
         
@@ -104,11 +105,11 @@ final class SEOTests: XCTestCase {
         let result = meta.render()
         
         // Then
-        XCTAssertTrue(result.contains("property=\"og:title\""))
-        XCTAssertTrue(result.contains("content=\"Test Title\""))
+        #expect(result.contains("property=\"og:title\""))
+        #expect(result.contains("content=\"Test Title\""))
     }
     
-    func testMetaWithCharset() {
+    @Test func testMetaWithCharset() {
         // Given
         let meta = Meta(charset: "UTF-8")
         
@@ -116,6 +117,6 @@ final class SEOTests: XCTestCase {
         let result = meta.render()
         
         // Then
-        XCTAssertTrue(result.contains("charset=\"UTF-8\""))
+        #expect(result.contains("charset=\"UTF-8\""))
     }
 }

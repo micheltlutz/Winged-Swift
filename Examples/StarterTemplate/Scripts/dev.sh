@@ -3,22 +3,15 @@
 echo "🚀 Starting development mode..."
 echo ""
 
-# Build inicial
-echo "🔨 Initial build..."
-swift run
-
-if [ $? -ne 0 ]; then
-    echo "❌ Build failed!"
-    exit 1
+# The CLI builds, serves and watches. If you do not have it installed
+# (swift build -c release in the Winged-Swift checkout), fall back to any static server.
+if command -v winged > /dev/null 2>&1; then
+    exec winged serve --watch
 fi
 
-# Iniciar servidor
-echo ""
-echo "🌐 Starting local server..."
-echo "📱 Open: http://localhost:8000"
-echo ""
-echo "Press Ctrl+C to stop"
-echo ""
+echo "ℹ️  winged not found — building once and serving with Python."
+swift run || { echo "❌ Build failed!"; exit 1; }
 
+echo ""
+echo "🌐 http://localhost:8000  (Ctrl+C to stop)"
 cd dist && python3 -m http.server 8000
-

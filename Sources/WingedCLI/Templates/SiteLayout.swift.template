@@ -1,0 +1,35 @@
+import WingedSwift
+
+/// The shell every page shares: head, navigation and footer.
+struct SiteLayout {
+    let title: String
+    let description: String
+
+    /// Wraps the given content in the site shell and returns a complete document.
+    func page(@HTMLFragmentBuilder content: () -> [HTMLTag]) -> Document {
+        Document(lang: "{{SITE_LANG}}") {
+            Fragment(children: SEO.common(title: title, description: description))
+            Title(content: title)
+            Link(href: "/css/style.css", rel: "stylesheet")
+        } body: {
+            Header {
+                Nav {
+                    A(href: "/", content: "{{SITE_TITLE}}").addClass("logo")
+                    Ul {
+                        Li { A(href: "/", content: "Home") }
+                        Li { A(href: "/about/", content: "About") }
+                    }
+                    .addClass("nav-links")
+                }
+            }
+            .addClass("site-header")
+
+            MainTag(children: content()).addClass("container")
+
+            Footer {
+                P(content: "© {{YEAR}} {{SITE_TITLE}}")
+            }
+            .addClass("site-footer")
+        }
+    }
+}
