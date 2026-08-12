@@ -211,7 +211,9 @@ Five steps — a change that skips any of them will fail `./Scripts/verify.sh`:
    Document the class and every initializer parameter — the public API is 100 % documented and DocC
    is published from it.
 2. **The builder initializer.** Run `python3 Scripts/generate-builder-inits.py`; it writes the
-   convenience initializer from the designated one. Skip this for void elements.
+   convenience initializer from the designated one *and* regenerates
+   `Tests/WingedSwiftTests/BuilderInitCoverageTests.swift`, which calls every builder initializer
+   once. Skip this for void elements.
 3. **Void elements.** If the element has no closing tag, add its name to `selfClosingTags` in
    `Sources/WingedSwift/core/HTMLTag.swift`.
 4. **A test.** Add a render assertion to `Tests/WingedSwiftTests/TagCatalogTests.swift`.

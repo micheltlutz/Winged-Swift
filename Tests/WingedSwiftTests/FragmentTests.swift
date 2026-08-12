@@ -87,6 +87,48 @@ import Testing
         #expect(page.render() == "<html><p>line 1</p><p>line 2</p><p>line 3</p></html>")
     }
 
+    @Test func testRawHTMLIsIndentedInsideAPrettyTree() {
+        let container = Div(children: [RawHTML("<custom-element></custom-element>")])
+
+        #expect(container.render(.pretty) == """
+            <div>
+              <custom-element></custom-element>
+            </div>
+            """)
+    }
+
+    @Test func testFragmentBuilderTakesBothBranchesOfAnIf() {
+        func badge(_ isBeta: Bool) -> Fragment {
+            fragment {
+                if isBeta {
+                    Span(content: "beta")
+                } else {
+                    Span(content: "stable")
+                }
+            }
+        }
+
+        #expect(badge(true).render() == "<span>beta</span>")
+        #expect(badge(false).render() == "<span>stable</span>")
+    }
+
+    @Test func testNestedFragmentsFlattenInPrettyOutput() {
+        let list = Ul(children: [
+            Fragment(children: [
+                Fragment(children: [Li(content: "a")]),
+                Fragment(),
+                Li(content: "b")
+            ])
+        ])
+
+        #expect(list.render(.pretty) == """
+            <ul>
+              <li>a</li>
+              <li>b</li>
+            </ul>
+            """)
+    }
+
     @Test func testRawHTMLStillEmitsMarkupVerbatim() {
         let raw = RawHTML("<custom-element data-x=\"1\"></custom-element>")
 

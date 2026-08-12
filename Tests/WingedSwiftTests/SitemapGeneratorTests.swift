@@ -35,6 +35,36 @@ import Testing
         #expect(!(xml.contains("<priority>")))
     }
 
+    @Test func testPriorityIsRenderedWithOneDecimal() {
+        let xml = SitemapGenerator.generate(urls: [
+            SitemapURL(loc: "https://example.com/", priority: 0.5)
+        ])
+
+        #expect(xml.contains("<priority>0.5</priority>"))
+    }
+
+    @Test func testGeneratesASitemapIndex() {
+        let xml = SitemapGenerator.generateIndex(sitemaps: [
+            (loc: "https://example.com/sitemap-posts.xml", lastmod: "2026-08-11"),
+            (loc: "https://example.com/sitemap-pages.xml?v=2&full=1", lastmod: nil)
+        ])
+
+        #expect(xml.hasPrefix("<?xml version=\"1.0\" encoding=\"UTF-8\"?>"))
+        #expect(xml.contains("<sitemapindex"))
+        #expect(xml.contains("<loc>https://example.com/sitemap-posts.xml</loc>"))
+        #expect(xml.contains("<lastmod>2026-08-11</lastmod>"))
+        #expect(xml.contains("v=2&amp;full=1"))
+        #expect(xml.contains("</sitemapindex>"))
+    }
+
+    @Test func testSitemapIndexOmitsAMissingLastmod() {
+        let xml = SitemapGenerator.generateIndex(sitemaps: [
+            (loc: "https://example.com/sitemap.xml", lastmod: nil)
+        ])
+
+        #expect(!xml.contains("<lastmod>"))
+    }
+
     @Test func testEmptyURLListStillProducesAWellFormedDocument() {
         let xml = SitemapGenerator.generate(urls: [])
 

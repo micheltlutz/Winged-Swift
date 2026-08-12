@@ -34,6 +34,41 @@ import Testing
         #expect(!(xml.contains("<managingEditor>")))
     }
 
+    @Test func testEveryOptionalChannelFieldIsRendered() {
+        let xml = RSSGenerator(
+            title: "T",
+            link: "https://e.com",
+            description: "D",
+            language: "en",
+            copyright: "© 2026",
+            managingEditor: "editor@e.com",
+            webmaster: "web@e.com"
+        ).generate(items: [])
+
+        #expect(xml.contains("<copyright>© 2026</copyright>"))
+        #expect(xml.contains("<managingEditor>editor@e.com</managingEditor>"))
+        #expect(xml.contains("<webMaster>web@e.com</webMaster>"))
+    }
+
+    @Test func testItemWithoutOptionalFields() {
+        let xml = makeGenerator().generate(items: [
+            RSSItem(title: "T", link: "https://e.com/p", description: "D",
+                    pubDate: "Tue, 11 Aug 2026 10:00:00 +0000")
+        ])
+
+        #expect(!xml.contains("<author>"))
+        #expect(!xml.contains("<category>"))
+    }
+
+    @Test func testExplicitGuidWinsOverTheLink() {
+        let xml = makeGenerator().generate(items: [
+            RSSItem(title: "T", link: "https://e.com/p", description: "D",
+                    pubDate: "Tue, 11 Aug 2026 10:00:00 +0000", guid: "urn:uuid:1234")
+        ])
+
+        #expect(xml.contains("<guid isPermaLink=\"true\">urn:uuid:1234</guid>"))
+    }
+
     @Test func testItemsAreRendered() {
         let item = RSSItem(
             title: "Hello & welcome",

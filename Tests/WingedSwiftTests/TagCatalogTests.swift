@@ -122,6 +122,31 @@ import Testing
         #expect(style.render() == "<style media=\"screen\">a > b { color: red; }</style>")
     }
 
+    // MARK: - Optional parameters
+
+    @Test func optionalMediaParametersAreOmittedWhenNil() {
+        #expect(Source(src: "a.mp4", media: "(min-width: 40em)").render() ==
+                "<source src=\"a.mp4\" media=\"(min-width: 40em)\">")
+        #expect(Track(src: "t.vtt", kind: "captions", label: "PT").render() ==
+                "<track src=\"t.vtt\" kind=\"captions\" label=\"PT\">")
+        #expect(Video().render() == "<video controls></video>")
+        #expect(Audio(controls: false, autoplay: true, loop: true).render() ==
+                "<audio autoplay loop></audio>")
+        #expect(Iframe(src: "/e", title: "E", loading: nil, allowfullscreen: true).render() ==
+                "<iframe src=\"/e\" title=\"E\" allowfullscreen></iframe>")
+        #expect(Base(href: "/", target: "_blank").render() ==
+                "<base href=\"/\" target=\"_blank\">")
+        #expect(Col().render() == "<col>")
+        #expect(Q(content: "quoted").render() == "<q>quoted</q>")
+    }
+
+    @Test func metaSupportsEveryForm() {
+        #expect(Meta(httpEquiv: "refresh", content: "5").render() ==
+                "<meta http-equiv=\"refresh\" content=\"5\">")
+        #expect(Meta(attributes: [Attribute(key: "itemprop", value: "name")]).render() ==
+                "<meta itemprop=\"name\">")
+    }
+
     // MARK: - Flow containers accept text as well as children
 
     @Test func testFlowContainersAcceptContent() {

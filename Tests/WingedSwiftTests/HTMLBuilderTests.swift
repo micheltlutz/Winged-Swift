@@ -35,6 +35,38 @@ import Testing
         #expect(document.children[0].name == "optional", "Child tag should be 'optional'")
     }
     
+    @Test func testHTMLBuilderWrapsASingleNonGroupedComponent() {
+        // buildOptional returns the tag itself rather than a Fragment, which html(_:) must adopt.
+        let document = html {
+            HTMLBuilder.buildOptional(Body(children: [H1(content: "Hi")]))
+        }
+
+        #expect(document.render() == "<html><body><h1>Hi</h1></body></html>")
+    }
+
+    @Test func testHTMLBuilderTakesBothBranchesOfAnIfElse() {
+        func page(_ loggedIn: Bool) -> HTMLTag {
+            html {
+                if loggedIn {
+                    Nav(content: "Sign out")
+                } else {
+                    Nav(content: "Sign in")
+                }
+            }
+        }
+
+        #expect(page(true).render() == "<html><nav>Sign out</nav></html>")
+        #expect(page(false).render() == "<html><nav>Sign in</nav></html>")
+    }
+
+    @Test func testHTMLBuilderAcceptsAnArrayExpression() {
+        let document = html {
+            HTMLBuilder.buildExpression(["a", "b"].map { P(content: $0) })
+        }
+
+        #expect(document.render() == "<html><p>a</p><p>b</p></html>")
+    }
+
     @Test func testHTMLBuilderHandlesEitherFirst() {
         // When
         let document = html {

@@ -3,6 +3,33 @@ import Testing
 @testable import WingedSwift
 
 @Suite struct SEOTests {
+    @Test func testOpenGraphIncludesTheSiteName() {
+        let tags = SEO.openGraph(title: "T", description: "D", image: "I", url: "U",
+                                 type: "profile", siteName: "My Site")
+        let rendered = tags.map { $0.render() }.joined()
+
+        #expect(rendered.contains("<meta property=\"og:site_name\" content=\"My Site\">"))
+        #expect(rendered.contains("<meta property=\"og:type\" content=\"profile\">"))
+    }
+
+    @Test func testArticleCarriesItsTimestamps() {
+        let tags = SEO.openGraphArticle(title: "T", description: "D", image: "I", url: "U",
+                                        author: "Michel", publishedTime: "2026-08-11T10:00:00Z",
+                                        modifiedTime: "2026-08-12T10:00:00Z")
+        let rendered = tags.map { $0.render() }.joined()
+
+        #expect(rendered.contains("article:author"))
+        #expect(rendered.contains("article:published_time"))
+        #expect(rendered.contains("article:modified_time"))
+    }
+
+    @Test func testCommonOmitsEmptyKeywords() {
+        let rendered = SEO.common(title: "T", description: "D", keywords: [])
+            .map { $0.render() }.joined()
+
+        #expect(!rendered.contains("keywords"))
+    }
+
     @Test func testOpenGraphMetaTags() {
         // When
         let tags = SEO.openGraph(
