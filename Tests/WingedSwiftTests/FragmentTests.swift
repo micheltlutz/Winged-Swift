@@ -11,8 +11,8 @@ import Testing
     }
 
     @Test func testEmptyFragmentRendersNothing() {
-        #expect(Fragment().render() == "")
-        #expect(Fragment().render(.pretty) == "")
+        #expect(Fragment().render().isEmpty)
+        #expect(Fragment().render(.pretty).isEmpty)
     }
 
     @Test func testFragmentKeepsPrettyIndentation() {

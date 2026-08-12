@@ -9,7 +9,7 @@ on:
 jobs:
   test-macos:
     name: Test on macOS
-    runs-on: macos-14
+    runs-on: macos-15
     
     steps:
     - name: Checkout code
@@ -45,7 +45,7 @@ jobs:
   
   coverage:
     name: Code Coverage
-    runs-on: macos-14
+    runs-on: macos-15
     
     steps:
     - name: Checkout code
@@ -72,8 +72,8 @@ jobs:
       continue-on-error: true
   
   verify:
-    name: Verify (build, test, lint, catalog, render)
-    runs-on: macos-14
+    name: Verify (build, test, lint, catalog, render, CLI)
+    runs-on: macos-15
 
     steps:
     - name: Checkout code
@@ -87,7 +87,7 @@ jobs:
 
   lint:
     name: SwiftLint
-    runs-on: macos-14
+    runs-on: macos-15
     
     steps:
     - name: Checkout code

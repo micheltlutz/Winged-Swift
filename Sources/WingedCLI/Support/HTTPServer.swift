@@ -66,9 +66,9 @@ struct HTTPServer: Sendable {
 
     private func handle(_ connection: Int32) {
         var buffer = [UInt8](repeating: 0, count: 4096)
-        let count = recv(connection, &buffer, buffer.count, 0)
-        guard count > 0,
-              let request = String(bytes: buffer[0..<count], encoding: .utf8),
+        let bytesRead = recv(connection, &buffer, buffer.count, 0)
+        guard bytesRead > 0,
+              let request = String(bytes: buffer[0..<bytesRead], encoding: .utf8),
               let requestLine = request.split(separator: "\r\n").first else {
             return
         }
@@ -130,25 +130,30 @@ struct HTTPServer: Sendable {
         }
     }
 
+    private static let contentTypes = [
+        "html": "text/html; charset=utf-8",
+        "htm": "text/html; charset=utf-8",
+        "css": "text/css; charset=utf-8",
+        "js": "text/javascript; charset=utf-8",
+        "mjs": "text/javascript; charset=utf-8",
+        "json": "application/json",
+        "xml": "application/xml",
+        "svg": "image/svg+xml",
+        "png": "image/png",
+        "jpg": "image/jpeg",
+        "jpeg": "image/jpeg",
+        "webp": "image/webp",
+        "avif": "image/avif",
+        "gif": "image/gif",
+        "ico": "image/x-icon",
+        "woff2": "font/woff2",
+        "woff": "font/woff",
+        "mp4": "video/mp4",
+        "txt": "text/plain; charset=utf-8"
+    ]
+
     static func contentType(of path: String) -> String {
-        switch URL(fileURLWithPath: path).pathExtension.lowercased() {
-        case "html", "htm": return "text/html; charset=utf-8"
-        case "css": return "text/css; charset=utf-8"
-        case "js", "mjs": return "text/javascript; charset=utf-8"
-        case "json": return "application/json"
-        case "xml": return "application/xml"
-        case "svg": return "image/svg+xml"
-        case "png": return "image/png"
-        case "jpg", "jpeg": return "image/jpeg"
-        case "webp": return "image/webp"
-        case "avif": return "image/avif"
-        case "gif": return "image/gif"
-        case "ico": return "image/x-icon"
-        case "woff2": return "font/woff2"
-        case "woff": return "font/woff"
-        case "mp4": return "video/mp4"
-        case "txt": return "text/plain; charset=utf-8"
-        default: return "application/octet-stream"
-        }
+        let ext = URL(fileURLWithPath: path).pathExtension.lowercased()
+        return contentTypes[ext] ?? "application/octet-stream"
     }
 }

@@ -20,15 +20,20 @@ final class DeprecatedAPITests: XCTestCase {
 
     func testRenderCompactAndRenderPrettyStillWork() {
         let div = Div(children: [P(content: "Hi")])
+        let indent = String(repeating: " ", count: 2)
 
         XCTAssertEqual(div.renderCompact(), "<div><p>Hi</p></div>")
-        XCTAssertEqual(div.renderPretty(), "<div>\n  <p>Hi</p>\n</div>")
+        XCTAssertEqual(div.renderPretty(), "<div>\n\(indent)<p>Hi</p>\n</div>")
     }
 
     func testIndentLevelIsStillHonoured() {
         let div = Div(children: [P(content: "Hi")])
+        let indent = String(repeating: " ", count: 2)
 
-        XCTAssertEqual(div.renderPretty(indentLevel: 1), "  <div>\n    <p>Hi</p>\n  </div>")
+        XCTAssertEqual(
+            div.renderPretty(indentLevel: 1),
+            "\(indent)<div>\n\(indent + indent)<p>Hi</p>\n\(indent)</div>"
+        )
     }
 
     func testGlobalXHTMLSwitchStillAffectsTheNoArgumentRender() {

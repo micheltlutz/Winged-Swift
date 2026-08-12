@@ -25,7 +25,7 @@ if swift test 2>&1 | tail -5; then ok "tests"; else fail "tests"; fi
 
 step "swiftlint"
 if command -v swiftlint > /dev/null 2>&1; then
-    if swiftlint lint --quiet; then ok "lint"; else fail "lint"; fi
+    if swiftlint lint --strict --quiet; then ok "lint"; else fail "lint"; fi
 else
     printf "\033[1;33m⚠️  swiftlint not installed (brew install swiftlint) — skipped\033[0m\n"
 fi
