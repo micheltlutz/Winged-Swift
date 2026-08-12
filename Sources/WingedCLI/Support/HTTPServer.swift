@@ -94,7 +94,7 @@ struct HTTPServer: Sendable {
     }
 
     /// Maps a URL path to a file inside the served directory, refusing to escape it.
-    private func resolve(_ path: String) -> String? {
+    func resolve(_ path: String) -> String? {
         let rootURL = URL(fileURLWithPath: root).standardizedFileURL
         let decoded = path.removingPercentEncoding ?? path
         var candidate = rootURL.appendingPathComponent(decoded).standardizedFileURL

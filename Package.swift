@@ -33,6 +33,11 @@ let package = Package(
             name: "WingedSwiftTests",
             dependencies: ["WingedSwift"],
             swiftSettings: [.swiftLanguageMode(.v6)]
+        ),
+        .testTarget(
+            name: "WingedCLITests",
+            dependencies: ["WingedCLI"],
+            swiftSettings: [.swiftLanguageMode(.v6)]
         )
     ]
 )
