@@ -25,18 +25,28 @@ struct Build: ParsableCommand {
         let product = try executableProduct(in: projectPath)
 
         Log.step("Building \(product)")
-        // An absolute path, because `swift run` does not guarantee the product inherits this
-        // process's working directory — the site would otherwise land wherever the user stood.
+        // An absolute path, so the site lands in the project rather than wherever the user stood.
         let outputURL = URL(fileURLWithPath: projectPath)
             .appendingPathComponent(output)
             .standardizedFileURL
 
-        var arguments = ["swift", "run"]
-        if release {
-            arguments += ["-c", "release"]
+        let configuration = release ? ["-c", "release"] : []
+
+        // Build, then execute the product directly rather than going through `swift run`.
+        // One less process in the chain, no rebuild check between building and running — and
+        // `swift run` spawned from here is killed outright by some macOS environments.
+        try Shell.run(["swift", "build"] + configuration, in: projectPath)
+
+        let binPath = try Shell.capture(["swift", "build", "--show-bin-path"] + configuration,
+                                        in: projectPath)
+            .trimmingCharacters(in: .whitespacesAndNewlines)
+        let executable = URL(fileURLWithPath: binPath).appendingPathComponent(product).path
+
+        guard FileManager.default.isExecutableFile(atPath: executable) else {
+            throw ValidationError("Built \(product), but no executable at \(executable).")
         }
-        arguments += [product, outputURL.path]
-        try Shell.run(arguments, in: projectPath)
+
+        try Shell.run([executable, outputURL.path], in: projectPath)
 
         let pages = (try? FileManager.default.subpathsOfDirectory(atPath: outputURL.path))?
             .filter { $0.hasSuffix(".html") } ?? []
