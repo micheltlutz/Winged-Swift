@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>RideKeeper</title>
+    <link>https://ridekeeper.example</link>
+    <description>Release notes</description>
+    <atom:link href="https://ridekeeper.example/feed.xml" rel="self" type="application/rss+xml" />
+    <language>pt-BR</language>
+    <item>
+      <title>1.2 — tyres &amp; chain</title>
+      <link>https://ridekeeper.example/blog/1-2</link>
+      <description>Tyre pressure log &lt;and&gt; chain reminders</description>
+      <pubDate>Tue, 11 Aug 2026 10:00:00 +0000</pubDate>
+      <guid isPermaLink="true">https://ridekeeper.example/blog/1-2</guid>
+      <category>release</category>
+    </item>
+  </channel>
+</rss>

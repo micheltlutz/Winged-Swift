@@ -4,7 +4,7 @@ import PackageDescription
 let package = Package(
     name: "MyStaticSite",
     dependencies: [
-        .package(url: "https://github.com/micheltlutz/Winged-Swift.git", from: "1.3.3")
+        .package(url: "https://github.com/micheltlutz/Winged-Swift.git", from: "2.0.0")
     ],
     targets: [
         .executableTarget(

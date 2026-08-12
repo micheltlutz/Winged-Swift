@@ -1,13 +1,17 @@
 import Foundation
 
 /// Provides HTML escaping functionality to prevent XSS attacks.
-public struct HTMLEscape {
+public struct HTMLEscape: Sendable {
     /// Escapes HTML special characters in a string.
     ///
     /// This method converts potentially dangerous characters into their HTML entity equivalents
     /// to prevent XSS (Cross-Site Scripting) attacks.
     ///
-    /// - Parameter string: The string to escape.
+    /// - Parameters:
+    ///   - string: The string to escape.
+    ///   - escapeSlashes: If true, also escapes `/` as `&#x2F;`. Default is false — `&`, `<`, `>`,
+    ///     `"` and `'` already close the XSS surface, and escaping every slash turns dates, paths
+    ///     and "and/or" into unreadable entities in the generated markup.
     /// - Returns: The escaped string with HTML entities.
     ///
     /// ## Example
@@ -16,17 +20,19 @@ public struct HTMLEscape {
     /// let safe = HTMLEscape.escape(unsafe)
     /// // Result: "&lt;script&gt;alert(&#x27;XSS&#x27;)&lt;/script&gt;"
     /// ```
-    public static func escape(_ string: String) -> String {
+    public static func escape(_ string: String, escapeSlashes: Bool = false) -> String {
         var result = string
-        
+
         // Order matters: & must be escaped first
         result = result.replacingOccurrences(of: "&", with: "&amp;")
         result = result.replacingOccurrences(of: "<", with: "&lt;")
         result = result.replacingOccurrences(of: ">", with: "&gt;")
         result = result.replacingOccurrences(of: "\"", with: "&quot;")
         result = result.replacingOccurrences(of: "'", with: "&#x27;")
-        result = result.replacingOccurrences(of: "/", with: "&#x2F;")
-        
+        if escapeSlashes {
+            result = result.replacingOccurrences(of: "/", with: "&#x2F;")
+        }
+
         return result
     }
     

@@ -1,8 +1,9 @@
-import XCTest
+import Foundation
+import Testing
 @testable import WingedSwift
 
-final class HTMLBuilderTests: XCTestCase {
-    func testHTMLBuilderCreatesRootHTMLTag() {
+@Suite struct HTMLBuilderTests {
+    @Test func testHTMLBuilderCreatesRootHTMLTag() {
         // Given
         let expectedTagName = "html"
         
@@ -13,13 +14,13 @@ final class HTMLBuilderTests: XCTestCase {
         }
         
         // Then
-        XCTAssertEqual(document.name, expectedTagName, "Root tag should be 'html'")
-        XCTAssertEqual(document.children.count, 2, "Root tag should have two children.")
-        XCTAssertEqual(document.children[0].name, "body", "First child should be 'body'")
-        XCTAssertEqual(document.children[1].name, "head", "Second child should be 'head'")
+        #expect(document.name == expectedTagName, "Root tag should be 'html'")
+        #expect(document.children.count == 2, "Root tag should have two children.")
+        #expect(document.children[0].name == "body", "First child should be 'body'")
+        #expect(document.children[1].name == "head", "Second child should be 'head'")
     }
     
-    func testHTMLBuilderHandlesOptional() {
+    @Test func testHTMLBuilderHandlesOptional() {
         // Given
         let optionalComponent: HTMLTag? = HTMLTag("optional")
         
@@ -29,32 +30,64 @@ final class HTMLBuilderTests: XCTestCase {
         }
         
         // Then
-        XCTAssertEqual(document.name, "html", "Root tag should be 'html'")
-        XCTAssertEqual(document.children.count, 1, "Root tag should have one child.")
-        XCTAssertEqual(document.children[0].name, "optional", "Child tag should be 'optional'")
+        #expect(document.name == "html", "Root tag should be 'html'")
+        #expect(document.children.count == 1, "Root tag should have one child.")
+        #expect(document.children[0].name == "optional", "Child tag should be 'optional'")
     }
     
-    func testHTMLBuilderHandlesEitherFirst() {
+    @Test func testHTMLBuilderWrapsASingleNonGroupedComponent() {
+        // buildOptional returns the tag itself rather than a Fragment, which html(_:) must adopt.
+        let document = html {
+            HTMLBuilder.buildOptional(Body(children: [H1(content: "Hi")]))
+        }
+
+        #expect(document.render() == "<html><body><h1>Hi</h1></body></html>")
+    }
+
+    @Test func testHTMLBuilderTakesBothBranchesOfAnIfElse() {
+        func page(_ loggedIn: Bool) -> HTMLTag {
+            html {
+                if loggedIn {
+                    Nav(content: "Sign out")
+                } else {
+                    Nav(content: "Sign in")
+                }
+            }
+        }
+
+        #expect(page(true).render() == "<html><nav>Sign out</nav></html>")
+        #expect(page(false).render() == "<html><nav>Sign in</nav></html>")
+    }
+
+    @Test func testHTMLBuilderAcceptsAnArrayExpression() {
+        let document = html {
+            HTMLBuilder.buildExpression(["a", "b"].map { P(content: $0) })
+        }
+
+        #expect(document.render() == "<html><p>a</p><p>b</p></html>")
+    }
+
+    @Test func testHTMLBuilderHandlesEitherFirst() {
         // When
         let document = html {
             HTMLBuilder.buildEither(first: HTMLTag("first"))
         }
         
         // Then
-        XCTAssertEqual(document.name, "html", "Root tag should be 'html'")
-        XCTAssertEqual(document.children.count, 1, "Root tag should have one child.")
-        XCTAssertEqual(document.children[0].name, "first", "Child tag should be 'first'")
+        #expect(document.name == "html", "Root tag should be 'html'")
+        #expect(document.children.count == 1, "Root tag should have one child.")
+        #expect(document.children[0].name == "first", "Child tag should be 'first'")
     }
     
-    func testHTMLBuilderHandlesEitherSecond() {
+    @Test func testHTMLBuilderHandlesEitherSecond() {
         // When
         let document = html {
             HTMLBuilder.buildEither(second: HTMLTag("second"))
         }
         
         // Then
-        XCTAssertEqual(document.name, "html", "Root tag should be 'html'")
-        XCTAssertEqual(document.children.count, 1, "Root tag should have one child.")
-        XCTAssertEqual(document.children[0].name, "second", "Child tag should be 'second'")
+        #expect(document.name == "html", "Root tag should be 'html'")
+        #expect(document.children.count == 1, "Root tag should have one child.")
+        #expect(document.children[0].name == "second", "Child tag should be 'second'")
     }
 }

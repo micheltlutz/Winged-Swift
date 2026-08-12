@@ -19,7 +19,7 @@ extension HTMLTag {
     /// // Result: <button data-toggle="modal" data-target="#myModal"></button>
     /// ```
     @discardableResult
-    public func dataAttribute(key: String, value: String) -> HTMLTag {
+    public func dataAttribute(key: String, value: String) -> Self {
         attributes.append(Attribute(key: "data-\(key)", value: value))
         return self
     }
@@ -40,7 +40,7 @@ extension HTMLTag {
     /// // Result: <div data-id="123" data-type="product" data-price="99.99"></div>
     /// ```
     @discardableResult
-    public func dataAttributes(_ data: [String: String]) -> HTMLTag {
+    public func dataAttributes(_ data: [String: String]) -> Self {
         for (key, value) in data {
             dataAttribute(key: key, value: value)
         }
@@ -64,7 +64,7 @@ extension HTMLTag {
     /// // Result: <button aria-label="Close" aria-expanded="false"></button>
     /// ```
     @discardableResult
-    public func ariaAttribute(key: String, value: String) -> HTMLTag {
+    public func ariaAttribute(key: String, value: String) -> Self {
         attributes.append(Attribute(key: "aria-\(key)", value: value))
         return self
     }
@@ -84,7 +84,7 @@ extension HTMLTag {
     /// // Result: <nav aria-label="Main navigation" aria-expanded="true"></nav>
     /// ```
     @discardableResult
-    public func ariaAttributes(_ aria: [String: String]) -> HTMLTag {
+    public func ariaAttributes(_ aria: [String: String]) -> Self {
         for (key, value) in aria {
             ariaAttribute(key: key, value: value)
         }
@@ -103,7 +103,7 @@ extension HTMLTag {
     /// // Result: <div role="navigation"></div>
     /// ```
     @discardableResult
-    public func setRole(_ role: String) -> HTMLTag {
+    public func setRole(_ role: String) -> Self {
         attributes.removeAll { $0.key == "role" }
         attributes.append(Attribute(key: "role", value: role))
         return self
@@ -123,7 +123,7 @@ extension HTMLTag {
     ///     .setAttribute(key: "required", value: "true")
     /// ```
     @discardableResult
-    public func setAttribute(key: String, value: String) -> HTMLTag {
+    public func setAttribute(key: String, value: String) -> Self {
         attributes.append(Attribute(key: key, value: value))
         return self
     }

@@ -1,61 +1,55 @@
-import XCTest
+import Foundation
+import Testing
 @testable import WingedSwift
 
-final class HTML14FeaturesTests: XCTestCase {
+@Suite struct HTML14FeaturesTests {
 
-    override func tearDown() {
-        HTMLTag.xhtmlSelfClosing = false
-        super.tearDown()
-    }
-
-    func testRawHTMLRendersWithoutWrapper() {
+    @Test func testRawHTMLRendersWithoutWrapper() {
         let raw = RawHTML("<span class=\"x\">hi</span>")
-        XCTAssertEqual(raw.render(), "<span class=\"x\">hi</span>")
-        XCTAssertFalse(raw.render().contains("<div"))
+        #expect(raw.render() == "<span class=\"x\">hi</span>")
+        #expect(!(raw.render().contains("<div")))
     }
 
-    func testRawHTMLAsChildHasNoWrapper() {
+    @Test func testRawHTMLAsChildHasNoWrapper() {
         let div = Div(children: [
             RawHTML("<i class=\"fa fa-home\"></i>"),
             Span(content: "Home")
         ])
-        XCTAssertEqual(div.render(), "<div><i class=\"fa fa-home\"></i><span>Home</span></div>")
+        #expect(div.render() == "<div><i class=\"fa fa-home\"></i><span>Home</span></div>")
     }
 
-    func testBooleanAttribute() {
+    @Test func testBooleanAttribute() {
         let input = Input(type: "checkbox", name: "agree", attributes: [
             Attribute.boolean("checked"),
             Attribute.boolean("required")
         ])
         let html = input.render()
-        XCTAssertTrue(html.contains(" checked"))
-        XCTAssertTrue(html.contains(" required"))
-        XCTAssertFalse(html.contains("checked="))
-        XCTAssertFalse(html.contains("required="))
+        #expect(html.contains(" checked"))
+        #expect(html.contains(" required"))
+        #expect(!(html.contains("checked=")))
+        #expect(!(html.contains("required=")))
     }
 
-    func testHTML5SelfClosingDefault() {
+    @Test func testHTML5SelfClosingDefault() {
         let img = Img(src: "a.png", alt: "A")
-        XCTAssertEqual(img.render(), "<img src=\"a.png\" alt=\"A\">")
-        XCTAssertFalse(img.render().contains("/>"))
+        #expect(img.render() == "<img src=\"a.png\" alt=\"A\">")
+        #expect(!(img.render().contains("/>")))
     }
 
-    func testXHTMLSelfClosingFlag() {
-        HTMLTag.xhtmlSelfClosing = true
+    @Test func testXHTMLSelfClosingOption() {
         let img = Img(src: "a.png", alt: "A")
-        XCTAssertEqual(img.render(), "<img src=\"a.png\" alt=\"A\" />")
-        HTMLTag.xhtmlSelfClosing = false
+        #expect(img.render(RenderOptions(xhtmlSelfClosing: true)) == "<img src=\"a.png\" alt=\"A\" />")
     }
 
-    func testFragmentHelper() {
+    @Test func testFragmentHelper() {
         let frag = fragment {
             I(attributes: [Attribute(key: "class", value: "fa fa-star")])
             Span(content: " Featured")
         }
-        XCTAssertEqual(frag.render(), "<i class=\"fa fa-star\"></i><span> Featured</span>")
+        #expect(frag.render() == "<i class=\"fa fa-star\"></i><span> Featured</span>")
     }
 
-    func testFragmentBuilderBuildArray() {
+    @Test func testFragmentBuilderBuildArray() {
         let cards = ["One", "Two", "Three"].map { title in
             Div(attributes: [Attribute(key: "class", value: "card")], content: title)
         }
@@ -64,13 +58,10 @@ final class HTML14FeaturesTests: XCTestCase {
                 card
             }
         }
-        XCTAssertEqual(
-            frag.render(),
-            "<div class=\"card\">One</div><div class=\"card\">Two</div><div class=\"card\">Three</div>"
-        )
+        #expect(frag.render() == "<div class=\"card\">One</div><div class=\"card\">Two</div><div class=\"card\">Three</div>")
     }
 
-    func testIAndAWithChildren() {
+    @Test func testIAndAWithChildren() {
         let link = A(
             href: "/news",
             children: [
@@ -82,43 +73,43 @@ final class HTML14FeaturesTests: XCTestCase {
         ])
         let icon = I(attributes: [Attribute(key: "class", value: "fas fa-search")])
 
-        XCTAssertEqual(link.render(), "<a href=\"/news\"><img src=\"thumb.jpg\" alt=\"Thumb\"></a>")
-        XCTAssertEqual(heading.render(), "<h3><a href=\"/news\">Headline</a></h3>")
-        XCTAssertEqual(icon.render(), "<i class=\"fas fa-search\"></i>")
+        #expect(link.render() == "<a href=\"/news\"><img src=\"thumb.jpg\" alt=\"Thumb\"></a>")
+        #expect(heading.render() == "<h3><a href=\"/news\">Headline</a></h3>")
+        #expect(icon.render() == "<i class=\"fas fa-search\"></i>")
     }
 
-    func testButtonSubmitType() {
+    @Test func testButtonSubmitType() {
         let submit = Button(type: "submit", content: "Send")
-        XCTAssertEqual(submit.render(), "<button type=\"submit\">Send</button>")
+        #expect(submit.render() == "<button type=\"submit\">Send</button>")
     }
 
-    func testLabelWithoutFor() {
+    @Test func testLabelWithoutFor() {
         let label = Label(content: "Accept cookies")
-        XCTAssertEqual(label.render(), "<label>Accept cookies</label>")
-        XCTAssertFalse(label.render().contains("for="))
+        #expect(label.render() == "<label>Accept cookies</label>")
+        #expect(!(label.render().contains("for=")))
     }
 
-    func testInputWithoutName() {
+    @Test func testInputWithoutName() {
         let search = Input(type: "search", attributes: [
             Attribute(key: "placeholder", value: "Search")
         ])
-        XCTAssertEqual(search.render(), "<input type=\"search\" placeholder=\"Search\">")
-        XCTAssertFalse(search.render().contains("name="))
+        #expect(search.render() == "<input type=\"search\" placeholder=\"Search\">")
+        #expect(!(search.render().contains("name=")))
     }
 
-    func testSectionWithContent() {
+    @Test func testSectionWithContent() {
         let section = Section(
             attributes: [Attribute(key: "class", value: "hero")],
             content: "Hello"
         )
-        XCTAssertEqual(section.render(), "<section class=\"hero\">Hello</section>")
+        #expect(section.render() == "<section class=\"hero\">Hello</section>")
     }
 
-    func testInlineSemanticTags() {
-        XCTAssertEqual(Strong(content: "bold").render(), "<strong>bold</strong>")
-        XCTAssertEqual(Em(content: "emph").render(), "<em>emph</em>")
-        XCTAssertEqual(Small(content: "fine").render(), "<small>fine</small>")
-        XCTAssertEqual(Br().render(), "<br>")
-        XCTAssertEqual(Hr().render(), "<hr>")
+    @Test func testInlineSemanticTags() {
+        #expect(Strong(content: "bold").render() == "<strong>bold</strong>")
+        #expect(Em(content: "emph").render() == "<em>emph</em>")
+        #expect(Small(content: "fine").render() == "<small>fine</small>")
+        #expect(Br().render() == "<br>")
+        #expect(Hr().render() == "<hr>")
     }
 }

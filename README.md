@@ -3,7 +3,7 @@
 ![main](https://github.com/micheltlutz/Winged-Swift/actions/workflows/tests.yml/badge.svg?branch=main)
 [![codecov](https://codecov.io/gh/micheltlutz/Winged-Swift/graph/badge.svg?token=3pxQp1KgnV)](https://codecov.io/gh/micheltlutz/Winged-Swift)
 [![Reviewed by Hound](https://img.shields.io/badge/Reviewed_by-Hound-8E64B0.svg)](https://houndci.com)
-![Swift Versions](https://img.shields.io/badge/Swift-5.5%2B-orange.svg?style=flat)
+![Swift Versions](https://img.shields.io/badge/Swift-6.0%2B-orange.svg?style=flat)
 [![Platform Compatibility](https://img.shields.io/endpoint?url=https://swiftpackageindex.com/api/packages/micheltlutz/Winged-Swift/badge?type=platforms)](https://swiftpackageindex.com/micheltlutz/Winged-Swift)
 [![](https://img.shields.io/endpoint?url=https://swiftpackageindex.com/api/packages/micheltlutz/Winged-Swift/badge?type=swift-versions)](https://swiftpackageindex.com/micheltlutz/Winged-Swift)
 
@@ -61,20 +61,28 @@ WingedSwift is an **open-source project** maintained by the community. I activel
 
 ```swift
 // 1. Add to Package.swift
-.package(url: "https://github.com/micheltlutz/Winged-Swift.git", from: "1.3.3")
+.package(url: "https://github.com/micheltlutz/Winged-Swift.git", from: "2.0.0")
 
 // 2. Import and use
 import WingedSwift
 
-let page = html {
-    Head(children: [Title(content: "My Site")])
-    Body(children: [
-        H1(content: "Hello, WingedSwift!"),
-        P(content: "Creating HTML with Swift is awesome!")
-    ])
+let page = Document(lang: "en") {
+    Meta(charset: "UTF-8")
+    Title(content: "My Site")
+} body: {
+    H1(content: "Hello, WingedSwift!")
+    P(content: "Creating HTML with Swift is awesome!")
 }
 
-print(page.render(pretty: true))
+print(page.render())
+```
+
+Or skip the setup entirely — the `winged` CLI scaffolds, builds and previews a site:
+
+```bash
+winged new MySite     # add --tailwind for a Tailwind project
+cd MySite
+winged serve --watch  # http://localhost:8000, rebuilding on every change
 ```
 
 ### For Contributors
@@ -180,7 +188,7 @@ To add WingedSwift to your project, add the following line to your `Package.swif
 
 ```swift
 dependencies: [
-    .package(url: "https://github.com/micheltlutz/Winged-Swift.git", from: "1.3.3")
+    .package(url: "https://github.com/micheltlutz/Winged-Swift.git", from: "2.0.0")
 ]
 ```
 
@@ -318,7 +326,7 @@ print(page.render())
 // Output: <html><head><title>My Page</title></head>...
 
 // Pretty formatted output
-print(page.render(pretty: true))
+print(page.render(.pretty))
 // Output:
 // <html>
 //   <head>
@@ -658,6 +666,37 @@ The complete documentation is available at:
 
 **🌐 [https://micheltlutz.github.io/Winged-Swift/](https://micheltlutz.github.io/Winged-Swift/)**
 
+### 🤖 Using WingedSwift with a coding agent
+
+Claude Code, Cursor, Codex and friends work far better with a map of the API than with guesses.
+This repository ships one:
+
+- **[AGENTS.md](AGENTS.md)** — the mental model, the rules that prevent the usual mistakes, the
+  commands, and the contract for adding an element. Point your agent here first.
+- **[Tag catalog](.claude/skills/wingedswift/references/tag-catalog.md)** — every type with both of
+  its initializers, generated from the sources by `./Scripts/generate-tag-catalog.sh`.
+- **[Recipes](.claude/skills/wingedswift/references/recipes.md)** and
+  **[pitfalls](.claude/skills/wingedswift/references/pitfalls.md)** — page skeletons, SEO heads,
+  tables, forms, feeds; and the escaping / void-element / `Fragment` traps.
+- **[`./Scripts/verify.sh`](Scripts/verify.sh)** — one command (build + test + lint + catalog + CLI
+  + a real render) so an agent can check its own work before claiming it is done.
+
+Claude Code picks up the skill in `.claude/skills/wingedswift/` automatically when you work in this
+repository. And `winged new` writes an `AGENTS.md` into every project it scaffolds, so a generated
+site is agent-ready from its first commit.
+
+### 🛠 The `winged` CLI
+
+```bash
+swift build -c release          # the binary lands in .build/release/winged
+
+winged new MySite [--tailwind]  # scaffold a project (Package.swift, layout, components, AGENTS.md)
+winged build [--release]        # generate the site into dist/
+winged serve [--watch]          # http://localhost:8000, rebuilding on every change
+```
+
+`winged serve` includes its own static file server — no `python3 -m http.server`, no dependencies.
+
 📖 **Setup Guide:** See [GITHUB_PAGES_SETUP.md](GITHUB_PAGES_SETUP.md) for detailed instructions on configuring GitHub Pages.
 
 ### Generating the Documentation
@@ -748,7 +787,7 @@ Please note that this project is released with a [Code of Conduct](CODE_OF_CONDU
 
 WingedSwift is actively maintained and welcoming contributions!
 
-- ✅ **Current Version**: 1.3.3
+- ✅ **Current Version**: 2.0.0
 - 🚀 **Status**: Active Development
 - 📈 **Test Coverage**: High
 - 🔄 **Release Cycle**: Regular updates
