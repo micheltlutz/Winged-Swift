@@ -4,7 +4,17 @@ import WingedSwift
 // === SETUP ===
 print("🔨 Generating site...")
 
-let outputDirectory = CommandLine.arguments.dropFirst().first ?? "./dist"
+// Paths are resolved against the project rather than the working directory, so the site is
+// generated the same way whether this runs via `swift run`, `winged build`, or from elsewhere.
+let projectRoot = URL(fileURLWithPath: #filePath)   // Sources/main.swift
+    .deletingLastPathComponent()
+    .deletingLastPathComponent()
+
+func inProject(_ path: String) -> String {
+    path.hasPrefix("/") ? path : projectRoot.appendingPathComponent(path).path
+}
+
+let outputDirectory = inProject(CommandLine.arguments.dropFirst().first ?? "dist")
 let generator = StaticSiteGenerator(outputDirectory: outputDirectory)
 try generator.clean()
 
@@ -78,7 +88,7 @@ try generator.generateMultiple(documents: [
     (document: aboutPage, path: "about.html")
 ])
 
-try generator.copyAsset(from: "./Assets/css", to: "css")
+try generator.copyAsset(from: inProject("Assets/css"), to: "css")
 
 try generator.writeFile(
     content: SitemapGenerator.generate(urls: [

@@ -25,14 +25,19 @@ struct Build: ParsableCommand {
         let product = try executableProduct(in: projectPath)
 
         Log.step("Building \(product)")
+        // An absolute path, because `swift run` does not guarantee the product inherits this
+        // process's working directory — the site would otherwise land wherever the user stood.
+        let outputURL = URL(fileURLWithPath: projectPath)
+            .appendingPathComponent(output)
+            .standardizedFileURL
+
         var arguments = ["swift", "run"]
         if release {
             arguments += ["-c", "release"]
         }
-        arguments += [product, output]
+        arguments += [product, outputURL.path]
         try Shell.run(arguments, in: projectPath)
 
-        let outputURL = URL(fileURLWithPath: projectPath).appendingPathComponent(output)
         let pages = (try? FileManager.default.subpathsOfDirectory(atPath: outputURL.path))?
             .filter { $0.hasSuffix(".html") } ?? []
         Log.success("\(pages.count) page(s) in \(output)/")

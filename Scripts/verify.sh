@@ -102,14 +102,18 @@ if [ ! -x "$CLI" ]; then
     fail "the winged binary was not built"
 else
     CLI_LOG="$CLI_DIR/cli.log"
+    # `winged build` runs from `/` on purpose: the generated site must not depend on the
+    # working directory of whoever invoked the CLI. That is exactly what broke on CI once.
     # Point the scaffolded project at this checkout instead of the published version.
     if "$CLI" new SmokeSite --path "$CLI_DIR/SmokeSite" > "$CLI_LOG" 2>&1 \
         && sed -i.bak "s|.package(url: \"https://github.com/micheltlutz/Winged-Swift.git\", from: \"[^\"]*\")|.package(path: \"$ROOT\")|" "$CLI_DIR/SmokeSite/Package.swift" \
-        && "$CLI" build --path "$CLI_DIR/SmokeSite" >> "$CLI_LOG" 2>&1 \
+        && (cd / && "$CLI" build --path "$CLI_DIR/SmokeSite" >> "$CLI_LOG" 2>&1) \
         && grep -q "<!DOCTYPE html>" "$CLI_DIR/SmokeSite/dist/index.html" \
         && grep -q "<html lang=" "$CLI_DIR/SmokeSite/dist/index.html" \
+        && [ -s "$CLI_DIR/SmokeSite/dist/css/style.css" ] \
+        && [ -f "$CLI_DIR/SmokeSite/dist/sitemap.xml" ] \
         && [ -f "$CLI_DIR/SmokeSite/AGENTS.md" ]; then
-        ok "winged new + winged build produced a site"
+        ok "winged new + winged build produced a site (from a foreign working directory)"
     else
         fail "the winged CLI smoke test failed"
         tail -20 "$CLI_LOG"
