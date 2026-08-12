@@ -1,12 +1,17 @@
 # Coverage configuration.
 #
-# Only the CLI's `@main` declaration is ignored: it has no logic to test. Everything else —
-# including the CLI's path resolution, mime mapping, manifest parsing, file watcher and
-# scaffolder — has its own unit tests. The blocking server and watch loops that cannot run
-# in-process are covered end to end by `Scripts/verify.sh`, which CI runs on every pull request
-# but which produces no coverage data.
+# Everything with logic is unit tested, including the CLI: path resolution and mime mapping
+# (HTTPServerTests), the request handling driven over a real socket (HTTPServerIntegrationTests),
+# manifest parsing and a real build (BuildCommandTests), the change detection behind
+# `serve --watch` (FileWatcherTests), the scaffolder and the `new` command itself.
 #
-# The thresholds are deliberately left at Codecov's defaults: red here means write a test.
+# What is ignored below is process plumbing with no logic left to test: an `@main` declaration,
+# and a command whose body is an accept loop, `dispatchMain()` and an infinite watch loop — none
+# of which can run in-process. Both are covered end to end by `Scripts/verify.sh`, which CI runs
+# on every pull request but which produces no coverage data.
+#
+# Thresholds stay at the project's defaults: red here means write a test.
 
 ignore:
   - "Sources/WingedCLI/Winged.swift"
+  - "Sources/WingedCLI/Commands/Serve.swift"

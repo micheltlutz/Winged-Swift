@@ -3,14 +3,16 @@ import Testing
 @testable import WingedCLI
 
 /// The watcher is a snapshot comparison: if two snapshots differ, the site is rebuilt.
-@Suite final class ServeWatchTests {
+@Suite final class FileWatcherTests {
     private let root: URL
-    private let serve: Serve
+    private let watcher: FileWatcher
 
     init() throws {
-        root = FileManager.default.temporaryDirectory
+        let root = FileManager.default.temporaryDirectory
             .appendingPathComponent("winged-watch-tests-\(UUID().uuidString)")
-        serve = try Serve.parse([])
+        self.root = root
+        watcher = FileWatcher(paths: ["Sources", "assets", "Package.swift"]
+            .map { root.appendingPathComponent($0).path })
 
         try FileManager.default.createDirectory(at: root.appendingPathComponent("Sources"),
                                                 withIntermediateDirectories: true)
@@ -24,24 +26,20 @@ import Testing
         try? FileManager.default.removeItem(at: root)
     }
 
-    private var watched: [String] {
-        ["Sources", "Package.swift"].map { root.appendingPathComponent($0).path }
-    }
-
     @Test func snapshotsEveryFileItWatches() {
-        let snapshot = serve.signature(of: watched)
+        let snapshot = watcher.snapshot()
 
         #expect(snapshot.count == 2)
         #expect(snapshot.keys.contains { $0.hasSuffix("Sources/main.swift") })
         #expect(snapshot.keys.contains { $0.hasSuffix("Package.swift") })
     }
 
-    @Test func aStableTreeProducesAStableSnapshot() {
-        #expect(serve.signature(of: watched) == serve.signature(of: watched))
+    @Test func aStableTreeReportsNoChange() {
+        #expect(!watcher.hasChanged(since: watcher.snapshot()))
     }
 
-    @Test func editingAFileChangesTheSnapshot() throws {
-        let before = serve.signature(of: watched)
+    @Test func editingAFileIsAChange() throws {
+        let before = watcher.snapshot()
 
         let source = root.appendingPathComponent("Sources/main.swift")
         try "let a = 2".write(to: source, atomically: true, encoding: .utf8)
@@ -49,24 +47,30 @@ import Testing
         try FileManager.default.setAttributes([.modificationDate: Date().addingTimeInterval(5)],
                                               ofItemAtPath: source.path)
 
-        #expect(serve.signature(of: watched) != before)
+        #expect(watcher.hasChanged(since: before))
     }
 
-    @Test func addingAFileChangesTheSnapshot() throws {
-        let before = serve.signature(of: watched)
+    @Test func addingAFileIsAChange() throws {
+        let before = watcher.snapshot()
 
         try "let b = 1".write(to: root.appendingPathComponent("Sources/extra.swift"),
                               atomically: true, encoding: .utf8)
 
-        let after = serve.signature(of: watched)
-        #expect(after != before)
-        #expect(after.count == before.count + 1)
+        #expect(watcher.hasChanged(since: before))
+        #expect(watcher.snapshot().count == before.count + 1)
+    }
+
+    @Test func removingAFileIsAChange() throws {
+        let before = watcher.snapshot()
+
+        try FileManager.default.removeItem(at: root.appendingPathComponent("Package.swift"))
+
+        #expect(watcher.hasChanged(since: before))
     }
 
     @Test func missingPathsAreSkippedRatherThanCrashing() {
-        let snapshot = serve.signature(of: [root.appendingPathComponent("assets").path])
-
-        #expect(snapshot.isEmpty)
+        // `assets/` does not exist in this fixture, and that is not an error.
+        #expect(watcher.snapshot().allSatisfy { !$0.key.contains("/assets/") })
     }
 }
 
@@ -89,6 +93,18 @@ import Testing
         #expect(throws: Shell.Failure.self) {
             try Shell.capture(["sh", "-c", "echo boom; exit 3"], in: FileManager.default.currentDirectoryPath)
         }
+    }
+
+    @Test func runReportsAFailingCommand() {
+        #expect(throws: Shell.Failure.self) {
+            try Shell.run(["sh", "-c", "exit 2"], in: FileManager.default.currentDirectoryPath)
+        }
+    }
+
+    @Test func runSucceedsQuietly() throws {
+        let status = try Shell.run(["true"], in: FileManager.default.currentDirectoryPath)
+
+        #expect(status == 0)
     }
 
     @Test func describesAnExitCode() {

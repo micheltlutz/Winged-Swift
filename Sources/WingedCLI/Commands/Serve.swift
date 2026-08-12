@@ -53,20 +53,17 @@ struct Serve: ParsableCommand {
         watchAndRebuild()
     }
 
-    /// Polls the mtimes of the sources and assets, rebuilding when one moves.
-    ///
-    /// Polling rather than FSEvents/inotify keeps this identical on macOS and Linux, and half a
-    /// second of latency is invisible next to a Swift compile.
+    /// Rebuilds whenever ``FileWatcher`` reports a change under the sources or the assets.
     private func watchAndRebuild() -> Never {
-        let watched = ["Sources", "assets", "Package.swift"]
-            .map { URL(fileURLWithPath: path).appendingPathComponent($0).path }
+        let watcher = FileWatcher(paths: ["Sources", "assets", "Package.swift"]
+            .map { URL(fileURLWithPath: path).appendingPathComponent($0).path })
 
-        var lastSignature = signature(of: watched)
+        var lastSnapshot = watcher.snapshot()
         while true {
             Thread.sleep(forTimeInterval: 0.5)
-            let current = signature(of: watched)
-            guard current != lastSignature else { continue }
-            lastSignature = current
+            let current = watcher.snapshot()
+            guard current != lastSnapshot else { continue }
+            lastSnapshot = current
 
             do {
                 try Build.build(projectPath: path, output: output, release: false)
@@ -75,28 +72,5 @@ struct Serve: ParsableCommand {
                 print("❌ \(error)")
             }
         }
-    }
-
-    func signature(of paths: [String]) -> [String: Date] {
-        var result: [String: Date] = [:]
-        let manager = FileManager.default
-
-        for path in paths {
-            var isDirectory: ObjCBool = false
-            guard manager.fileExists(atPath: path, isDirectory: &isDirectory) else { continue }
-
-            if isDirectory.boolValue {
-                let contents = manager.subpaths(atPath: path) ?? []
-                for relative in contents {
-                    let full = "\(path)/\(relative)"
-                    if let date = (try? manager.attributesOfItem(atPath: full))?[.modificationDate] as? Date {
-                        result[full] = date
-                    }
-                }
-            } else if let date = (try? manager.attributesOfItem(atPath: path))?[.modificationDate] as? Date {
-                result[path] = date
-            }
-        }
-        return result
     }
 }

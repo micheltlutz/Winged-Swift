@@ -98,4 +98,57 @@ import Testing
             try Build.executableProduct(in: root.appendingPathComponent("nowhere").path)
         }
     }
+
+    /// Compiles and runs a real (dependency-free) package the way `winged build` does.
+    @Test func buildsAndRunsTheProductWritingToTheOutputDirectory() throws {
+        let path = try makePackage(named: "Generator", manifest: """
+        // swift-tools-version: 6.0
+        import PackageDescription
+
+        let package = Package(
+            name: "Generator",
+            targets: [.executableTarget(name: "Generator")]
+        )
+        """)
+
+        // Stand in for a site generator: write a page into the directory it is given.
+        try """
+        import Foundation
+
+        let output = CommandLine.arguments[1]
+        try FileManager.default.createDirectory(atPath: output, withIntermediateDirectories: true)
+        try "<!DOCTYPE html>\\n<h1>built</h1>".write(toFile: output + "/index.html",
+                                                    atomically: true, encoding: .utf8)
+        """.write(to: URL(fileURLWithPath: path).appendingPathComponent("Sources/Generator/main.swift"),
+                  atomically: true, encoding: .utf8)
+
+        let outputPath = try Build.build(projectPath: path, output: "dist", release: false)
+
+        #expect(outputPath == URL(fileURLWithPath: path).appendingPathComponent("dist").path)
+        let page = try String(contentsOfFile: outputPath + "/index.html", encoding: .utf8)
+        #expect(page.contains("<h1>built</h1>"))
+    }
+
+    /// Note: this test makes `swift build` print real compiler errors into the test log.
+    /// They are expected — the package below is deliberately not valid Swift.
+    @Test func buildFailsLoudlyWhenTheSourceDoesNotCompile() throws {
+        let path = try makePackage(named: "Broken", manifest: """
+        // swift-tools-version: 6.0
+        import PackageDescription
+
+        let package = Package(
+            name: "Broken",
+            targets: [.executableTarget(name: "Broken")]
+        )
+        """)
+
+        try "this is not swift".write(
+            to: URL(fileURLWithPath: path).appendingPathComponent("Sources/Broken/main.swift"),
+            atomically: true, encoding: .utf8
+        )
+
+        #expect(throws: (any Error).self) {
+            try Build.build(projectPath: path, output: "dist", release: false)
+        }
+    }
 }
