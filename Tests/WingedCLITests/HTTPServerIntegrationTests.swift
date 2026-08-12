@@ -43,18 +43,29 @@ import FoundationNetworking
         try? FileManager.default.removeItem(at: root)
     }
 
+    struct Reply {
+        let status: Int
+        let contentType: String
+        let cacheControl: String
+        let body: String
+    }
+
     /// The listener needs a moment; retry rather than sleeping a fixed amount.
-    private func get(_ path: String, attempts: Int = 40) async throws -> (Int, String, String) {
-        let url = URL(string: "http://127.0.0.1:\(port)\(path)")!
+    private func get(_ path: String, method: String = "GET", attempts: Int = 40) async throws -> Reply {
+        var request = URLRequest(url: URL(string: "http://127.0.0.1:\(port)\(path)")!)
+        request.httpMethod = method
         var lastError: (any Error)?
 
         for _ in 0..<attempts {
             do {
-                let (data, response) = try await session.data(from: url)
-                let http = response as! HTTPURLResponse
-                return (http.statusCode,
-                        http.value(forHTTPHeaderField: "Content-Type") ?? "",
-                        String(data: data, encoding: .utf8) ?? "")
+                let (data, response) = try await session.data(for: request)
+                guard let http = response as? HTTPURLResponse else {
+                    throw URLError(.badServerResponse)
+                }
+                return Reply(status: http.statusCode,
+                             contentType: http.value(forHTTPHeaderField: "Content-Type") ?? "",
+                             cacheControl: http.value(forHTTPHeaderField: "Cache-Control") ?? "",
+                             body: String(data: data, encoding: .utf8) ?? "")
             } catch {
                 lastError = error
                 try await Task.sleep(nanoseconds: 50_000_000)
@@ -64,62 +75,57 @@ import FoundationNetworking
     }
 
     @Test func servesTheIndexForTheRoot() async throws {
-        let (status, type, body) = try await get("/")
+        let reply = try await get("/")
 
-        #expect(status == 200)
-        #expect(type == "text/html; charset=utf-8")
-        #expect(body.contains("<h1>home</h1>"))
+        #expect(reply.status == 200)
+        #expect(reply.contentType == "text/html; charset=utf-8")
+        #expect(reply.body.contains("<h1>home</h1>"))
     }
 
     @Test func servesASubdirectoryIndex() async throws {
-        let (status, _, body) = try await get("/about/")
+        let reply = try await get("/about/")
 
-        #expect(status == 200)
-        #expect(body.contains("<h1>about</h1>"))
+        #expect(reply.status == 200)
+        #expect(reply.body.contains("<h1>about</h1>"))
     }
 
     @Test func servesAssetsWithTheRightContentType() async throws {
-        let (status, type, body) = try await get("/css/style.css")
+        let reply = try await get("/css/style.css")
 
-        #expect(status == 200)
-        #expect(type == "text/css; charset=utf-8")
-        #expect(body == "body { margin: 0; }")
+        #expect(reply.status == 200)
+        #expect(reply.contentType == "text/css; charset=utf-8")
+        #expect(reply.body == "body { margin: 0; }")
     }
 
     @Test func ignoresTheQueryString() async throws {
-        let (status, _, body) = try await get("/index.html?v=2")
+        let reply = try await get("/index.html?v=2")
 
-        #expect(status == 200)
-        #expect(body.contains("<h1>home</h1>"))
+        #expect(reply.status == 200)
+        #expect(reply.body.contains("<h1>home</h1>"))
     }
 
     @Test func answers404ForMissingFiles() async throws {
-        let (status, _, body) = try await get("/nope.html")
+        let reply = try await get("/nope.html")
 
-        #expect(status == 404)
-        #expect(body.contains("404"))
+        #expect(reply.status == 404)
+        #expect(reply.body.contains("404"))
     }
 
     @Test func refusesToServeFilesOutsideTheRoot() async throws {
-        let (status, _, _) = try await get("/../../etc/passwd")
+        let reply = try await get("/../../etc/passwd")
 
-        #expect(status == 404)
+        #expect(reply.status == 404)
     }
 
     @Test func rejectsMethodsOtherThanGET() async throws {
-        var request = URLRequest(url: URL(string: "http://127.0.0.1:\(port)/")!)
-        request.httpMethod = "POST"
+        let reply = try await get("/", method: "POST")
 
-        _ = try await get("/")   // make sure the listener is up first
-        let (_, response) = try await session.data(for: request)
-
-        #expect((response as! HTTPURLResponse).statusCode == 405)
+        #expect(reply.status == 405)
     }
 
     @Test func doesNotCacheSoTheWatchLoopIsVisible() async throws {
-        _ = try await get("/")
-        let (_, response) = try await session.data(from: URL(string: "http://127.0.0.1:\(port)/")!)
+        let reply = try await get("/")
 
-        #expect((response as! HTTPURLResponse).value(forHTTPHeaderField: "Cache-Control") == "no-store")
+        #expect(reply.cacheControl == "no-store")
     }
 }
