@@ -1,8 +1,41 @@
-import XCTest
+import Foundation
+import Testing
 @testable import WingedSwift
 
-final class CSSHelpersTests: XCTestCase {
-    func testAddSingleClass() {
+@Suite struct CSSHelpersTests {
+    @Test func testChainingPreservesTheConcreteType() {
+        // A chained helper must still be usable where the concrete tag type is expected.
+        let card: Div = Div().addClass("card").setId("hero").setRole("region")
+
+        #expect(card.render().contains("<div class=\"card\" id=\"hero\" role=\"region\">"))
+    }
+
+    @Test func testAddClassEscapesQuotesInsteadOfBreakingOutOfTheAttribute() {
+        // Given a class name built from untrusted data
+        let div = Div().addClass("card").addClass("\" onclick=\"alert(1)")
+
+        // When
+        let result = div.render()
+
+        // Then the injected quote is neutralised
+        #expect(!(result.contains("onclick=\"alert(1)\"")))
+        #expect(result.contains("&quot; onclick=&quot;alert(1)"))
+    }
+
+    @Test func testAddClassDoesNotDoubleEscapeExistingValues() {
+        let div = Div().addClass("a&b").addClass("c")
+
+        #expect(div.render().contains("class=\"a&amp;b c\""))
+        #expect(!(div.render().contains("&amp;amp;")))
+    }
+
+    @Test func testSetStyleEscapesQuotes() {
+        let div = Div().setStyle("font-family: \"Inter\", sans-serif")
+
+        #expect(div.render().contains("style=\"font-family: &quot;Inter&quot;, sans-serif\""))
+    }
+
+    @Test func testAddSingleClass() {
         // Given
         let div = Div()
         
@@ -11,10 +44,10 @@ final class CSSHelpersTests: XCTestCase {
         let result = div.render()
         
         // Then
-        XCTAssertTrue(result.contains("class=\"container\""))
+        #expect(result.contains("class=\"container\""))
     }
     
-    func testAddMultipleClasses() {
+    @Test func testAddMultipleClasses() {
         // Given
         let div = Div()
         
@@ -25,10 +58,10 @@ final class CSSHelpersTests: XCTestCase {
         let result = div.render()
         
         // Then
-        XCTAssertTrue(result.contains("class=\"flex items-center justify-between\""))
+        #expect(result.contains("class=\"flex items-center justify-between\""))
     }
     
-    func testAddClassesArray() {
+    @Test func testAddClassesArray() {
         // Given
         let div = Div()
         
@@ -37,10 +70,10 @@ final class CSSHelpersTests: XCTestCase {
         let result = div.render()
         
         // Then
-        XCTAssertTrue(result.contains("class=\"container mx-auto p-4\""))
+        #expect(result.contains("class=\"container mx-auto p-4\""))
     }
     
-    func testSetId() {
+    @Test func testSetId() {
         // Given
         let div = Div()
         
@@ -49,10 +82,10 @@ final class CSSHelpersTests: XCTestCase {
         let result = div.render()
         
         // Then
-        XCTAssertTrue(result.contains("id=\"main-content\""))
+        #expect(result.contains("id=\"main-content\""))
     }
     
-    func testSetIdReplacesExisting() {
+    @Test func testSetIdReplacesExisting() {
         // Given
         let div = Div()
         
@@ -62,11 +95,11 @@ final class CSSHelpersTests: XCTestCase {
         let result = div.render()
         
         // Then
-        XCTAssertTrue(result.contains("id=\"new-id\""))
-        XCTAssertFalse(result.contains("id=\"old-id\""))
+        #expect(result.contains("id=\"new-id\""))
+        #expect(!(result.contains("id=\"old-id\"")))
     }
     
-    func testSetStyle() {
+    @Test func testSetStyle() {
         // Given
         let div = Div()
         
@@ -75,10 +108,10 @@ final class CSSHelpersTests: XCTestCase {
         let result = div.render()
         
         // Then
-        XCTAssertTrue(result.contains("style=\"color: red; margin: 10px;\""))
+        #expect(result.contains("style=\"color: red; margin: 10px;\""))
     }
     
-    func testChainedHelpers() {
+    @Test func testChainedHelpers() {
         // Given
         let div = Div()
         
@@ -90,8 +123,8 @@ final class CSSHelpersTests: XCTestCase {
         let result = div.render()
         
         // Then
-        XCTAssertTrue(result.contains("id=\"content\""))
-        XCTAssertTrue(result.contains("class=\"container active\""))
-        XCTAssertTrue(result.contains("style=\"padding: 20px;\""))
+        #expect(result.contains("id=\"content\""))
+        #expect(result.contains("class=\"container active\""))
+        #expect(result.contains("style=\"padding: 20px;\""))
     }
 }

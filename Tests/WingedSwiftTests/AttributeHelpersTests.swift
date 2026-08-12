@@ -1,8 +1,9 @@
-import XCTest
+import Foundation
+import Testing
 @testable import WingedSwift
 
-final class AttributeHelpersTests: XCTestCase {
-    func testDataAttribute() {
+@Suite struct AttributeHelpersTests {
+    @Test func testDataAttribute() {
         // Given
         let div = Div()
         
@@ -11,10 +12,10 @@ final class AttributeHelpersTests: XCTestCase {
         let result = div.render()
         
         // Then
-        XCTAssertTrue(result.contains("data-toggle=\"modal\""))
+        #expect(result.contains("data-toggle=\"modal\""))
     }
     
-    func testMultipleDataAttributes() {
+    @Test func testMultipleDataAttributes() {
         // Given
         let div = Div()
         
@@ -26,11 +27,11 @@ final class AttributeHelpersTests: XCTestCase {
         let result = div.render()
         
         // Then
-        XCTAssertTrue(result.contains("data-id=\"123\""))
-        XCTAssertTrue(result.contains("data-type=\"product\""))
+        #expect(result.contains("data-id=\"123\""))
+        #expect(result.contains("data-type=\"product\""))
     }
     
-    func testAriaAttribute() {
+    @Test func testAriaAttribute() {
         // Given
         let button = Button()
         
@@ -39,10 +40,10 @@ final class AttributeHelpersTests: XCTestCase {
         let result = button.render()
         
         // Then
-        XCTAssertTrue(result.contains("aria-label=\"Close\""))
+        #expect(result.contains("aria-label=\"Close\""))
     }
     
-    func testMultipleAriaAttributes() {
+    @Test func testMultipleAriaAttributes() {
         // Given
         let nav = Nav()
         
@@ -54,11 +55,11 @@ final class AttributeHelpersTests: XCTestCase {
         let result = nav.render()
         
         // Then
-        XCTAssertTrue(result.contains("aria-label=\"Main navigation\""))
-        XCTAssertTrue(result.contains("aria-expanded=\"true\""))
+        #expect(result.contains("aria-label=\"Main navigation\""))
+        #expect(result.contains("aria-expanded=\"true\""))
     }
     
-    func testSetRole() {
+    @Test func testSetRole() {
         // Given
         let div = Div()
         
@@ -67,10 +68,10 @@ final class AttributeHelpersTests: XCTestCase {
         let result = div.render()
         
         // Then
-        XCTAssertTrue(result.contains("role=\"navigation\""))
+        #expect(result.contains("role=\"navigation\""))
     }
     
-    func testSetAttribute() {
+    @Test func testSetAttribute() {
         // Given
         let input = Input(type: "text", name: "email")
         
@@ -80,7 +81,7 @@ final class AttributeHelpersTests: XCTestCase {
         let result = input.render()
         
         // Then
-        XCTAssertTrue(result.contains("placeholder=\"Enter email\""))
-        XCTAssertTrue(result.contains("required=\"true\""))
+        #expect(result.contains("placeholder=\"Enter email\""))
+        #expect(result.contains("required=\"true\""))
     }
 }

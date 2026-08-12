@@ -5,6 +5,118 @@ All notable changes to WingedSwift will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.0.0] - 2026-08-11
+
+Nothing was removed: every 1.x call site still compiles and renders byte-identical markup, covered
+by `DeprecatedAPITests`. See [MIGRATION.md](MIGRATION.md).
+
+### Added
+
+- **Result-builder initializers on every container** — `Div { H1(...) ; P(...) }`, with `if`, `for`
+  and `map` supported inside. The array form is unchanged.
+- **`Document`**: owns `<!DOCTYPE html>` and `<html lang="…">`.
+  `Document(lang:head:body:)` and a two-builder form (`Document { head } body: { body }`), plus
+  `StaticSiteGenerator.generate(document:to:options:)`.
+- **`RenderOptions`**: `pretty`, `indent` and `xhtmlSelfClosing` passed per call —
+  `render(.pretty)`, `render(RenderOptions(indent: "\t"))`.
+- **`winged` CLI**: `winged new` (scaffolds a project, including its own `AGENTS.md`),
+  `winged build`, `winged serve [--watch]` with a built-in static server. Replaces the StarterKit's
+  `setup.sh` and `python3 -m http.server`.
+- **`MIGRATION.md`** and `Scripts/generate-builder-inits.py`.
+- **Golden-file tests**: full pages, sitemap and feed frozen under `Tests/WingedSwiftTests/Fixtures`
+  (`WINGED_UPDATE_FIXTURES=1 swift test` to regenerate), plus a render-performance guard.
+- `Pre`, `Code`, `Figcaption`, `Mark` and `Time` accept `children:`.
+
+### Changed
+
+- **Swift 6.0+ required**: `swift-tools-version: 6.0`, language mode 6, no concurrency diagnostics.
+  CI moved to `macos-14` and the `swift:6.0` container.
+- **Rendering writes into one buffer** (`write(into:options:indentLevel:)`) instead of concatenating
+  a string per node. This is now the overridable primitive — a subclass that overrode
+  `renderCompact()` / `renderPretty(_:)` must override `write` instead.
+- **`Sendable`** on `Attribute`, `RenderOptions`, `HTMLEscape`, `SEO`, `SitemapURL`,
+  `SitemapGenerator`, `RSSItem`, `RSSGenerator` and `StaticSiteGenerator`; the last two are now
+  `final`. `HTMLTag` and `Document` are deliberately not `Sendable`.
+- **`HTMLFragmentBuilder`**: one `buildBlock` and a generic `buildExpression<Tag: HTMLTag>([Tag])`,
+  so `Ol { ["x", "y"].map { Li(content: $0) } }` compiles instead of reporting an ambiguity.
+- Pretty printing now emits `content` *and* `children` when both are set; it used to drop the text.
+- The test suite moved to Swift Testing (`@Suite` / `@Test` / `#expect`); `DeprecatedAPITests`
+  stays on XCTest so the deprecated API can be exercised without warnings.
+
+### Deprecated
+
+Removed in 3.0 — `render(pretty:indentLevel:)`, `renderCompact()`, `renderPretty(indentLevel:)`,
+`HTMLTag.xhtmlSelfClosing`, and the unlabelled `HTMLTag(_:_:)` attributes-builder initializer
+(use `HTMLTag(_:attributes:)`).
+
+## [1.5.0] - 2026-08-11
+
+### Added
+
+- **`Fragment`**: a transparent node that renders its children with no wrapper element, keeping
+  pretty-print indentation (unlike `RawHTML`, which flattens to a raw string).
+- **Tables**: `Thead`, `Tbody`, `Tfoot`, `Caption`, `Colgroup`, `Col`.
+- **Media**: `Picture`, `Video`, `Audio`, `Source`, `Track`, `Iframe`, `Canvas`.
+- **Text & interactive**: `Blockquote`, `Q`, `Cite`, `Abbr`, `Address`, `Sub`, `Sup`, `Del`, `Ins`,
+  `Kbd`, `Samp`, `VarTag` (`<var>`), `Details`, `Summary`, `Dialog`, `Dt`, `Dd`, `Style`, `Base`,
+  `Noscript`, `Wbr`.
+- **Forms**: `Legend`, `Optgroup`, `Datalist`, `Progress`, `Meter`, `Output`.
+- **`Pre`** and **`Code`**: accept `children:` (the `<pre><code>` highlighting pattern).
+- **Flow containers** `Article`, `Aside`, `Header`, `Footer`, `MainTag`, `Nav`, `Figure`, `Form` and
+  `Fieldset`: accept `content:` / `escapeContent:` like `Div`, instead of `children:` only.
+- **`HTMLBuilder`**: `buildArray` / `buildExpression`, so `for` loops work inside `html { }`.
+- **`AGENTS.md`**, **`ROADMAP.md`**, `Scripts/verify.sh` and `Scripts/generate-tag-catalog.sh`:
+  onboarding for coding agents and a single command to verify a change.
+
+### Fixed
+
+- **Stray `<html>` nodes**: an `if` inside `html { }` emitted `<html></html>` when the condition was
+  false, and the body of an `if` / `for` block was wrapped in its own `<html>` element. `buildBlock`
+  now produces a `Fragment` and `html(_:)` owns the root element.
+- **Void elements**: `area`, `base`, `col`, `source`, `track` and `wbr` were rendered with a closing
+  tag (`<col></col>`).
+- **Pretty printing inside `<pre>`, `<code>` and `<textarea>`**: indentation was injected into
+  whitespace-sensitive content, changing what the browser displays. These subtrees now render
+  compactly even in pretty mode.
+- **Attribute injection**: `addClass`, `setId` and `setStyle` wrote values verbatim, so a quote in
+  dynamic data escaped the attribute. Values are escaped now, without double-escaping `&` on
+  repeated `addClass` calls.
+
+### Changed
+
+- **`HTMLEscape.escape`** no longer escapes `/` by default — `&`, `<`, `>`, `"` and `'` already
+  close the XSS surface, and escaping every slash turned dates and paths into `&#x2F;` soup. Pass
+  `escapeSlashes: true` for the previous behaviour.
+- **Chaining preserves the concrete type**: `addClass`, `addClasses`, `setId`, `setStyle`,
+  `dataAttribute(s)`, `ariaAttribute(s)`, `setRole` and `setAttribute` return `Self` instead of
+  `HTMLTag`, so `Div().addClass("card")` is still a `Div`.
+- **`fragment { }`** returns a `Fragment` instead of a `RawHTML`. `RawHTML` remains for raw markup.
+- **`Attribute`** is a `struct` instead of a `class`.
+- **`Section`** moved from `HTML/Forms/` to `HTML/Commons/` (no API change).
+- **`WingedSwift`**: added `version`, `author` and `contact` static properties.
+
+## [1.4.0] - 2026-07-15
+
+### Added
+
+- **`RawHTML`**: render raw markup without a wrapper element (fragments / imported HTML).
+- **`Attribute.boolean(_:)`**: boolean attributes render as ` key` only (`hidden`, `checked`, `required`, `disabled`, …).
+- **`HTMLFragmentBuilder`** + **`fragment { }`**: build flat tag lists; `buildArray` supports `map`/`for` of cards and filters.
+- New tags: **`I`**, **`Br`**, **`Hr`**, **`Strong`**, **`Em`**, **`Small`**.
+- **`A`** and **`H1`…`H6`**: accept `children: [HTMLTag]` (e.g. `<h3><a>…</a></h3>`, `<a><img></a>`).
+
+### Changed
+
+- **HTML5 void elements** by default: `<img>`, `<br>`, `<input>`, etc. without trailing ` />`. Set `HTMLTag.xhtmlSelfClosing = true` for XHTML-style output.
+- **`Button`**: optional `type` (`button` / `submit` / `reset`); no longer unconditionally forces `type="button"` when a type is already present or `nil` is passed.
+- **`Label`**: `for` is optional (CMP / wrapping labels).
+- **`Input`**: `name` is optional.
+- **`Section`**: aligned with `Div` (`content` + `escapeContent`).
+
+### Tests
+
+- Unit coverage for RawHTML, boolean attrs, HTML5/XHTML self-closing, fragments + `buildArray`, `I` + `A(children:)`, flexible form tags.
+
 ## [1.3.2] - 2024-10-17
 
 ### Fixed

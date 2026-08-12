@@ -1,144 +1,144 @@
 # 🚀 WingedSwift Starter Template
 
-Template pronto para criar sites estáticos com WingedSwift.
+Ready-to-use template to build static sites with WingedSwift.
 
-## 📦 O que está incluído
+## 📦 What's Included
 
 ```
 StarterTemplate/
-├── Package.swift              # Configuração SPM
+├── Package.swift              # SPM configuration
 ├── Sources/
-│   ├── main.swift            # Gerador do site
-│   └── SiteLayout.swift      # Layout reutilizável
+│   ├── main.swift             # Site generator
+│   └── SiteLayout.swift       # Reusable layout
 ├── Assets/
 │   └── css/
-│       └── style.css         # Estilos CSS
+│       └── style.css          # CSS styles
 ├── Scripts/
-│   ├── build.sh              # Build e gera site
-│   ├── dev.sh                # Modo desenvolvimento
-│   └── deploy.sh             # Deploy para produção
-└── dist/                     # Gerado automaticamente
+│   ├── build.sh               # Builds and generates the site
+│   ├── dev.sh                 # Development mode
+│   └── deploy.sh              # Production deploy
+└── dist/                      # Generated automatically
 ```
 
 ## 🎯 Quick Start
 
-### 1. Copiar Template
+### 1. Copy the Template
 
 ```bash
-# Copiar este diretório para seu projeto
-cp -r Examples/StarterTemplate ~/MeuSite
-cd ~/MeuSite
+# Copy this directory into your project
+cp -r Examples/StarterTemplate ~/MySite
+cd ~/MySite
 ```
 
-### 2. Gerar Site
+### 2. Generate the Site
 
 ```bash
-# Opção 1: Direto com Swift
+# Option 1: Run directly with Swift
 swift run
 
-# Opção 2: Usar script
+# Option 2: Use the script
 chmod +x Scripts/build.sh
 ./Scripts/build.sh
 ```
 
-### 3. Visualizar
+### 3. Preview
 
 ```bash
-# Abrir no navegador
+# Open in the browser
 open dist/index.html
 
-# Ou servir localmente
+# Or serve locally
 cd dist
 python3 -m http.server 8000
-# Acesse: http://localhost:8000
+# Visit: http://localhost:8000
 ```
 
-## 🛠️ Desenvolvimento
+## 🛠️ Development
 
-### Modo Watch (Auto-rebuild)
+### Watch Mode (Auto-rebuild)
 
 ```bash
 chmod +x Scripts/dev.sh
 ./Scripts/dev.sh
 ```
 
-O script irá:
-1. Gerar o site
-2. Iniciar servidor local
-3. Abrir navegador automaticamente
+The script will:
+1. Build the site
+2. Start a local server
+3. Open the browser automatically
 
-### Estrutura do Código
+### Code Structure
 
-#### main.swift
-Ponto de entrada. Aqui você:
-- Define suas páginas
-- Configura o layout
-- Gera o site estático
+#### `main.swift`
+Entry point where you:
+- Define your pages
+- Configure the layout
+- Generate the static site
 
-#### SiteLayout.swift
-Layout reutilizável com:
-- Header com navegação
+#### `SiteLayout.swift`
+Reusable layout with:
+- Header + navigation
 - Footer
-- Meta tags SEO
+- SEO meta tags
 
-### Customizar
+### Customize
 
-#### Adicionar Nova Página
+#### Add a New Page
 
-Em `Sources/main.swift`:
+In `Sources/main.swift`:
 
 ```swift
-let novaPage = layout.render(
-    title: "Nova Página",
-    currentPage: "nova",
+let newPage = layout.render(
+    title: "New Page",
+    currentPage: "new",
     content: Main(children: [
-        H1(content: "Nova Página"),
-        P(content: "Conteúdo aqui")
+        H1(content: "New Page"),
+        P(content: "Content goes here")
     ]).addClass("container")
 )
 
-try generator.generate(page: novaPage, to: "nova.html", pretty: true)
+try generator.generate(page: newPage, to: "new.html", pretty: true)
 ```
 
-#### Modificar Estilos
+#### Modify Styles
 
-Edite `Assets/css/style.css`:
+Edit `Assets/css/style.css`:
 
 ```css
-/* Suas cores */
+/* Your color palette */
 :root {
     --primary: #667eea;
     --secondary: #764ba2;
 }
 ```
 
-#### Adicionar Imagens
+#### Add Images
 
 ```bash
-# Copiar imagens
-cp minha-foto.jpg Assets/images/
+# Copy images
+cp my-photo.jpg Assets/images/
 
-# Usar em main.swift
-Img(src: "images/minha-foto.jpg", alt: "Minha Foto")
+# Use in main.swift
+Img(src: "images/my-photo.jpg", alt: "My Photo")
 ```
 
 ## 📊 SEO
 
-O template já inclui:
-- ✅ Meta tags básicas
-- ✅ Viewport responsive
-- ✅ Sitemap.xml gerado automaticamente
-- ✅ Estrutura HTML5 semântica
+The template already includes:
+- ✅ Essential meta tags
+- ✅ Responsive viewport
+- ✅ Automatic sitemap.xml generation
+- ✅ Semantic HTML5 structure
 
-### Adicionar Open Graph
+### Add Open Graph Tags
 
-Em `SiteLayout.swift`, adicione ao Head:
+In `SiteLayout.swift`, inside the `Head`:
 
 ```swift
 Meta(property: "og:title", content: title),
 Meta(property: "og:description", content: description),
-Meta(property: "og:image", content: "https://meusite.com/og-image.jpg"),
-Meta(property: "og:url", content: "https://meusite.com")
+Meta(property: "og:image", content: "https://mysite.com/og-image.jpg"),
+Meta(property: "og:url", content: "https://mysite.com")
 ```
 
 ## 🚀 Deploy
@@ -152,7 +152,7 @@ chmod +x Scripts/deploy.sh
 
 ### Netlify
 
-1. Conecte seu repositório
+1. Connect your repository
 2. Build command: `swift run`
 3. Publish directory: `dist`
 
@@ -162,31 +162,31 @@ chmod +x Scripts/deploy.sh
 vercel --prod
 ```
 
-## 📝 Scripts Disponíveis
+## 📝 Available Scripts
 
-### build.sh
+### `build.sh`
 ```bash
 ./Scripts/build.sh
 ```
-Gera o site em `./dist`
+Generates the site into `./dist`
 
-### dev.sh
+### `dev.sh`
 ```bash
 ./Scripts/dev.sh
 ```
-Modo desenvolvimento com live server
+Development mode with live server
 
-### deploy.sh
+### `deploy.sh`
 ```bash
 ./Scripts/deploy.sh
 ```
-Deploy para GitHub Pages
+Deploy to GitHub Pages
 
-## 🎨 Personalização Avançada
+## 🎨 Advanced Customization
 
-### Criar Componentes Reutilizáveis
+### Create Reusable Components
 
-Crie arquivo `Sources/Components.swift`:
+Create `Sources/Components.swift`:
 
 ```swift
 import WingedSwift
@@ -213,88 +213,88 @@ func createCard(title: String, content: String, image: String? = nil) -> Div {
 }
 ```
 
-### Usar Tailwind CSS
+### Use Tailwind CSS
 
-1. Adicione CDN no layout:
+1. Add the CDN to the layout:
 ```swift
 Link(href: "https://cdn.tailwindcss.com", rel: "stylesheet")
 ```
 
-2. Use classes Tailwind:
+2. Use Tailwind utility classes:
 ```swift
 Div().addClasses(["flex", "items-center", "justify-between"])
 ```
 
-## 📚 Exemplos
+## 📚 Examples
 
-Ver [EXAMPLE.md](../../EXAMPLE.md) para mais exemplos.
+See [EXAMPLE.md](../../EXAMPLE.md) for more samples.
 
 ## 🐛 Troubleshooting
 
-**Erro de build**
+**Build error**
 ```bash
 rm -rf .build
 swift package resolve
 swift run
 ```
 
-**CSS não carrega**
-- Verifique se executou: `try generator.copyAsset()`
-- Caminho deve ser relativo: `css/style.css`
+**CSS not loading**
+- Make sure you ran: `try generator.copyAsset()`
+- Paths must be relative: `css/style.css`
 
-**Mudanças não aparecem**
+**Changes not showing up**
 ```bash
 rm -rf dist
 swift run
 ```
 
-## 📦 Dependências
+## 📦 Requirements
 
 - Swift 5.9+
 - WingedSwift 1.3.0+
-- Python 3 (para servidor local)
+- Python 3 (local server)
 
-## 💡 Dicas
+## 💡 Tips
 
-1. **Use Pretty Print durante desenvolvimento**
+1. **Use pretty print during development**
    ```swift
    try generator.generate(page: page, to: "index.html", pretty: true)
    ```
 
-2. **Minimize em produção**
+2. **Minify for production**
    ```swift
    try generator.generate(page: page, to: "index.html", pretty: false)
    ```
 
-3. **Cache de assets**
-   - Adicione hash aos nomes: `style.abc123.css`
+3. **Cache-bust assets**
+   - Add hashes to filenames: `style.abc123.css`
 
-4. **Otimize imagens**
-   - Use formatos modernos (WebP, AVIF)
-   - Comprima antes de adicionar
+4. **Optimize images**
+   - Prefer modern formats (WebP, AVIF)
+   - Compress before adding
 
-## 🤝 Contribuindo
+## 🤝 Contributing
 
-Melhorias para este template são bem-vindas!
+Improvements to this template are welcome!
 
-1. Fork o repositório
-2. Crie sua feature branch
-3. Commit suas mudanças
-4. Push para a branch
-5. Abra um Pull Request
+1. Fork the repository
+2. Create your feature branch
+3. Commit your changes
+4. Push the branch
+5. Open a Pull Request
 
-## 📄 Licença
+## 📄 License
 
-MIT License - use livremente!
+MIT License — use freely!
 
-## 🔗 Links Úteis
+## 🔗 Useful Links
 
 - [WingedSwift](https://github.com/micheltlutz/Winged-Swift)
-- [Documentação](../../README.md)
-- [Exemplos](../../EXAMPLE.md)
+- [Documentation](../../README.md)
+- [Examples](../../EXAMPLE.md)
 - [Getting Started](../../GETTING_STARTED.md)
 
 ---
 
-**Criado com ❤️ usando WingedSwift**
+**Built with ❤️ using WingedSwift**
 

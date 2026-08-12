@@ -1,9 +1,10 @@
-import XCTest
+import Foundation
+import Testing
 @testable import WingedSwift
 
-final class CodeTests: XCTestCase {
+@Suite struct CodeTests {
 
-    func testPreTag() {
+    @Test func testPreTag() {
         let pre = Pre(content: """
         This is preformatted text.
         It preserves whitespace and line breaks.
@@ -13,10 +14,10 @@ final class CodeTests: XCTestCase {
         <pre>This is preformatted text.
         It preserves whitespace and line breaks.</pre>
         """
-        XCTAssertEqual(pre.render(), expected)
+        #expect(pre.render() == expected)
     }
 
-    func testCodeTag() {
+    @Test func testCodeTag() {
         let code = Code(content: """
         let x = 10
         print(x)
@@ -26,15 +27,15 @@ final class CodeTests: XCTestCase {
         <code>let x = 10
         print(x)</code>
         """
-        XCTAssertEqual(code.render(), expected)
+        #expect(code.render() == expected)
     }
 
-    func testEmbedTag() {
+    @Test func testEmbedTag() {
         let embed = Embed(src: "video.mp4", type: "video/mp4")
 
         let expected = """
-        <embed src="video.mp4" type="video/mp4" />
+        <embed src="video.mp4" type="video/mp4">
         """
-        XCTAssertEqual(embed.render(), expected)
+        #expect(embed.render() == expected)
     }
 }

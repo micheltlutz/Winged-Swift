@@ -123,3 +123,4 @@ $RECYCLE.BIN/
 .env.test.local
 .env.production.local
 
+GITHUB_PAGES_SETUP.md

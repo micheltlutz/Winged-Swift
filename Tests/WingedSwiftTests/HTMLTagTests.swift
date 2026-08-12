@@ -1,28 +1,29 @@
-import XCTest
+import Foundation
+import Testing
 @testable import WingedSwift
 
-final class HTMLTagTests: XCTestCase {
+@Suite struct HTMLTagTests {
     
-    func testHTMLTagCreation() {
+    @Test func testHTMLTagCreation() {
         let htmlTag = HTMLTag("p")
             .addAttribute(Attribute(key: "class", value: "text"))
             .setContent("Hello, World!")
         
         let expected = "<p class=\"text\">Hello, World!</p>"
-        XCTAssertEqual(htmlTag.render(), expected)
+        #expect(htmlTag.render() == expected)
     }
     
-    func testHTMLTagWithMultipleAttributes() {
+    @Test func testHTMLTagWithMultipleAttributes() {
         let htmlTag = Img(src: "image.png", alt: "An image", attributes: [
             Attribute(key: "width", value: "100"),
             Attribute(key: "height", value: "100")
         ])
         
-        let expected = "<img width=\"100\" height=\"100\" src=\"image.png\" alt=\"An image\" />"
-        XCTAssertEqual(htmlTag.render(), expected)
+        let expected = "<img width=\"100\" height=\"100\" src=\"image.png\" alt=\"An image\">"
+        #expect(htmlTag.render() == expected)
     }
     
-    func testHTMLBuilder() {
+    @Test func testHTMLBuilder() {
         let document = html {
             Div(children: [
                 P(content: "This is a paragraph."),
@@ -31,12 +32,12 @@ final class HTMLTagTests: XCTestCase {
         }
         
         let expected = """
-        <html><div><p>This is a paragraph.</p><img src="image.png" alt="An image" /></div></html>
+        <html><div><p>This is a paragraph.</p><img src="image.png" alt="An image"></div></html>
         """
-        XCTAssertEqual(document.render(), expected)
+        #expect(document.render() == expected)
     }
     
-    func testHTMLBuilderWithAttributes() {
+    @Test func testHTMLBuilderWithAttributes() {
         let document = html {
             Div(attributes: [Attribute(key: "class", value: "main-body")], children: [
                 P(content: "Title"),
@@ -47,10 +48,10 @@ final class HTMLTagTests: XCTestCase {
         let expected = """
         <html><div class="main-body"><p>Title</p><p>This is a paragraph.</p></div></html>
         """
-        XCTAssertEqual(document.render(), expected)
+        #expect(document.render() == expected)
     }
     
-    func testHTMLTable() {
+    @Test func testHTMLTable() {
         let document = html {
             Table(attributes: [Attribute(key: "class", value: "table")], children: [
                 Tr(children: [
@@ -71,10 +72,10 @@ final class HTMLTagTests: XCTestCase {
         let expected = """
         <html><table class="table"><tr><th>Header 1</th><th>Header 2</th></tr><tr><td>Row 1, Cell 1</td><td>Row 1, Cell 2</td></tr><tr><td>Row 2, Cell 1</td><td>Row 2, Cell 2</td></tr></table></html>
         """
-        XCTAssertEqual(document.render(), expected)
+        #expect(document.render() == expected)
     }
 
-    func testHTMLList() {
+    @Test func testHTMLList() {
         let document = html {
             Ul(attributes: [Attribute(key: "class", value: "unordered-list")], children: [
                 Li(content: "Item 1"),
@@ -86,10 +87,10 @@ final class HTMLTagTests: XCTestCase {
         let expected = """
         <html><ul class="unordered-list"><li>Item 1</li><li>Item 2</li><li>Item 3</li></ul></html>
         """
-        XCTAssertEqual(document.render(), expected)
+        #expect(document.render() == expected)
     }
         
-    func testHTMLOrderedList() {
+    @Test func testHTMLOrderedList() {
         let document = html {
             Ol(attributes: [Attribute(key: "class", value: "ordered-list")], children: [
                 Li(content: "First"),
@@ -101,10 +102,10 @@ final class HTMLTagTests: XCTestCase {
         let expected = """
         <html><ol class="ordered-list"><li>First</li><li>Second</li><li>Third</li></ol></html>
         """
-        XCTAssertEqual(document.render(), expected)
+        #expect(document.render() == expected)
     }
     
-    func testHTMLDescriptionList() {
+    @Test func testHTMLDescriptionList() {
         let document = html {
             Dl(attributes: [Attribute(key: "class", value: "description-list")], children: [
                 HTMLTag("dt", content: "Term 1"),
@@ -117,10 +118,10 @@ final class HTMLTagTests: XCTestCase {
         let expected = """
         <html><dl class="description-list"><dt>Term 1</dt><dd>Description 1</dd><dt>Term 2</dt><dd>Description 2</dd></dl></html>
         """
-        XCTAssertEqual(document.render(), expected)
+        #expect(document.render() == expected)
     }
 
-    func testHTMLStructuralTags() {
+    @Test func testHTMLStructuralTags() {
         let document = html {
             Head(children: [
                 Meta(name: "description", content: "A description of the page"),
@@ -144,12 +145,12 @@ final class HTMLTagTests: XCTestCase {
         }
         
         let expected = """
-        <html><head><meta name="description" content="A description of the page" /><link href="styles.css" rel="stylesheet" /></head><body><header><nav><a href="#home">Home</a><a href="#about">About</a><a href="#contact">Contact</a></nav></header><main><p>Welcome to our website!</p></main><footer><p>© 2024 Company, Inc.</p></footer></body></html>
+        <html><head><meta name="description" content="A description of the page"><link href="styles.css" rel="stylesheet"></head><body><header><nav><a href="#home">Home</a><a href="#about">About</a><a href="#contact">Contact</a></nav></header><main><p>Welcome to our website!</p></main><footer><p>© 2024 Company, Inc.</p></footer></body></html>
         """
-        XCTAssertEqual(document.render(), expected)
+        #expect(document.render() == expected)
     }
     
-    func testHTMLScript() {
+    @Test func testHTMLScript() {
         let document = html {
             Script(
                 content: "alert('Hello World');"
@@ -159,22 +160,22 @@ final class HTMLTagTests: XCTestCase {
         let expected = """
         <html><script type="text/javascript">alert('Hello World');</script></html>
         """
-        XCTAssertEqual(document.render(), expected)
+        #expect(document.render() == expected)
     }
     
-    func testMetaWithName() {
+    @Test func testMetaWithName() {
         let document = html {
             Meta(name: "description", content: "A description of the page")
             Meta(attributes: [Attribute(key: "charset", value: "utf-8")])
         }
         
         let expected = """
-        <html><meta name="description" content="A description of the page" /><meta charset="utf-8" /></html>
+        <html><meta name="description" content="A description of the page"><meta charset="utf-8"></html>
         """
-        XCTAssertEqual(document.render(), expected)
+        #expect(document.render() == expected)
     }
     
-    func testHTMLTitle() {
+    @Test func testHTMLTitle() {
         let document = html {
             Title(
                 content: "Title my site"
@@ -184,19 +185,19 @@ final class HTMLTagTests: XCTestCase {
         let expected = """
         <html><title>Title my site</title></html>
         """
-        XCTAssertEqual(document.render(), expected)
+        #expect(document.render() == expected)
     }
     
-    func testHTMLSpan() {
+    @Test func testHTMLSpan() {
         let htmlTag = Span()
             .addAttribute(Attribute(key: "class", value: "text"))
             .setContent("Hello, World!")
         
         let expected = "<span class=\"text\">Hello, World!</span>"
-        XCTAssertEqual(htmlTag.render(), expected)
+        #expect(htmlTag.render() == expected)
     }
     
-    func testHTMLButton() {
+    @Test func testHTMLButton() {
         let document = html {
             Button(attributes: [Attribute(key: "class", value: "button-class")])
         }
@@ -204,10 +205,10 @@ final class HTMLTagTests: XCTestCase {
         let expected = """
         <html><button class="button-class" type="button"></button></html>
         """
-        XCTAssertEqual(document.render(), expected)
+        #expect(document.render() == expected)
     }
     
-    func testHTMLButtonChildren() {
+    @Test func testHTMLButtonChildren() {
         let document = html {
             Button(attributes: [Attribute(key: "class", value: "button-class")], children: [
                 Span(attributes: [Attribute(key: "class", value: "icon-bar")])
@@ -217,6 +218,6 @@ final class HTMLTagTests: XCTestCase {
         let expected = """
         <html><button class="button-class" type="button"><span class="icon-bar"></span></button></html>
         """
-        XCTAssertEqual(document.render(), expected)
+        #expect(document.render() == expected)
     }
 }

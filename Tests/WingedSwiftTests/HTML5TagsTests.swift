@@ -1,8 +1,9 @@
-import XCTest
+import Foundation
+import Testing
 @testable import WingedSwift
 
-final class HTML5TagsTests: XCTestCase {
-    func testArticleTag() {
+@Suite struct HTML5TagsTests {
+    @Test func testArticleTag() {
         // Given
         let article = Article(children: [
             H1(content: "Title", escapeContent: false)
@@ -12,12 +13,12 @@ final class HTML5TagsTests: XCTestCase {
         let result = article.render()
         
         // Then
-        XCTAssertTrue(result.contains("<article>"))
-        XCTAssertTrue(result.contains("</article>"))
-        XCTAssertTrue(result.contains("<h1>"))
+        #expect(result.contains("<article>"))
+        #expect(result.contains("</article>"))
+        #expect(result.contains("<h1>"))
     }
     
-    func testAsideTag() {
+    @Test func testAsideTag() {
         // Given
         let aside = Aside(children: [
             P(content: "Sidebar", escapeContent: false)
@@ -27,11 +28,11 @@ final class HTML5TagsTests: XCTestCase {
         let result = aside.render()
         
         // Then
-        XCTAssertTrue(result.contains("<aside>"))
-        XCTAssertTrue(result.contains("</aside>"))
+        #expect(result.contains("<aside>"))
+        #expect(result.contains("</aside>"))
     }
     
-    func testFigureAndFigcaption() {
+    @Test func testFigureAndFigcaption() {
         // Given
         let figure = Figure(children: [
             Img(src: "image.jpg", alt: "Test"),
@@ -42,11 +43,11 @@ final class HTML5TagsTests: XCTestCase {
         let result = figure.render()
         
         // Then
-        XCTAssertTrue(result.contains("<figure>"))
-        XCTAssertTrue(result.contains("<figcaption>"))
+        #expect(result.contains("<figure>"))
+        #expect(result.contains("<figcaption>"))
     }
     
-    func testTimeTag() {
+    @Test func testTimeTag() {
         // Given
         let time = Time(datetime: "2024-01-15", content: "January 15, 2024", escapeContent: false)
         
@@ -54,12 +55,12 @@ final class HTML5TagsTests: XCTestCase {
         let result = time.render()
         
         // Then
-        XCTAssertTrue(result.contains("<time"))
-        XCTAssertTrue(result.contains("datetime=\"2024-01-15\""))
-        XCTAssertTrue(result.contains("January 15, 2024"))
+        #expect(result.contains("<time"))
+        #expect(result.contains("datetime=\"2024-01-15\""))
+        #expect(result.contains("January 15, 2024"))
     }
     
-    func testMarkTag() {
+    @Test func testMarkTag() {
         // Given
         let mark = Mark(content: "highlighted", escapeContent: false)
         
@@ -67,11 +68,11 @@ final class HTML5TagsTests: XCTestCase {
         let result = mark.render()
         
         // Then
-        XCTAssertTrue(result.contains("<mark>"))
-        XCTAssertTrue(result.contains("highlighted"))
+        #expect(result.contains("<mark>"))
+        #expect(result.contains("highlighted"))
     }
     
-    func testHeadingTags() {
+    @Test func testHeadingTags() {
         // Test all heading levels
         let headings = [
             H1(content: "H1", escapeContent: false),
@@ -85,8 +86,8 @@ final class HTML5TagsTests: XCTestCase {
         for (index, heading) in headings.enumerated() {
             let result = heading.render()
             let level = index + 1
-            XCTAssertTrue(result.contains("<h\(level)>"))
-            XCTAssertTrue(result.contains("</h\(level)>"))
+            #expect(result.contains("<h\(level)>"))
+            #expect(result.contains("</h\(level)>"))
         }
     }
 }

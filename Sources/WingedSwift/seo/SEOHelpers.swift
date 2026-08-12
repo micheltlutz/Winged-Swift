@@ -1,7 +1,7 @@
 import Foundation
 
 /// Provides helper methods for common SEO meta tags.
-public struct SEO {
+public struct SEO: Sendable {
     
     // MARK: - Open Graph Meta Tags
     

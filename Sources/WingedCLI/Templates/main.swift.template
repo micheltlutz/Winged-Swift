@@ -1,0 +1,67 @@
+import Foundation
+import WingedSwift
+
+// Paths are resolved against the project, not the working directory, so the generator produces
+// the same site whether it is run by `swift run`, by `winged build`, or from another folder.
+let projectRoot = URL(fileURLWithPath: #filePath)   // Sources/{{PROJECT_NAME}}/main.swift
+    .deletingLastPathComponent()
+    .deletingLastPathComponent()
+    .deletingLastPathComponent()
+
+func inProject(_ path: String) -> String {
+    path.hasPrefix("/") ? path : projectRoot.appendingPathComponent(path).path
+}
+
+// The output directory: `winged build` passes it, otherwise dist/
+let outputDirectory = inProject(CommandLine.arguments.dropFirst().first ?? "dist")
+let generator = StaticSiteGenerator(outputDirectory: outputDirectory)
+
+let home = SiteLayout(
+    title: "{{SITE_TITLE}}",
+    description: "{{SITE_DESCRIPTION}}"
+).page {
+    Section {
+        H1(content: "{{SITE_TITLE}}").addClass("hero-title")
+        P(content: "{{SITE_DESCRIPTION}}").addClass("hero-subtitle")
+        A(href: "#features", content: "See the features").addClass("button")
+    }
+    .addClass("hero")
+
+    Section(attributes: [Attribute(key: "id", value: "features")]) {
+        H2(content: "Features")
+        Div {
+            for feature in Content.features {
+                Components.featureCard(feature)
+            }
+        }
+        .addClass("grid")
+    }
+    .addClass("features")
+}
+
+let about = SiteLayout(
+    title: "About — {{SITE_TITLE}}",
+    description: "About {{SITE_TITLE}}"
+).page {
+    Section {
+        H1(content: "About")
+        P(content: "This site is generated from Swift with WingedSwift.")
+    }
+}
+
+try generator.clean()
+try generator.generateMultiple(documents: [
+    (document: home, path: "index.html"),
+    (document: about, path: "about/index.html")
+])
+try generator.copyAsset(from: inProject("assets/css"), to: "css")
+try generator.writeFile(content: "User-agent: *\nAllow: /", to: "robots.txt")
+try generator.writeFile(
+    content: SitemapGenerator.generate(urls: [
+        SitemapURL(loc: "https://example.com/", changefreq: "weekly", priority: 1.0),
+        SitemapURL(loc: "https://example.com/about/", changefreq: "monthly", priority: 0.6)
+    ]),
+    to: "sitemap.xml"
+)
+
+print("✅ Site written to \(outputDirectory)")

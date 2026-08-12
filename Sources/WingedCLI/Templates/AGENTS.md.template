@@ -1,0 +1,51 @@
+# AGENTS.md — {{PROJECT_NAME}}
+
+A static site generated from Swift with [WingedSwift](https://github.com/micheltlutz/Winged-Swift).
+Read this before changing anything.
+
+## How this project works
+
+`swift run` executes `Sources/{{PROJECT_NAME}}/main.swift`, which builds a tree of `HTMLTag`
+objects and writes HTML files into `dist/`. There is no server and no runtime: everything happens
+at build time.
+
+```
+Sources/{{PROJECT_NAME}}/
+├── main.swift          # the pages and what gets written where
+├── SiteLayout.swift    # the shell shared by every page (head, nav, footer)
+└── Components.swift    # content data + reusable markup
+assets/                 # css/js/images copied into dist/
+dist/                   # generated — do not edit by hand
+```
+
+## Commands
+
+| Command | What it does |
+| --- | --- |
+| `winged build` | Generates the site into `dist/`. |
+| `winged serve --watch` | Serves `dist/` on http://localhost:8000 and rebuilds on change. |
+| `swift build` | Type-checks without generating. |
+
+## Rules
+
+1. **Never edit `dist/`.** It is overwritten on every build. Change the Swift source.
+2. **Never invent a tag type.** Check the
+   [tag catalog](https://github.com/micheltlutz/Winged-Swift/blob/main/.claude/skills/wingedswift/references/tag-catalog.md);
+   if an element has no type, use `HTMLTag("element-name") { … }` or `RawHTML("<svg …>")`.
+3. **Content is escaped by default.** Pass raw text — never pre-escape. `escapeContent: false` is
+   only for markup you generated yourself.
+4. **Add a page** by creating a `Document` in `main.swift` with `SiteLayout(...).page { … }` and
+   adding it to the `generateMultiple(documents:)` list.
+5. **Add a section or card** as a `static func … -> HTMLTag` in `Components.swift`, then use it in
+   `main.swift`. Keep the copy in `Content`, not inline in the markup.
+6. **Style with classes**, chained: `.addClass("card")`, `.addClasses(["grid", "gap-4"])`. Edit the
+   CSS in `assets/css/`.
+
+## Before you say you are done
+
+```bash
+winged build
+```
+
+Then open `dist/index.html` and confirm the change is actually in the generated HTML — a build that
+succeeds is not proof the page looks right.

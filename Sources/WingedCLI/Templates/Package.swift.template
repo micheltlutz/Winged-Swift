@@ -1,0 +1,16 @@
+// swift-tools-version: 6.0
+
+import PackageDescription
+
+let package = Package(
+    name: "{{PROJECT_NAME}}",
+    dependencies: [
+        .package(url: "https://github.com/micheltlutz/Winged-Swift.git", from: "{{WINGED_VERSION}}")
+    ],
+    targets: [
+        .executableTarget(
+            name: "{{PROJECT_NAME}}",
+            dependencies: [.product(name: "WingedSwift", package: "Winged-Swift")]
+        )
+    ]
+)

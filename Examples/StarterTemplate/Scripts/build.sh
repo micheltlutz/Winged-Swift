@@ -16,7 +16,7 @@ if swift run; then
     echo "  open dist/index.html"
     echo ""
     echo "To serve locally:"
-    echo "  cd dist && python3 -m http.server 8000"
+    echo "  winged serve --no-build"
 else
     echo ""
     echo "❌ Build failed!"

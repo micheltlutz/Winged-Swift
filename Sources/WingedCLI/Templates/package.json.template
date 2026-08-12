@@ -1,0 +1,11 @@
+{
+  "name": "{{PROJECT_SLUG}}",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "build:css": "tailwindcss -i ./assets/css/tailwind.input.css -o ./dist/css/style.css --minify"
+  },
+  "devDependencies": {
+    "tailwindcss": "^3.4.18"
+  }
+}
