@@ -81,8 +81,7 @@ struct HTTPServer: Sendable {
 
         let path = String(parts[1].split(separator: "?").first ?? "/")
         guard let resolved = resolve(path) else {
-            respond(connection, status: "404 Not Found", type: "text/html",
-                    body: Data("<h1>404</h1><p>\(path) is not in \(root)</p>".utf8))
+            respond(connection, status: "404 Not Found", type: "text/html", body: notFoundBody(for: path))
             return
         }
 
@@ -91,6 +90,13 @@ struct HTTPServer: Sendable {
             return
         }
         respond(connection, status: "200 OK", type: Self.contentType(of: resolved), body: body)
+    }
+
+    /// The site's own `404.html` when it has one — what static hosts serve — otherwise a short
+    /// message naming the missing path.
+    func notFoundBody(for path: String) -> Data {
+        FileManager.default.contents(atPath: URL(fileURLWithPath: root).appendingPathComponent("404.html").path)
+            ?? Data("<h1>404</h1><p>\(path) is not in \(root)</p>".utf8)
     }
 
     /// Maps a URL path to a file inside the served directory, refusing to escape it.

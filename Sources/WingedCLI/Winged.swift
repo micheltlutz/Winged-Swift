@@ -5,7 +5,7 @@ struct Winged: ParsableCommand {
     static let configuration = CommandConfiguration(
         commandName: "winged",
         abstract: "Scaffold, build and preview static sites written with WingedSwift.",
-        version: "2.1.0",
+        version: "2.2.0",
         subcommands: [New.self, Build.self, Serve.self],
         defaultSubcommand: Build.self
     )
