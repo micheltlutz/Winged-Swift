@@ -82,6 +82,19 @@ diff -r /tmp/winged-dist-before dist && echo "IDENTICAL"
   one.
 - An unexplained hunk means stop and ask the user.
 
+## 5b. Adopting a new model (only when asked)
+
+Some releases add a new way to write a site that is not part of the upgrade — 2.2's `Site` /
+`Page` model is the main one. When the user asks for it, after the upgrade is committed:
+
+1. Record every URL the site serves now: `cd /tmp/winged-dist-before && find . -type f | sort`.
+2. Follow the release's "Optional" section in `MIGRATION.md` (for 2.2, the script → `Site`
+   mapping table). Set `path` on any page whose default slug would change its URL.
+3. Rebuild and diff. Every old file must still exist. Differences must be limited to what the
+   section names (for 2.2: `<head>` tags, `sitemap.xml`, `robots.txt`, a new `404.html`); body
+   markup must not change.
+4. Commit separately (`Change: move the site onto the WingedSwift Site model`).
+
 ## 6. Report and commit
 
 Report: from → to version, files touched, rewrites applied (with counts), remaining deprecation
@@ -96,4 +109,5 @@ These summarise `MIGRATION.md`. If they disagree, `MIGRATION.md` wins.
 | --- | --- | --- | --- |
 | 1.x → 2.0 | No (deprecations only) | No | Swift 6.0 toolchain; `render(pretty:)` → `render(.pretty)`; subclasses overriding `renderCompact`/`renderPretty` must override `write(into:options:indentLevel:)` |
 | 2.0 → 2.1 | Rarely | No — diff must be empty | `catch let e as CocoaError` around `StaticSiteGenerator` no longer matches (`WingedError`); your own `extension HTMLTag` named `target`/`rel`/`loading`/`decoding`/`hidden`/`tabIndex`/`lang` becomes ambiguous |
+| 2.1 → 2.2 | No | No — diff must be empty | New names (`Site`, `Page`, `Environment`, …) only matter if you adopt the site model in a module that already has them; exhaustive `switch` over `WingedError` needs `.duplicatePath`. Moving a script onto `Site` is optional adoption and changes `<head>` — separate commit, keep every URL |
 | 2.x → 3.0 | Yes | See its section | Deprecated 2.0 members are removed — clear all WingedSwift deprecation warnings on the latest 2.x **before** bumping to 3.0 |

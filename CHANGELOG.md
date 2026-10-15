@@ -5,6 +5,44 @@ All notable changes to WingedSwift will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased] — 2.2.0
+
+Additive release: existing scripts built on `Document` and `StaticSiteGenerator` compile unchanged
+and render byte-identical output. See the 2.1 → 2.2 section of [MIGRATION.md](MIGRATION.md),
+including how to move a script site onto the new site model if you want to.
+
+### Added
+
+- **`Site` protocol** — declare a site as a type (`name`, `url`, `homePage`, `layout`, `pages`) and
+  call `publish()`. It renders every page, generates the head meta tags, copies `assets/`, and
+  writes `404.html`, `sitemap.xml`, `robots.txt` and an optional feed. The package root is found
+  from the caller's `#filePath`, so the output does not depend on the working directory (#18).
+- **`Page` protocol** — `title` and `body` are required; `path` defaults to a slug of the type name
+  (`AboutPage` → `/about/`), and `description`, `image` and `isInSitemap` have defaults. `@PageBuilder`
+  collects pages with `if`/`for` (#19).
+- **`PageLayout` protocol** for the shell around each page, plus `EmptyLayout`; a site can pick a
+  layout per page with `layout(for:)` (#19).
+- **`@Environment` property wrapper** over `EnvironmentValues` (`site`, `page`, `pages`), backed by
+  `@TaskLocal` — no global state. `EnvironmentValues.withValues(_:_:)` sets it outside a publish (#20).
+- **Generated head** — charset, viewport, `<title>`, description, author, canonical link, feed link,
+  Open Graph and Twitter card tags from the site and page metadata (#21).
+- **`FeedGenerator`** writing RSS 2.0, Atom 1.0 or JSON Feed 1.1 from `FeedItem`s, and
+  `Site.feedItems` / `Site.feedFormat` (#21, #22).
+- **`RobotsGenerator`** and `RobotsRule` for `robots.txt` (#22).
+- **`NotFoundPage`**, the default `404.html`, replaceable with `Site.errorPage` (#23).
+- `Site.document(at:)` renders one page without writing files, for tests.
+- `WingedError.duplicatePath` when two pages resolve to the same path.
+
+### Changed
+
+- `winged new` scaffolds a `Site` (`main.swift`), one `Page` per page (`Pages.swift`) and a
+  `PageLayout` with an environment-driven navigation (`SiteLayout.swift`).
+- `winged serve` answers missing paths with the site's own `404.html` when it exists (#23).
+
+### Fixed
+
+- `WingedSwift.version` reported `2.0.0`; it now matches the release.
+
 ## [Unreleased] — 2.1.0
 
 Additive release: no 2.0 call site changes meaning and rendered output is byte-identical (the golden

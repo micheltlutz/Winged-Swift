@@ -23,6 +23,9 @@ and an entry in the [`wingedswift-migrate` skill](.claude/skills/wingedswift-mig
 - **2.1** — bare strings and optional tags in builders, `if #available`, control flow in the
   attributes builder, the `Component` protocol, typed attribute setters, `WingedError` with typed
   throws, and the migration skill. Additive; output byte-identical.
+- **2.2** — the `Site` / `Page` / `PageLayout` model with `publish()`, `@Environment` on
+  `@TaskLocal`, generated head meta tags, sitemap, robots.txt, RSS/Atom/JSON feeds and `404.html`.
+  Additive; scripts keep rendering byte-identical output.
 
 ## [2.1 — Modern Swift builders](https://github.com/micheltlutz/Winged-Swift/milestone/1)
 

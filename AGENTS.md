@@ -158,6 +158,37 @@ one task, then pass the resulting `String` across isolation boundaries. `Attribu
 
 ## Recipes
 
+### A whole site (2.2+)
+
+Declare the site as types and let `publish()` write it — pages, assets, head meta tags,
+`404.html`, `sitemap.xml`, `robots.txt`:
+
+```swift
+struct Home: Page {
+    var title = "RideKeeper"
+    var body: HTMLTag { H1(content: "Track every service") }
+}
+
+struct MainLayout: PageLayout {
+    func head() -> [HTMLTag] { Link(href: "/css/style.css", rel: "stylesheet") }
+    func body(content: HTMLTag) -> [HTMLTag] { MainTag(children: [content]) }
+}
+
+struct RideKeeper: Site {
+    var name = "RideKeeper"
+    var url = "https://ridekeeper.example"
+    var homePage = Home()
+    var layout = MainLayout()
+    var pages: [any Page] { About(); Pricing() }   // About → /about/
+}
+
+try RideKeeper().publish()
+```
+
+Components read `@Environment(\.site)`, `\.page` and `\.pages`. Declare properties with plain
+values (`var description = "…"`) — an optional-typed `String?` silently misses the requirement.
+The script style below stays fully supported.
+
 ### A full page written to disk
 
 ```swift

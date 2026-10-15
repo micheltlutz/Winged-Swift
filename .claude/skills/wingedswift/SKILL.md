@@ -39,7 +39,9 @@ print(page.render())   // <!DOCTYPE html> … , pretty by default
    for page skeletons, layouts, SEO heads, loops, tables, forms, sitemap and RSS.
 4. Skim `references/pitfalls.md` — escaping, void elements, `Fragment` vs `RawHTML` and
    `Document` vs `html { }` behave in ways that are obvious once known and silently wrong otherwise.
-5. Build and look at the output: `winged build` then open `dist/index.html`, or
+5. For a whole site, prefer the `Site` / `Page` / `PageLayout` model (2.2+, see "A whole site" in
+   `references/recipes.md`); scripts with `Document` + `StaticSiteGenerator` remain supported.
+6. Build and look at the output: `winged build` then open `dist/index.html`, or
    `winged serve --watch`. Always inspect the generated HTML, not just the exit code.
 
 ### B. Extending the Winged-Swift library

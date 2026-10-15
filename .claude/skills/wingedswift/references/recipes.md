@@ -45,6 +45,74 @@ let package = Package(
 
 Do not add a `platforms:` clause unless you need one — it breaks Linux builds.
 
+## A whole site (2.2+)
+
+Declare the site and its pages as types; `publish()` writes pages, assets, head meta tags,
+`404.html`, `sitemap.xml`, `robots.txt` and (with `feedItems`) a feed.
+
+```swift
+import WingedSwift
+
+struct Home: Page {
+    var title = "RideKeeper"
+    var body: HTMLTag {
+        H1(content: "Track every service")
+    }
+}
+
+struct Pricing: Page {                      // served at /pricing/
+    var title = "Pricing"
+    var description = "Plans for every rider"
+    var image = "/img/pricing.png"          // og:image, made absolute
+    var body: HTMLTag { P(content: "Free while in beta.") }
+}
+
+struct MainLayout: PageLayout {
+    func head() -> [HTMLTag] {
+        Link(href: "/css/style.css", rel: "stylesheet")
+    }
+
+    func body(content: HTMLTag) -> [HTMLTag] {
+        SiteNav()
+        MainTag(children: [content])
+    }
+}
+
+struct SiteNav: Component {
+    @Environment(\.pages) var pages        // also \.site and \.page
+
+    var body: HTMLTag {
+        Nav {
+            for page in pages where page.path != "/404.html" {
+                A(href: page.path, content: page.title)
+            }
+        }
+    }
+}
+
+struct RideKeeper: Site {
+    var name = "RideKeeper"
+    var url = "https://ridekeeper.example"
+    var language = "pt-BR"
+    var description = "Motorcycle maintenance companion"
+    var homePage = Home()
+    var layout = MainLayout()
+
+    var pages: [any Page] {
+        Pricing()
+    }
+}
+
+try RideKeeper().publish()                 // dist/, or the path `winged build` passes
+```
+
+- Declare page and site properties with plain values (`var description = "…"`). The protocol
+  types are non-optional on purpose, so inference always matches the requirement.
+- `path` defaults to the type name (`Pricing` → `/pricing/`); set it to keep an existing URL
+  (`var path = "/pricing.html"`).
+- Do not put `<title>` or SEO meta in the layout — the site writes them.
+- `site.document(at: "/pricing/")` renders one page without writing files, for tests.
+
 ## A page
 
 ```swift
