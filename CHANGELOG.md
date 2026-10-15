@@ -5,13 +5,76 @@ All notable changes to WingedSwift will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [Unreleased] — 2.4.0
+## [2.4.0] - 2026-10-15
 
-Additive: sites built with `Document` + `StaticSiteGenerator` render byte-identical output. A
-`Site` now also publishes the Markdown files of its `Content/` folder — see the 2.3 → 2.4 section
-of [MIGRATION.md](MIGRATION.md).
+The first release since 2.0.0. It bundles four milestones: modern builders and `Component`,
+the `Site` / `Page` model, the CLI templates and dev loop, and Markdown content. Everything is
+additive: sites built with `Document` + `StaticSiteGenerator` compile unchanged and render
+byte-identical output. Coming from 2.0, follow MIGRATION.md's 2.0 → 2.1, 2.1 → 2.2, 2.2 → 2.3
+and 2.3 → 2.4 sections in order — or let the `wingedswift-migrate` skill do it.
 
 ### Added
+
+#### Builders and components
+
+- **Bare strings in builders** become escaped text via the new `TextNode`:
+  `P { "Made with "; Strong(content: "Swift") }` (#14).
+- **Optional tags in builders** — a `HTMLTag?` renders only when non-`nil` (#14).
+- **`if #available` in every builder** (`buildLimitedAvailability`) (#12).
+- **`HTMLAttributesBuilder` control flow** — `if`, `if let`, `for` and `Attribute?` (#13).
+- **`Component` protocol**: a type with an `@HTMLBuilder var body`, usable inline in any builder
+  and renderable on its own. `static func … -> HTMLTag` components remain valid (#16).
+- **Typed attribute modifiers**: `.target(_: LinkTarget)`, `.rel(_: [LinkRelation])`,
+  `.loading(_: LoadingStrategy)`, `.decoding(_: DecodingHint)`, `.hidden(_:)`, `.tabIndex(_:)`,
+  `.lang(_:)` (#17).
+- **`WingedError`**, the single error type thrown by `StaticSiteGenerator` (#15).
+- **`wingedswift-migrate` skill** (`.claude/skills/wingedswift-migrate/`) — a step-by-step procedure
+  a coding agent follows to upgrade a site, with a `dist/` diff as the safety net.
+
+#### Site model
+
+- **`Site` protocol** — declare a site as a type (`name`, `url`, `homePage`, `layout`, `pages`) and
+  call `publish()`. It renders every page, generates the head meta tags, copies `assets/`, and
+  writes `404.html`, `sitemap.xml`, `robots.txt` and an optional feed. The package root is found
+  from the caller's `#filePath`, so the output does not depend on the working directory (#18).
+- **`Page` protocol** — `title` and `body` are required; `path` defaults to a slug of the type name
+  (`AboutPage` → `/about/`), and `description`, `image` and `isInSitemap` have defaults. `@PageBuilder`
+  collects pages with `if`/`for` (#19).
+- **`PageLayout` protocol** for the shell around each page, plus `EmptyLayout`; a site can pick a
+  layout per page with `layout(for:)` (#19).
+- **`@Environment` property wrapper** over `EnvironmentValues` (`site`, `page`, `pages`), scoped to the
+  rendering thread — no global state, and no deployment-target bump. `EnvironmentValues.withValues(_:_:)` sets it outside a publish (#20).
+- **Generated head** — charset, viewport, `<title>`, description, author, canonical link, feed link,
+  Open Graph and Twitter card tags from the site and page metadata (#21).
+- **`FeedGenerator`** writing RSS 2.0, Atom 1.0 or JSON Feed 1.1 from `FeedItem`s, and
+  `Site.feedItems` / `Site.feedFormat` (#21, #22).
+- **`RobotsGenerator`** and `RobotsRule` for `robots.txt` (#22).
+- **`NotFoundPage`**, the default `404.html`, replaceable with `Site.errorPage` (#23).
+- `Site.document(at:)` renders one page without writing files, for tests.
+- `WingedError.duplicatePath` when two pages resolve to the same path.
+
+#### CLI
+
+- **`winged new --template minimal|landing|blog|docs`** — four bundled starters on the `Site`
+  model; `landing` stays the default. `winged new --list-templates` prints them (#24).
+- **`winged new --template <https or file URL>`** — clones a starter repository, removes its `.git`
+  and fills `{{PLACEHOLDER}}`s in contents and paths; an optional `winged-template.json` message is
+  shown (#25).
+- **Live reload** — `winged serve --watch` injects a small Server-Sent Events script into the HTML
+  it *serves* (never into `dist/`) and reloads the page after each successful rebuild;
+  `--no-reload` turns it off (#26).
+- **`winged serve --open`**, the next free port when the requested one is taken, and the LAN URL
+  for testing on a phone (#27).
+- **`winged add page|component <Name>`** writes `Sources/<Target>/Pages/<Name>.swift` or
+  `Components/<Name>.swift`, refusing to overwrite (#29).
+- **`winged deploy github-pages`** — `--workflow` writes a GitHub Actions workflow that builds and
+  publishes the site; without it, the built `dist/` is force-pushed as the only commit of
+  `gh-pages` from a throwaway repository (`--dry-run`, `--cname`, `--remote`, `--branch`) (#30).
+- `Scripts/check-version.sh` keeps the CLI and library versions equal, and equal to the release
+  tag; `verify.sh` and the release workflow run it (#31).
+- `verify.sh` builds the library for macOS 10.13, every bundled template, and `winged add` output.
+
+#### Markdown content
 
 - **`Markdown`** — a dependency-free renderer for a documented CommonMark/GFM subset: headings
   with linkable `id`s, emphasis, strikethrough, code spans, links, images, autolinks, nested lists,
@@ -38,36 +101,20 @@ of [MIGRATION.md](MIGRATION.md).
 
 ### Changed
 
-- `Site.document(at:from:)` loads `Content/` too, so it now `throws`.
-- `winged new --template blog` writes its first post as Markdown in `Content/posts/`.
+#### Builders and components
 
-## [Unreleased] — 2.3.0
+- **`StaticSiteGenerator` uses typed throws** — every method is `throws(WingedError)`.
+  `copyAsset(from:to:)` now fails with `.assetNotFound` before touching the output directory (#15).
+- `winged new` scaffolds `FeatureCard` as a `Component`, and the generated `AGENTS.md` points to
+  the migration skill.
 
-The CLI release. The library API is unchanged, and so is the HTML that sites render. See the
-2.2 → 2.3 section of [MIGRATION.md](MIGRATION.md) for the two CLI behaviours that changed.
+#### Site model
 
-### Added
+- `winged new` scaffolds a `Site` (`main.swift`), one `Page` per page (`Pages.swift`) and a
+  `PageLayout` with an environment-driven navigation (`SiteLayout.swift`).
+- `winged serve` answers missing paths with the site's own `404.html` when it exists (#23).
 
-- **`winged new --template minimal|landing|blog|docs`** — four bundled starters on the `Site`
-  model; `landing` stays the default. `winged new --list-templates` prints them (#24).
-- **`winged new --template <https or file URL>`** — clones a starter repository, removes its `.git`
-  and fills `{{PLACEHOLDER}}`s in contents and paths; an optional `winged-template.json` message is
-  shown (#25).
-- **Live reload** — `winged serve --watch` injects a small Server-Sent Events script into the HTML
-  it *serves* (never into `dist/`) and reloads the page after each successful rebuild;
-  `--no-reload` turns it off (#26).
-- **`winged serve --open`**, the next free port when the requested one is taken, and the LAN URL
-  for testing on a phone (#27).
-- **`winged add page|component <Name>`** writes `Sources/<Target>/Pages/<Name>.swift` or
-  `Components/<Name>.swift`, refusing to overwrite (#29).
-- **`winged deploy github-pages`** — `--workflow` writes a GitHub Actions workflow that builds and
-  publishes the site; without it, the built `dist/` is force-pushed as the only commit of
-  `gh-pages` from a throwaway repository (`--dry-run`, `--cname`, `--remote`, `--branch`) (#30).
-- `Scripts/check-version.sh` keeps the CLI and library versions equal, and equal to the release
-  tag; `verify.sh` and the release workflow run it (#31).
-- `verify.sh` builds the library for macOS 10.13, every bundled template, and `winged add` output.
-
-### Changed
+#### CLI
 
 - **`winged build` runs the `build:css` script of `package.json`** after generating the site, when
   `node_modules` exists — the Tailwind scaffold no longer needs a second command. `--skip-css`
@@ -75,76 +122,20 @@ The CLI release. The library API is unchanged, and so is the HTML that sites ren
 - `winged serve` flushes its output line by line, so piping it to a file or `tee` shows progress.
 - Bundled templates moved to `Templates/shared/` and `Templates/<name>/`.
 
-### Fixed
+#### Markdown content
 
-- The repository `.gitignore` ignored every folder named `docs/`, including the `docs` template.
-
-## [Unreleased] — 2.2.0
-
-Additive release: existing scripts built on `Document` and `StaticSiteGenerator` compile unchanged
-and render byte-identical output. See the 2.1 → 2.2 section of [MIGRATION.md](MIGRATION.md),
-including how to move a script site onto the new site model if you want to.
-
-### Added
-
-- **`Site` protocol** — declare a site as a type (`name`, `url`, `homePage`, `layout`, `pages`) and
-  call `publish()`. It renders every page, generates the head meta tags, copies `assets/`, and
-  writes `404.html`, `sitemap.xml`, `robots.txt` and an optional feed. The package root is found
-  from the caller's `#filePath`, so the output does not depend on the working directory (#18).
-- **`Page` protocol** — `title` and `body` are required; `path` defaults to a slug of the type name
-  (`AboutPage` → `/about/`), and `description`, `image` and `isInSitemap` have defaults. `@PageBuilder`
-  collects pages with `if`/`for` (#19).
-- **`PageLayout` protocol** for the shell around each page, plus `EmptyLayout`; a site can pick a
-  layout per page with `layout(for:)` (#19).
-- **`@Environment` property wrapper** over `EnvironmentValues` (`site`, `page`, `pages`), scoped to the
-  rendering thread — no global state, and no deployment-target bump. `EnvironmentValues.withValues(_:_:)` sets it outside a publish (#20).
-- **Generated head** — charset, viewport, `<title>`, description, author, canonical link, feed link,
-  Open Graph and Twitter card tags from the site and page metadata (#21).
-- **`FeedGenerator`** writing RSS 2.0, Atom 1.0 or JSON Feed 1.1 from `FeedItem`s, and
-  `Site.feedItems` / `Site.feedFormat` (#21, #22).
-- **`RobotsGenerator`** and `RobotsRule` for `robots.txt` (#22).
-- **`NotFoundPage`**, the default `404.html`, replaceable with `Site.errorPage` (#23).
-- `Site.document(at:)` renders one page without writing files, for tests.
-- `WingedError.duplicatePath` when two pages resolve to the same path.
-
-### Changed
-
-- `winged new` scaffolds a `Site` (`main.swift`), one `Page` per page (`Pages.swift`) and a
-  `PageLayout` with an environment-driven navigation (`SiteLayout.swift`).
-- `winged serve` answers missing paths with the site's own `404.html` when it exists (#23).
+- `Site.document(at:from:)` loads `Content/` too, so it now `throws`.
+- `winged new --template blog` writes its first post as Markdown in `Content/posts/`.
 
 ### Fixed
+
+#### Site model
 
 - `WingedSwift.version` reported `2.0.0`; it now matches the release.
 
-## [Unreleased] — 2.1.0
+#### CLI
 
-Additive release: no 2.0 call site changes meaning and rendered output is byte-identical (the golden
-fixtures are untouched). See the 2.0 → 2.1 section of [MIGRATION.md](MIGRATION.md) for the two
-edge cases that can need a one-line fix.
-
-### Added
-
-- **Bare strings in builders** become escaped text via the new `TextNode`:
-  `P { "Made with "; Strong(content: "Swift") }` (#14).
-- **Optional tags in builders** — a `HTMLTag?` renders only when non-`nil` (#14).
-- **`if #available` in every builder** (`buildLimitedAvailability`) (#12).
-- **`HTMLAttributesBuilder` control flow** — `if`, `if let`, `for` and `Attribute?` (#13).
-- **`Component` protocol**: a type with an `@HTMLBuilder var body`, usable inline in any builder
-  and renderable on its own. `static func … -> HTMLTag` components remain valid (#16).
-- **Typed attribute modifiers**: `.target(_: LinkTarget)`, `.rel(_: [LinkRelation])`,
-  `.loading(_: LoadingStrategy)`, `.decoding(_: DecodingHint)`, `.hidden(_:)`, `.tabIndex(_:)`,
-  `.lang(_:)` (#17).
-- **`WingedError`**, the single error type thrown by `StaticSiteGenerator` (#15).
-- **`wingedswift-migrate` skill** (`.claude/skills/wingedswift-migrate/`) — a step-by-step procedure
-  a coding agent follows to upgrade a site, with a `dist/` diff as the safety net.
-
-### Changed
-
-- **`StaticSiteGenerator` uses typed throws** — every method is `throws(WingedError)`.
-  `copyAsset(from:to:)` now fails with `.assetNotFound` before touching the output directory (#15).
-- `winged new` scaffolds `FeatureCard` as a `Component`, and the generated `AGENTS.md` points to
-  the migration skill.
+- The repository `.gitignore` ignored every folder named `docs/`, including the `docs` template.
 
 ## [2.0.0] - 2026-08-11
 
