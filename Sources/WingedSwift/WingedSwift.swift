@@ -1,11 +1,11 @@
 import Foundation
 
 public enum WingedSwift: String {
-    case VERSION = "2.3.0"
+    case VERSION = "2.4.0"
     case AUTHOR = "Michel Anderson Lutz Teixeira"
     case CONTACT = "https://micheltlutz.me"
 
-    /// The library version, e.g. `"2.3.0"`.
+    /// The library version, e.g. `"2.4.0"`.
     public static let version = WingedSwift.VERSION.rawValue
 
     /// The library author.

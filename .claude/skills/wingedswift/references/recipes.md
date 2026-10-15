@@ -125,6 +125,65 @@ try RideKeeper().publish()                 // dist/, or the path `winged build` 
 - Do not put `<title>` or SEO meta in the layout — the site writes them.
 - `site.document(at: "/pricing/")` renders one page without writing files, for tests.
 
+## Markdown content (2.4+)
+
+Put Markdown files in `Content/`; each becomes a page through the site layout.
+
+~~~markdown
+<!-- Content/posts/hello-world.md → /posts/hello-world/ -->
+---
+title: Hello, world
+date: 2026-10-15
+tags: swift, web
+description: The first post.
+---
+
+Some **Markdown**, a [link](/about/) and code:
+
+```swift
+let site = Blog()
+```
+~~~
+
+```swift
+struct Home: Page {
+    var title = "Blog"
+    @Environment(\.content) var posts          // newest first
+
+    var body: HTMLTag {
+        Ul {
+            for post in posts {
+                Li { A(href: post.path, content: post.title) }
+            }
+        }
+    }
+}
+
+struct PostLayout: ContentLayout {           // optional; DefaultContentLayout otherwise
+    func body(page: ContentPage, content: HTMLTag) -> HTMLTag {
+        Article {
+            H1(content: page.title)
+            P(content: "\(page.readingMinutes) min read")
+            content
+        }
+    }
+}
+
+struct Blog: Site {
+    var name = "Blog"
+    var url = "https://blog.example"
+    var homePage = Home()
+    var layout = MainLayout()
+    var contentLayout = PostLayout()
+}
+```
+
+- Dated pages get a feed entry (when the site declares no `feedItems`), `og:type=article` and a
+  sitemap `lastmod`; tagged pages get `/tags/<tag>/` pages (`generatesTagPages = false` to skip).
+- `published: false` hides a draft; `path:` overrides the URL.
+- Raw HTML in Markdown is escaped unless `markdownOptions = MarkdownOptions(rawHTML: true)`.
+- Outside a site: `Div(children: Markdown.parse(text))`.
+
 ## A page
 
 ```swift
@@ -298,6 +357,9 @@ P {
 // <p>Read the <a href="/docs/">docs</a> or open an issue.</p>   (compact)
 ```
 
+In pretty output each child goes on its own line; add `.inline()` (2.4+) after the paragraph to
+keep it on one line wherever it is rendered.
+
 ## Typed attributes (2.1+)
 
 ```swift
@@ -438,6 +500,10 @@ try generator.writeFile(content: feed, to: "feed.xml")
 ```
 
 ## Syntax-highlighted code blocks
+
+Markdown fences already carry the class highlighters look for — ```` ```swift ```` renders
+`<pre><code class="language-swift">`; include Prism or highlight.js in the layout's `head()`.
+
 
 ```swift
 let snippet = Pre {

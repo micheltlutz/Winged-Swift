@@ -183,7 +183,7 @@ private let fixtures = URL(fileURLWithPath: #filePath).deletingLastPathComponent
 
 @Suite struct SiteRenderingTests {
     @Test func aboutPageMatchesTheFixture() throws {
-        let rendered = try #require(DemoSite().document(at: "/about/")).render(.pretty)
+        let rendered = try #require(try DemoSite().document(at: "/about/")).render(.pretty)
         let url = fixtures.appendingPathComponent("site-about.html")
         if ProcessInfo.processInfo.environment["WINGED_UPDATE_FIXTURES"] == "1" { try rendered.write(to: url, atomically: true, encoding: .utf8) }
         let expected = try String(contentsOf: url, encoding: .utf8)
@@ -191,7 +191,7 @@ private let fixtures = URL(fileURLWithPath: #filePath).deletingLastPathComponent
     }
 
     @Test func homeUsesTheSiteNameAsTitle() throws {
-        let html = try #require(DemoSite().document(at: "/")).render(.compact)
+        let html = try #require(try DemoSite().document(at: "/")).render(.compact)
         #expect(html.contains("<title>Demo</title>"))
         #expect(html.contains("<meta property=\"og:type\" content=\"website\">"))
         #expect(html.contains("<meta name=\"description\" content=\"A demo site\">"))
@@ -202,7 +202,7 @@ private let fixtures = URL(fileURLWithPath: #filePath).deletingLastPathComponent
     }
 
     @Test func pagesGetCanonicalAndSocialTags() throws {
-        let html = try #require(DemoSite().document(at: "about")).render(.compact)
+        let html = try #require(try DemoSite().document(at: "about")).render(.compact)
         #expect(html.contains("<title>About — Demo</title>"))
         #expect(html.contains("<link href=\"https://demo.example/about/\" rel=\"canonical\">"))
         #expect(html.contains("<meta property=\"og:image\" content=\"https://demo.example/img/about.png\">"))
@@ -212,24 +212,25 @@ private let fixtures = URL(fileURLWithPath: #filePath).deletingLastPathComponent
     }
 
     @Test func aPageCanChooseItsOwnLayout() throws {
-        let html = try #require(DemoSite().document(at: "/raw.html")).render(.compact)
+        let html = try #require(try DemoSite().document(at: "/raw.html")).render(.compact)
         #expect(html.contains("<body><p>raw</p></body>"))
     }
 
     @Test func minimalSiteOmitsOptionalTags() throws {
-        let html = try #require(MinimalSite().document(at: "/")).render(.compact)
+        let html = try #require(try MinimalSite().document(at: "/")).render(.compact)
         #expect(!html.contains("name=\"description\""))
         #expect(!html.contains("name=\"author\""))
         #expect(!html.contains("twitter:site"))
         #expect(html.contains("<html lang=\"en\">"))
-        let missing = try #require(MinimalSite().document(at: "/404.html")).render(.compact)
+        let missing = try #require(try MinimalSite().document(at: "/404.html")).render(.compact)
         #expect(missing.contains("<title>Lost — Minimal</title>"))
         #expect(!missing.contains("rel=\"canonical\""))
-        #expect(MinimalSite().document(at: "/nope/") == nil)
+        let nothing = try MinimalSite().document(at: "/nope/")
+        #expect(nothing == nil)
     }
 
     @Test func defaultNotFoundPage() throws {
-        let html = try #require(DemoSite().document(at: "/404.html")).render(.compact)
+        let html = try #require(try DemoSite().document(at: "/404.html")).render(.compact)
         #expect(html.contains("<h1>Page not found</h1>"))
         #expect(html.contains("<p>The page you are looking for does not exist. <a href=\"/\">Go to the home page</a>.</p>"))
     }
@@ -237,7 +238,7 @@ private let fixtures = URL(fileURLWithPath: #filePath).deletingLastPathComponent
     @Test func feedLinkAppearsWhenThereAreItems() throws {
         var site = DemoSite()
         site.feedItems = [FeedItem(title: "Post", link: "/post/", summary: "S", date: Date(timeIntervalSince1970: 0))]
-        let html = try #require(site.document(at: "/")).render(.compact)
+        let html = try #require(try site.document(at: "/")).render(.compact)
         #expect(html.contains("<link href=\"/feed.xml\" rel=\"alternate\" type=\"application/rss+xml\" title=\"Demo\">"))
     }
 

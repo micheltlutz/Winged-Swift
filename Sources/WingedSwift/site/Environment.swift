@@ -43,6 +43,8 @@ public struct PageMetadata: Sendable, Equatable {
     public var url: String
     /// An absolute or root-relative image for social cards.
     public var image: String?
+    /// The publication date, for pages generated from Markdown with a `date`.
+    public var date: Date?
 
     /// Creates page metadata.
     ///
@@ -52,13 +54,15 @@ public struct PageMetadata: Sendable, Equatable {
     ///   - path: The served path.
     ///   - url: The absolute URL.
     ///   - image: The social card image.
+    ///   - date: The publication date.
     public init(title: String = "", description: String? = nil, path: String = "/",
-                url: String = "", image: String? = nil) {
+                url: String = "", image: String? = nil, date: Date? = nil) {
         self.title = title
         self.description = description
         self.path = path
         self.url = url
         self.image = image
+        self.date = date
     }
 }
 
@@ -75,6 +79,8 @@ public struct EnvironmentValues: Sendable {
     public var page: PageMetadata
     /// Every page of the site, in publish order — useful for navigation and indexes.
     public var pages: [PageMetadata]
+    /// The Markdown pages from `Content/`, newest first — for post lists and archives.
+    public var content: [ContentPage]
 
     /// Creates a set of environment values.
     ///
@@ -82,11 +88,13 @@ public struct EnvironmentValues: Sendable {
     ///   - site: The site metadata.
     ///   - page: The current page.
     ///   - pages: Every page of the site.
+    ///   - content: The Markdown pages.
     public init(site: SiteMetadata = SiteMetadata(), page: PageMetadata = PageMetadata(),
-                pages: [PageMetadata] = []) {
+                pages: [PageMetadata] = [], content: [ContentPage] = []) {
         self.site = site
         self.page = page
         self.pages = pages
+        self.content = content
     }
 
     private static let threadKey = "WingedSwift.EnvironmentValues"

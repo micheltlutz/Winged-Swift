@@ -68,8 +68,10 @@ Sources/
 │   │   ├── Tables/    Table parts (Thead, Tbody, Caption, Col, …)
 │   │   ├── Media/     Video, Audio, Source, Track, Iframe
 │   │   └── Code/      Pre, Code, Embed
-│   ├── seo/           SEO meta helpers, SitemapGenerator
-│   ├── feed/          RSSGenerator
+│   ├── site/          Site, Page, PageLayout, @Environment, content/tag layouts, publish()
+│   ├── content/       Markdown, FrontMatter, ContentPage (the Content/ folder)
+│   ├── seo/           SEO meta helpers, SitemapGenerator, RobotsGenerator
+│   ├── feed/          RSSGenerator, FeedGenerator (RSS / Atom / JSON Feed)
 │   ├── static/        StaticSiteGenerator (writes files, copies assets)
 │   └── templates/     Layout protocol
 └── WingedCLI/         the `winged` command: new / build / serve / add / deploy

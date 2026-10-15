@@ -5,6 +5,42 @@ All notable changes to WingedSwift will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased] — 2.4.0
+
+Additive: sites built with `Document` + `StaticSiteGenerator` render byte-identical output. A
+`Site` now also publishes the Markdown files of its `Content/` folder — see the 2.3 → 2.4 section
+of [MIGRATION.md](MIGRATION.md).
+
+### Added
+
+- **`Markdown`** — a dependency-free renderer for a documented CommonMark/GFM subset: headings
+  with linkable `id`s, emphasis, strikethrough, code spans, links, images, autolinks, nested lists,
+  fenced code, blockquotes, thematic breaks, pipe tables with alignment, and opt-in raw HTML
+  (`MarkdownOptions(rawHTML:)`). Output is a tag tree; inline blocks stay on one line in pretty
+  output (#32).
+- **Language classes on fenced code** — `<pre><code class="language-swift">`, ready for Prism or
+  highlight.js; no JavaScript is bundled (#36).
+- **`FrontMatter`** — `---` / `key: value` headers with typed `title`, `date` (several formats),
+  `tags`, `author`, `description`, `image`, `published` and `path`; errors name the file and line
+  (#33).
+- **`ContentPage`** and `ContentPage.load(from:)` — every `.md` file under `Content/` becomes a
+  page (`posts/hello.md` → `/posts/hello/`), with word count and reading time; drafts are skipped
+  (#34).
+- **`Site` content support** — `contentDirectory`, `contentLayout` (`ContentLayout`,
+  `DefaultContentLayout`), `markdownOptions`; `@Environment(\.content)` lists the pages; dated pages
+  get `og:type=article`, `article:published_time`, a sitemap `lastmod`, and feed entries when the
+  site declares no `feedItems` (#34).
+- **Tag pages** — `/tags/` and `/tags/<tag>/`, with `TagLayout` / `DefaultTagLayout`;
+  `generatesTagPages` turns them off; tags that share a slug are one tag (#35).
+- **`.inline()`** keeps an element with inline children on one line in pretty output, so text
+  next to links or dates renders without stray spaces.
+- `WingedError.invalidFrontMatter` and `.unreadableContent`.
+
+### Changed
+
+- `Site.document(at:from:)` loads `Content/` too, so it now `throws`.
+- `winged new --template blog` writes its first post as Markdown in `Content/posts/`.
+
 ## [Unreleased] — 2.3.0
 
 The CLI release. The library API is unchanged, and so is the HTML that sites render. See the

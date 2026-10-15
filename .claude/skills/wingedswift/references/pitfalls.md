@@ -109,8 +109,8 @@ initializer — if you also pass the same key inside `attributes`, both are rend
 A bare string in a builder (`P { "Hello, "; Strong(content: name) }`) becomes a `TextNode`. In
 compact output it sits flush against its neighbours. In pretty output every child goes on its own
 line, so the browser sees whitespace between the text and the inline element — `name!` can become
-`name !`. When spacing between inline pieces matters, render that page `.compact`, or keep the text
-inside the element (`Strong(content: "\(name)!")`).
+`name !`. When spacing between inline pieces matters, end the element with `.inline()` (2.4+) —
+it renders that element on one line, even in pretty output — or render the page `.compact`.
 
 ## `Site` / `Page` properties must match the requirement's type
 
@@ -120,6 +120,12 @@ If you write `var description: String? = "…"` it is a *different* property: it
 warning, the protocol default (empty) wins, and the meta tag disappears. `homePage`, `layout` and
 `errorPage` are associated types, so write `var layout = MainLayout()` —
 `var layout: any PageLayout = MainLayout()` does not compile.
+
+## Markdown escapes HTML by default
+
+`Markdown.parse` — and therefore every `Content/*.md` page — escapes HTML in the source unless you
+pass `MarkdownOptions(rawHTML: true)` (or set `markdownOptions` on the site). That is deliberate:
+turn it on only for content you write yourself. Front matter values are plain text, never HTML.
 
 ## Boolean attributes
 

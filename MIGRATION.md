@@ -4,6 +4,9 @@ One section per release, newest first. Every section lists what can break, the m
 for each case, and how to check the result. Sites are regenerated from this library, so the check
 that matters is always the same: **the generated `dist/` before and after the upgrade**.
 
+2.1, 2.2, 2.3 and 2.4 ship together as **2.4.0**: coming from 2.0, apply the 2.0 → 2.1,
+2.1 → 2.2, 2.2 → 2.3 and 2.3 → 2.4 sections in that order.
+
 ## Upgrading a site — the procedure
 
 1. Snapshot the current output: `winged build && cp -R dist /tmp/dist-before`.
@@ -26,6 +29,40 @@ step by step: snapshot dist/, bump the dependency, apply every rewrite in MIGRAT
 our current version and <version>, rebuild, and show me the dist/ diff before committing.
 Stop and ask if the diff contains a change the changelog does not explain.
 ```
+
+## 2.3 → 2.4
+
+**Sites built with `Document` + `StaticSiteGenerator` render byte-identical output** — `diff -r`
+must come back empty.
+
+**A `Site` publishes `Content/`.** If a site on the `Site` model already has a `Content/` folder
+with `.md` files (Ignite's convention), those files now become pages, tag pages and feed entries.
+That is a new page set in `dist/`, not a change to existing pages. To keep the old output, point
+the site elsewhere:
+
+```swift
+var contentDirectory = "NoContent"   // any folder that does not exist
+```
+
+`site.document(at:)` now `throws` (it reads `Content/`): write `try site.document(at: "/")`.
+
+### New names that can collide with yours
+
+`Markdown`, `MarkdownOptions`, `FrontMatter`, `ContentPage`, `ContentLayout`,
+`DefaultContentLayout`, `TagLayout`, `DefaultTagLayout`. As before, your own type wins inside your
+module; rename it before adopting the library's.
+
+```bash
+grep -rnE "(protocol|struct|class|enum) (Markdown|FrontMatter|ContentPage|ContentLayout|TagLayout)\b" Sources
+```
+
+### Optional: Markdown posts
+
+Move post bodies out of Swift strings into `Content/posts/<slug>.md` with front matter, list them
+with `@Environment(\.content)`, and drop hand-built `FeedItem`s — dated pages feed the feed. Keep
+URLs: a file's path is its location (`Content/posts/hello.md` → `/posts/hello/`) unless it sets
+`path:`. Expect `dist/` differences in the post pages' markup (Markdown output) and `<head>`
+(`og:type=article`).
 
 ## 2.2 → 2.3
 
