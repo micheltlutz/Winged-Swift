@@ -50,7 +50,7 @@ Run these from the repository root.
 | `swiftlint lint --strict` | Lints; config in `.swiftlint.yml`. |
 | `./Scripts/generate-tag-catalog.sh` | Regenerates the tag catalog from the sources. |
 | `./Scripts/generate-builder-inits.py` | Adds the builder initializer to any tag missing one. |
-| `./Scripts/verify.sh` | **Build + test + lint + catalog + CLI + a real page render.** |
+| `./Scripts/verify.sh` | **Build + test + macOS 10.13 floor + lint + catalog + CLI + a real page render.** |
 
 **Run `./Scripts/verify.sh` before you report that a change is done.** It is the single check that
 covers everything CI does.
@@ -68,18 +68,22 @@ Sources/
 │   │   ├── Tables/    Table parts (Thead, Tbody, Caption, Col, …)
 │   │   ├── Media/     Video, Audio, Source, Track, Iframe
 │   │   └── Code/      Pre, Code, Embed
-│   ├── seo/           SEO meta helpers, SitemapGenerator
-│   ├── feed/          RSSGenerator
+│   ├── site/          Site, Page, PageLayout, @Environment, content/tag layouts, publish()
+│   ├── content/       Markdown, FrontMatter, ContentPage (the Content/ folder)
+│   ├── seo/           SEO meta helpers, SitemapGenerator, RobotsGenerator
+│   ├── feed/          RSSGenerator, FeedGenerator (RSS / Atom / JSON Feed)
 │   ├── static/        StaticSiteGenerator (writes files, copies assets)
 │   └── templates/     Layout protocol
-└── WingedCLI/         the `winged` command: new / build / serve
+└── WingedCLI/         the `winged` command: new / build / serve / add / deploy
+    └── Templates/     shared/ files + one folder per `winged new --template` starter
 ```
 
 Full API surface: [`.claude/skills/wingedswift/references/tag-catalog.md`](.claude/skills/wingedswift/references/tag-catalog.md)
 (generated — never edit by hand).
 Common mistakes: [`.claude/skills/wingedswift/references/pitfalls.md`](.claude/skills/wingedswift/references/pitfalls.md).
 Copy-pasteable snippets: [`.claude/skills/wingedswift/references/recipes.md`](.claude/skills/wingedswift/references/recipes.md).
-Upgrading from 1.x: [`MIGRATION.md`](MIGRATION.md).
+Upgrading between versions: [`MIGRATION.md`](MIGRATION.md) and the
+[`wingedswift-migrate` skill](.claude/skills/wingedswift-migrate/SKILL.md).
 
 ## Rules
 
@@ -137,7 +141,9 @@ let card: Div = Div { … }
     .ariaAttribute(key: "label", value: "Pricing")
 ```
 
-`addClass` appends, `setId` / `setStyle` / `setRole` replace.
+`addClass` appends, `setId` / `setStyle` / `setRole` replace. Prefer the typed setters over
+`setAttribute` for the attributes they cover — `.target(.blank)`, `.rel([.noopener])`,
+`.loading(.lazy)`, `.decoding(.async)`, `.hidden()`, `.tabIndex(_:)`, `.lang(_:)`; they replace too.
 
 **8. Boolean attributes use `Attribute.boolean`.** `Attribute.boolean("required")` renders
 ` required`, not ` required="true"`.
@@ -154,6 +160,37 @@ one task, then pass the resulting `String` across isolation boundaries. `Attribu
 `RenderOptions`, `SitemapURL`, `RSSItem`, `StaticSiteGenerator` and `RSSGenerator` are `Sendable`.
 
 ## Recipes
+
+### A whole site (2.2+)
+
+Declare the site as types and let `publish()` write it — pages, assets, head meta tags,
+`404.html`, `sitemap.xml`, `robots.txt`:
+
+```swift
+struct Home: Page {
+    var title = "RideKeeper"
+    var body: HTMLTag { H1(content: "Track every service") }
+}
+
+struct MainLayout: PageLayout {
+    func head() -> [HTMLTag] { Link(href: "/css/style.css", rel: "stylesheet") }
+    func body(content: HTMLTag) -> [HTMLTag] { MainTag(children: [content]) }
+}
+
+struct RideKeeper: Site {
+    var name = "RideKeeper"
+    var url = "https://ridekeeper.example"
+    var homePage = Home()
+    var layout = MainLayout()
+    var pages: [any Page] { About(); Pricing() }   // About → /about/
+}
+
+try RideKeeper().publish()
+```
+
+Components read `@Environment(\.site)`, `\.page` and `\.pages`. Declare properties with plain
+values (`var description = "…"`) — an optional-typed `String?` silently misses the requirement.
+The script style below stays fully supported.
 
 ### A full page written to disk
 
@@ -186,7 +223,25 @@ try generator.writeFile(content: SitemapGenerator.generate(urls: [
 
 ### A reusable component
 
-Return `HTMLTag` from a `static func` — this is the idiomatic pattern in projects using the library:
+Conform a type to `Component` (2.1+) — its `body` is an `@HTMLBuilder`, and the value can be used
+inside any builder like a tag:
+
+```swift
+struct FeatureCard: Component {
+    let title: String
+    let text: String
+
+    var body: HTMLTag {
+        Div {
+            H3(content: title).addClass("text-xl font-bold")
+            P(content: text).addClass("text-gray-300")
+        }
+        .addClass("p-6 bg-gray-800 rounded-lg")
+    }
+}
+```
+
+Returning `HTMLTag` from a `static func` is equally valid and is what most existing sites do:
 
 ```swift
 enum Components {
@@ -234,6 +289,21 @@ Then run `./Scripts/generate-tag-catalog.sh` so the catalog picks the new elemen
 - Deprecations carry `@available(*, deprecated, message:)` and stay for one major version.
 - Commit messages follow the CHANGELOG vocabulary: `Add:`, `Fix:`, `Change:`.
 - Branch from `develop`, open the PR against `develop`. See `CONTRIBUTING.md`.
+
+## Changes that reach downstream sites
+
+Sites are regenerated from this library, so treat the public API and the rendered bytes as a
+contract:
+
+- Never add `platforms:` to `Package.swift` or use an API newer than macOS 10.13 without an
+  `@available` gate: sites that declare no platforms would stop resolving. `verify.sh` builds the
+  library for 10.13 to catch this.
+- Prefer additive changes; deprecate (`@available(*, deprecated, message:)`) before removing, and
+  remove only in a major release.
+- Any change that can break a call site **or** change rendered output gets a section in
+  `MIGRATION.md` (before → after code, the `grep` that finds affected code, and whether the `dist/`
+  diff is expected to be empty) and a row in the table at the end of
+  `.claude/skills/wingedswift-migrate/SKILL.md`.
 
 ## Before you say you are done
 

@@ -65,6 +65,26 @@ public struct HTMLBuilder {
     public static func buildExpression(_ expression: [HTMLTag]) -> HTMLTag {
         return Fragment(children: expression)
     }
+
+    /// Accepts a bare string as an escaped text node: `P { "Hello, "; Strong(content: name) }`.
+    public static func buildExpression(_ expression: String) -> HTMLTag {
+        return TextNode(expression)
+    }
+
+    /// Accepts an optional tag; `nil` renders nothing.
+    public static func buildExpression(_ expression: HTMLTag?) -> HTMLTag {
+        return expression ?? Fragment()
+    }
+
+    /// Accepts a ``Component`` by rendering its `body` in place.
+    public static func buildExpression(_ expression: some Component) -> HTMLTag {
+        return expression.body
+    }
+
+    /// Supports `if #available(…)` blocks.
+    public static func buildLimitedAvailability(_ component: HTMLTag) -> HTMLTag {
+        return component
+    }
 }
 
 /// A result builder for constructing flat lists of HTML tags (fragments, maps of cards, etc.).
@@ -103,6 +123,26 @@ public struct HTMLFragmentBuilder {
     /// `map`, which a plain `[HTMLTag]` parameter would reject.
     public static func buildExpression<Tag: HTMLTag>(_ expression: [Tag]) -> [HTMLTag] {
         expression
+    }
+
+    /// Accepts a bare string as an escaped text node: `P { "Hello, "; Strong(content: name) }`.
+    public static func buildExpression(_ expression: String) -> [HTMLTag] {
+        [TextNode(expression)]
+    }
+
+    /// Accepts an optional tag; `nil` contributes no child.
+    public static func buildExpression(_ expression: HTMLTag?) -> [HTMLTag] {
+        expression.map { [$0] } ?? []
+    }
+
+    /// Accepts a ``Component`` by rendering its `body` in place.
+    public static func buildExpression(_ expression: some Component) -> [HTMLTag] {
+        [expression.body]
+    }
+
+    /// Supports `if #available(…)` blocks.
+    public static func buildLimitedAvailability(_ component: [HTMLTag]) -> [HTMLTag] {
+        component
     }
 }
 
@@ -168,9 +208,51 @@ extension HTMLTag {
 }
 
 /// A result builder for constructing HTML attributes.
+///
+/// `if`, `for` and optionals work inside it, so an attribute can depend on data:
+///
+/// ```swift
+/// HTMLTag("input", attributes: {
+///     Attribute(key: "name", value: "email")
+///     if isRequired { Attribute.boolean("required") }
+/// })
+/// ```
 @resultBuilder
 public struct HTMLAttributesBuilder {
-    public static func buildBlock(_ attributes: Attribute...) -> [Attribute] {
-        return attributes
+    public static func buildBlock(_ components: [Attribute]...) -> [Attribute] {
+        components.flatMap { $0 }
+    }
+
+    public static func buildExpression(_ expression: Attribute) -> [Attribute] {
+        [expression]
+    }
+
+    /// Accepts an optional attribute; `nil` contributes nothing.
+    public static func buildExpression(_ expression: Attribute?) -> [Attribute] {
+        expression.map { [$0] } ?? []
+    }
+
+    public static func buildExpression(_ expression: [Attribute]) -> [Attribute] {
+        expression
+    }
+
+    public static func buildOptional(_ component: [Attribute]?) -> [Attribute] {
+        component ?? []
+    }
+
+    public static func buildEither(first component: [Attribute]) -> [Attribute] {
+        component
+    }
+
+    public static func buildEither(second component: [Attribute]) -> [Attribute] {
+        component
+    }
+
+    public static func buildArray(_ components: [[Attribute]]) -> [Attribute] {
+        components.flatMap { $0 }
+    }
+
+    public static func buildLimitedAvailability(_ component: [Attribute]) -> [Attribute] {
+        component
     }
 }

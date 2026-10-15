@@ -107,3 +107,17 @@ import Testing
         #expect(HTTPServer.ServerError.listenFailed.description.contains("listen"))
     }
 }
+
+@Suite struct HTTPServerNotFoundTests {
+    @Test func servesTheSitesOwnErrorPage() throws {
+        let root = FileManager.default.temporaryDirectory.appendingPathComponent("winged-404-\(UUID().uuidString)")
+        try FileManager.default.createDirectory(at: root, withIntermediateDirectories: true)
+        let server = HTTPServer(root: root.path, port: 0)
+
+        #expect(String(bytes: server.notFoundBody(for: "/nope/"), encoding: .utf8)
+            == "<h1>404</h1><p>/nope/ is not in \(root.path)</p>")
+
+        try "<h1>Lost</h1>".write(to: root.appendingPathComponent("404.html"), atomically: true, encoding: .utf8)
+        #expect(String(bytes: server.notFoundBody(for: "/nope/"), encoding: .utf8) == "<h1>Lost</h1>")
+    }
+}

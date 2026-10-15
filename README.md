@@ -21,7 +21,10 @@ This library is created to be fully independent, not requiring integration with 
 - 🚀 **Fast**: Compile-time HTML generation
 - 🎨 **Modern**: Full HTML5 support with semantic tags
 - 📱 **SEO-Ready**: Built-in Open Graph and Twitter Cards
-- 🛠️ **Static Sites**: Complete static site generation tools
+- 🛠️ **Static Sites**: declare a `Site` and its `Page`s, call `publish()` — head meta tags, sitemap,
+  robots.txt, RSS/Atom/JSON feeds and `404.html` included
+- 📝 **Markdown**: `Content/*.md` with front matter become pages, tag pages and feed entries — with
+  a built-in renderer, no dependencies
 - 🌍 **Cross-Platform**: Works on macOS, Linux, and Windows
 - 🤝 **Open Source**: MIT licensed, contributions welcome!
 
@@ -61,7 +64,7 @@ WingedSwift is an **open-source project** maintained by the community. I activel
 
 ```swift
 // 1. Add to Package.swift
-.package(url: "https://github.com/micheltlutz/Winged-Swift.git", from: "2.0.0")
+.package(url: "https://github.com/micheltlutz/Winged-Swift.git", from: "2.4.0")
 
 // 2. Import and use
 import WingedSwift
@@ -80,9 +83,9 @@ print(page.render())
 Or skip the setup entirely — the `winged` CLI scaffolds, builds and previews a site:
 
 ```bash
-winged new MySite     # add --tailwind for a Tailwind project
+winged new MySite     # add --tailwind, or --template blog / docs / minimal
 cd MySite
-winged serve --watch  # http://localhost:8000, rebuilding on every change
+winged serve --watch  # http://localhost:8000, rebuilding and reloading on every change
 ```
 
 ### For Contributors
@@ -188,7 +191,7 @@ To add WingedSwift to your project, add the following line to your `Package.swif
 
 ```swift
 dependencies: [
-    .package(url: "https://github.com/micheltlutz/Winged-Swift.git", from: "2.0.0")
+    .package(url: "https://github.com/micheltlutz/Winged-Swift.git", from: "2.4.0")
 ]
 ```
 
@@ -678,6 +681,9 @@ This repository ships one:
 - **[Recipes](.claude/skills/wingedswift/references/recipes.md)** and
   **[pitfalls](.claude/skills/wingedswift/references/pitfalls.md)** — page skeletons, SEO heads,
   tables, forms, feeds; and the escaping / void-element / `Fragment` traps.
+- **[MIGRATION.md](MIGRATION.md)** and the
+  **[`wingedswift-migrate` skill](.claude/skills/wingedswift-migrate/SKILL.md)** — how to upgrade a
+  site between versions, written so an agent can do it: snapshot `dist/`, apply the rewrites, diff.
 - **[`./Scripts/verify.sh`](Scripts/verify.sh)** — one command (build + test + lint + catalog + CLI
   + a real render) so an agent can check its own work before claiming it is done.
 
@@ -690,9 +696,11 @@ site is agent-ready from its first commit.
 ```bash
 swift build -c release          # the binary lands in .build/release/winged
 
-winged new MySite [--tailwind]  # scaffold a project (Package.swift, layout, components, AGENTS.md)
-winged build [--release]        # generate the site into dist/
-winged serve [--watch]          # http://localhost:8000, rebuilding on every change
+winged new MySite [--template minimal|landing|blog|docs|<git url>] [--tailwind]
+winged build [--release]        # generate dist/ (and run the Tailwind build:css script, if any)
+winged serve --watch --open     # http://localhost:8000, rebuilding and live-reloading on change
+winged add page Pricing         # or: winged add component PriceCard
+winged deploy github-pages --workflow   # or push dist/ straight to gh-pages
 ```
 
 `winged serve` includes its own static file server — no `python3 -m http.server`, no dependencies.
@@ -787,7 +795,7 @@ Please note that this project is released with a [Code of Conduct](CODE_OF_CONDU
 
 WingedSwift is actively maintained and welcoming contributions!
 
-- ✅ **Current Version**: 2.0.0
+- ✅ **Current Version**: 2.4.0
 - 🚀 **Status**: Active Development
 - 📈 **Test Coverage**: High
 - 🔄 **Release Cycle**: Regular updates

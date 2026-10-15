@@ -1,26 +1,38 @@
 # Recipes
 
-Copy-pasteable snippets. Every one of them compiles against WingedSwift 2.0.
+Copy-pasteable snippets. Every one of them compiles against WingedSwift 2.3; sections marked with a
+version need at least that one.
 
 ## New site project
 
 ```bash
-winged new MySite            # add --tailwind for a Tailwind setup
+winged new MySite                      # landing page (default); add --tailwind for Tailwind
+winged new MyBlog --template blog      # also: minimal, docs — `winged new --list-templates`
+winged new MySite --template https://github.com/you/starter   # any git starter
 cd MySite
-winged serve --watch         # http://localhost:8000, rebuilds on change
+winged serve --watch --open            # rebuilds and reloads the browser on every change
+winged add page Pricing                # Sources/MySite/Pages/Pricing.swift
+winged add component PriceCard         # Sources/MySite/Components/PriceCard.swift
+winged deploy github-pages --workflow  # .github/workflows/deploy-pages.yml
 ```
 
 ```
-MySite/
+MySite/                     # landing template
 ├── Package.swift
 ├── AGENTS.md               # instructions for the next agent that opens this repo
 ├── Sources/MySite/
-│   ├── main.swift          # the pages and where they are written
+│   ├── main.swift          # the Site — name, URL, pages, layout — and publish()
+│   ├── Pages.swift         # one `Page` per page
 │   ├── SiteLayout.swift    # the shared shell
 │   └── Components.swift    # content + reusable markup
 ├── assets/                 # css, js, images copied to the output
 └── dist/                   # generated — gitignored
 ```
+
+A starter repository for `--template <url>` is any folder of files: `{{PROJECT_NAME}}`,
+`{{SITE_TITLE}}`, `{{SITE_DESCRIPTION}}`, `{{SITE_LANG}}`, `{{YEAR}}`, `{{TODAY}}` and
+`{{WINGED_VERSION}}` are replaced in file contents and in paths (`Sources/{{PROJECT_NAME}}/`), and
+an optional `winged-template.json` with `{"message": "…"}` is printed after creation.
 
 Doing it by hand instead:
 
@@ -32,7 +44,7 @@ import PackageDescription
 let package = Package(
     name: "MySite",
     dependencies: [
-        .package(url: "https://github.com/micheltlutz/Winged-Swift.git", from: "2.0.0")
+        .package(url: "https://github.com/micheltlutz/Winged-Swift.git", from: "2.4.0")
     ],
     targets: [
         .executableTarget(
@@ -44,6 +56,133 @@ let package = Package(
 ```
 
 Do not add a `platforms:` clause unless you need one — it breaks Linux builds.
+
+## A whole site (2.2+)
+
+Declare the site and its pages as types; `publish()` writes pages, assets, head meta tags,
+`404.html`, `sitemap.xml`, `robots.txt` and (with `feedItems`) a feed.
+
+```swift
+import WingedSwift
+
+struct Home: Page {
+    var title = "RideKeeper"
+    var body: HTMLTag {
+        H1(content: "Track every service")
+    }
+}
+
+struct Pricing: Page {                      // served at /pricing/
+    var title = "Pricing"
+    var description = "Plans for every rider"
+    var image = "/img/pricing.png"          // og:image, made absolute
+    var body: HTMLTag { P(content: "Free while in beta.") }
+}
+
+struct MainLayout: PageLayout {
+    func head() -> [HTMLTag] {
+        Link(href: "/css/style.css", rel: "stylesheet")
+    }
+
+    func body(content: HTMLTag) -> [HTMLTag] {
+        SiteNav()
+        MainTag(children: [content])
+    }
+}
+
+struct SiteNav: Component {
+    @Environment(\.pages) var pages        // also \.site and \.page
+
+    var body: HTMLTag {
+        Nav {
+            for page in pages where page.path != "/404.html" {
+                A(href: page.path, content: page.title)
+            }
+        }
+    }
+}
+
+struct RideKeeper: Site {
+    var name = "RideKeeper"
+    var url = "https://ridekeeper.example"
+    var language = "pt-BR"
+    var description = "Motorcycle maintenance companion"
+    var homePage = Home()
+    var layout = MainLayout()
+
+    var pages: [any Page] {
+        Pricing()
+    }
+}
+
+try RideKeeper().publish()                 // dist/, or the path `winged build` passes
+```
+
+- Declare page and site properties with plain values (`var description = "…"`). The protocol
+  types are non-optional on purpose, so inference always matches the requirement.
+- `path` defaults to the type name (`Pricing` → `/pricing/`); set it to keep an existing URL
+  (`var path = "/pricing.html"`).
+- Do not put `<title>` or SEO meta in the layout — the site writes them.
+- `site.document(at: "/pricing/")` renders one page without writing files, for tests.
+
+## Markdown content (2.4+)
+
+Put Markdown files in `Content/`; each becomes a page through the site layout.
+
+~~~markdown
+<!-- Content/posts/hello-world.md → /posts/hello-world/ -->
+---
+title: Hello, world
+date: 2026-10-15
+tags: swift, web
+description: The first post.
+---
+
+Some **Markdown**, a [link](/about/) and code:
+
+```swift
+let site = Blog()
+```
+~~~
+
+```swift
+struct Home: Page {
+    var title = "Blog"
+    @Environment(\.content) var posts          // newest first
+
+    var body: HTMLTag {
+        Ul {
+            for post in posts {
+                Li { A(href: post.path, content: post.title) }
+            }
+        }
+    }
+}
+
+struct PostLayout: ContentLayout {           // optional; DefaultContentLayout otherwise
+    func body(page: ContentPage, content: HTMLTag) -> HTMLTag {
+        Article {
+            H1(content: page.title)
+            P(content: "\(page.readingMinutes) min read")
+            content
+        }
+    }
+}
+
+struct Blog: Site {
+    var name = "Blog"
+    var url = "https://blog.example"
+    var homePage = Home()
+    var layout = MainLayout()
+    var contentLayout = PostLayout()
+}
+```
+
+- Dated pages get a feed entry (when the site declares no `feedItems`), `og:type=article` and a
+  sitemap `lastmod`; tagged pages get `/tags/<tag>/` pages (`generatesTagPages = false` to skip).
+- `published: false` hides a draft; `path:` overrides the URL.
+- Raw HTML in Markdown is escaped unless `markdownOptions = MarkdownOptions(rawHTML: true)`.
+- Outside a site: `Div(children: Markdown.parse(text))`.
 
 ## A page
 
@@ -178,6 +317,59 @@ enum Components {
 }
 ```
 
+### A component as a type (2.1+)
+
+A `Component` is a type with an `@HTMLBuilder var body`. Use it inside any builder like a tag.
+
+```swift
+struct FeatureCard: Component {
+    let icon: String
+    let title: String
+    let text: String
+
+    var body: HTMLTag {
+        Div {
+            Span(content: icon).addClass("text-3xl")
+            H3(content: title).addClass("text-xl font-bold")
+            P(content: text).addClass("text-gray-300")
+        }
+        .addClass("p-6 bg-gray-800 rounded-lg")
+    }
+}
+
+Div {
+    for feature in features {
+        FeatureCard(icon: feature.icon, title: feature.title, text: feature.text)
+    }
+}
+```
+
+## Text next to inline elements (2.1+)
+
+A bare string in a builder is an escaped text node — no wrapping `<span>`:
+
+```swift
+P {
+    "Read the "
+    A(href: "/docs/", content: "docs")
+    " or open an issue."
+}
+// <p>Read the <a href="/docs/">docs</a> or open an issue.</p>   (compact)
+```
+
+In pretty output each child goes on its own line; add `.inline()` (2.4+) after the paragraph to
+keep it on one line wherever it is rendered.
+
+## Typed attributes (2.1+)
+
+```swift
+A(href: "https://github.com/micheltlutz", content: "GitHub")
+    .target(.blank)
+    .rel([.noopener, .noreferrer, .me])
+Img(src: "/img/hero.webp", alt: "Hero").loading(.lazy).decoding(.async)
+Div { … }.hidden().tabIndex(-1).lang("pt-BR")
+```
+
 ## Loops and conditionals
 
 ```swift
@@ -194,6 +386,20 @@ let navigation = Nav {
 let list = Ul {
     posts.map { Li(content: $0.title) }
 }
+
+// optional tags and `if #available` (2.1+)
+let badge: HTMLTag? = post.isNew ? Span(content: "new") : nil
+let header = Header {
+    H2(content: post.title)
+    badge
+}
+
+// conditional attributes (2.1+)
+let email = HTMLTag("input", attributes: {
+    Attribute(key: "type", value: "email")
+    if isRequired { Attribute.boolean("required") }
+    if let placeholder { Attribute(key: "placeholder", value: placeholder) }
+})
 ```
 
 ## Tables
@@ -295,6 +501,10 @@ try generator.writeFile(content: feed, to: "feed.xml")
 
 ## Syntax-highlighted code blocks
 
+Markdown fences already carry the class highlighters look for — ```` ```swift ```` renders
+`<pre><code class="language-swift">`; include Prism or highlight.js in the layout's `head()`.
+
+
 ```swift
 let snippet = Pre {
     Code(attributes: [Attribute(key: "class", value: "language-swift")],
@@ -345,10 +555,10 @@ export default {
 ```
 
 ```bash
-winged build                                                 # 1. generate dist/
-npx tailwindcss -i ./assets/css/tailwind.input.css \
-                -o ./dist/css/style.css --minify             # 2. build the CSS
+npm install    # once
+winged build   # generates dist/, then runs the package.json `build:css` script (2.3+)
 ```
 
-Running Tailwind before the generator produces a stylesheet missing every class, because the HTML it
-scans does not exist yet.
+`winged build` runs Tailwind *after* the generator on purpose: run before it, Tailwind produces a
+stylesheet missing every class, because the HTML it scans does not exist yet. `--skip-css` turns
+the step off; without `winged`, run `npm run build:css` after generating.

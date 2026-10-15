@@ -99,9 +99,33 @@ compare compact output to avoid indentation noise.
 ## Attribute order and duplicates
 
 Attributes render in insertion order and are **not** deduplicated, except by the helpers that
-explicitly replace: `setId`, `setStyle` and `setRole`. `addClass` appends, so calling it twice with
+explicitly replace: `setId`, `setStyle`, `setRole` and the typed setters (`target`, `rel`,
+`loading`, `decoding`, `hidden`, `tabIndex`, `lang`). `addClass` appends, so calling it twice with
 the same class emits it twice. Convenience parameters (`href`, `src`, `type`) are appended by the
 initializer — if you also pass the same key inside `attributes`, both are rendered.
+
+## Text nodes and pretty printing
+
+A bare string in a builder (`P { "Hello, "; Strong(content: name) }`) becomes a `TextNode`. In
+compact output it sits flush against its neighbours. In pretty output every child goes on its own
+line, so the browser sees whitespace between the text and the inline element — `name!` can become
+`name !`. When spacing between inline pieces matters, end the element with `.inline()` (2.4+) —
+it renders that element on one line, even in pretty output — or render the page `.compact`.
+
+## `Site` / `Page` properties must match the requirement's type
+
+Protocol defaults only apply when you do not declare the property. The requirements are
+non-optional `String`s (`description`, `image`, `author`) so that `var description = "…"` matches.
+If you write `var description: String? = "…"` it is a *different* property: it compiles without a
+warning, the protocol default (empty) wins, and the meta tag disappears. `homePage`, `layout` and
+`errorPage` are associated types, so write `var layout = MainLayout()` —
+`var layout: any PageLayout = MainLayout()` does not compile.
+
+## Markdown escapes HTML by default
+
+`Markdown.parse` — and therefore every `Content/*.md` page — escapes HTML in the source unless you
+pass `MarkdownOptions(rawHTML: true)` (or set `markdownOptions` on the site). That is deliberate:
+turn it on only for content you write yourself. Front matter values are plain text, never HTML.
 
 ## Boolean attributes
 

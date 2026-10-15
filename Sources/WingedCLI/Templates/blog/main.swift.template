@@ -1,0 +1,20 @@
+import WingedSwift
+
+/// A blog. Every Markdown file in Content/ becomes a page (Content/posts/hello-world.md →
+/// /posts/hello-world/), dated files feed the RSS feed, and tags get pages under /tags/.
+struct Website: Site {
+    var name = "{{SITE_TITLE}}"
+    var url = "https://example.com"
+    var language = "{{SITE_LANG}}"
+    var description = "{{SITE_DESCRIPTION}}"
+    var homePage = Home()
+    var layout = SiteLayout()
+    var contentLayout = PostLayout()
+
+    var pages: [any Page] {
+        About()
+    }
+}
+
+let report = try Website().publish()
+print("✅ \(report.files.count) files written to \(report.outputDirectory)")

@@ -32,6 +32,7 @@ import Testing
 
         for path in ["Package.swift",
                      "Sources/DemoSite/main.swift",
+                     "Sources/DemoSite/Pages.swift",
                      "Sources/DemoSite/SiteLayout.swift",
                      "Sources/DemoSite/Components.swift",
                      "AGENTS.md",
@@ -64,7 +65,8 @@ import Testing
 
         #expect(try read(site, "Sources/DemoSite/main.swift").contains("Demo Site"))
         #expect(try read(site, "Sources/DemoSite/main.swift").contains("Motorcycles"))
-        #expect(try read(site, "Sources/DemoSite/SiteLayout.swift").contains("Document(lang: \"pt-BR\")"))
+        #expect(try read(site, "Sources/DemoSite/main.swift").contains("var language = \"pt-BR\""))
+        #expect(try read(site, "Sources/DemoSite/Pages.swift").contains("About Demo Site"))
         #expect(try read(site, "Package.swift").contains("name: \"DemoSite\""))
     }
 

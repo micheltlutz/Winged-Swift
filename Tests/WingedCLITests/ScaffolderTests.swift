@@ -22,6 +22,8 @@ import Testing
             "SITE_DESCRIPTION": "A demo",
             "SITE_LANG": "pt-BR",
             "YEAR": "2026",
+            "TODAY": "2026-10-15",
+            "SOURCE_TREE": "Sources/DemoSite/",
             "WINGED_VERSION": "2.0.0"
         ])
     }
@@ -31,7 +33,7 @@ import Testing
     }
 
     @Test func substitutesEveryPlaceholder() throws {
-        try makeScaffolder().write("Package.swift.template", to: "Package.swift")
+        try makeScaffolder().write("shared/Package.swift.template", to: "Package.swift")
 
         let manifest = try read("Package.swift")
         #expect(manifest.contains("name: \"DemoSite\""))
@@ -40,23 +42,25 @@ import Testing
     }
 
     @Test func createsIntermediateDirectories() throws {
-        try makeScaffolder().write("main.swift.template", to: "Sources/DemoSite/main.swift")
+        try makeScaffolder().write("landing/main.swift.template", to: "Sources/DemoSite/main.swift")
 
         let source = try read("Sources/DemoSite/main.swift")
         #expect(source.contains("Demo Site"))
-        #expect(source.contains("StaticSiteGenerator"))
+        #expect(source.contains("struct Website: Site"))
+        #expect(source.contains("publish()"))
     }
 
-    @Test func scaffoldedLayoutUsesTheDocumentAPI() throws {
-        try makeScaffolder().write("SiteLayout.swift.template", to: "SiteLayout.swift")
+    @Test func scaffoldedLayoutUsesTheSiteModel() throws {
+        try makeScaffolder().write("landing/SiteLayout.swift.template", to: "SiteLayout.swift")
 
         let layout = try read("SiteLayout.swift")
-        #expect(layout.contains("Document(lang: \"pt-BR\")"))
+        #expect(layout.contains("struct SiteLayout: PageLayout"))
+        #expect(layout.contains("@Environment(\\.pages)"))
         #expect(!layout.contains("{{"))
     }
 
     @Test func shipsAgentInstructionsWithTheProject() throws {
-        try makeScaffolder().write("AGENTS.md.template", to: "AGENTS.md")
+        try makeScaffolder().write("shared/AGENTS.md.template", to: "AGENTS.md")
 
         let agents = try read("AGENTS.md")
         #expect(agents.contains("# AGENTS.md — DemoSite"))

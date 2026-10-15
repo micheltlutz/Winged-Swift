@@ -1,0 +1,92 @@
+import WingedSwift
+
+/// One documentation page.
+struct Topic {
+    let slug: String
+    let title: String
+    let summary: String
+    let paragraphs: [String]
+}
+
+/// A titled group of topics in the sidebar.
+struct DocSection {
+    let title: String
+    let topics: [Topic]
+}
+
+/// The content, kept apart from the markup. Add a topic to a section and it gets a page and a
+/// sidebar link.
+enum Docs {
+    static let home = Topic(
+        slug: "",
+        title: "{{SITE_TITLE}}",
+        summary: "{{SITE_DESCRIPTION}}",
+        paragraphs: ["Start with Getting started in the sidebar."])
+
+    static let sections = [
+        DocSection(title: "Guide", topics: [
+            Topic(slug: "getting-started", title: "Getting started", summary: "Install and run.",
+                  paragraphs: ["Run `winged serve --watch` and edit Docs.swift."]),
+            Topic(slug: "configuration", title: "Configuration", summary: "Every option.",
+                  paragraphs: ["Describe your options here."])
+        ])
+    ]
+}
+
+/// A topic rendered as a page. The home topic is served at `/`, the others at `/<slug>/`.
+struct DocPage: Page {
+    let topic: Topic
+
+    var title: String { topic.title }
+    var description: String { topic.summary }
+    var path: String { "/\(topic.slug)/" }
+
+    var body: HTMLTag {
+        H1(content: topic.title)
+        P(content: topic.summary).addClass("muted")
+        for paragraph in topic.paragraphs {
+            P(content: paragraph)
+        }
+    }
+}
+
+struct DocsLayout: PageLayout {
+    func head() -> [HTMLTag] {
+        Link(href: "/css/style.css", rel: "stylesheet")
+    }
+
+    func body(content: HTMLTag) -> [HTMLTag] {
+        Div {
+            Sidebar()
+            MainTag(children: [content]).addClass("docs-content")
+        }
+        .addClass("docs")
+    }
+}
+
+/// The navigation, highlighting the page being rendered.
+struct Sidebar: Component {
+    @Environment(\.site) var site
+    @Environment(\.page) var page
+
+    var body: HTMLTag {
+        Aside {
+            A(href: "/", content: site.name).addClass("logo")
+            for section in Docs.sections {
+                H4(content: section.title)
+                Ul {
+                    for topic in section.topics {
+                        Li {
+                            if "/\(topic.slug)/" == page.path {
+                                A(href: "/\(topic.slug)/", content: topic.title).addClass("active")
+                            } else {
+                                A(href: "/\(topic.slug)/", content: topic.title)
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        .addClass("docs-sidebar")
+    }
+}

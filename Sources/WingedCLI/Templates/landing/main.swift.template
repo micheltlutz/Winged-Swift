@@ -1,0 +1,19 @@
+import WingedSwift
+
+/// The whole site. `winged build` runs this file, and `publish()` writes every page, the assets,
+/// `404.html`, `sitemap.xml` and `robots.txt` into dist/.
+struct Website: Site {
+    var name = "{{SITE_TITLE}}"
+    var url = "https://example.com"
+    var language = "{{SITE_LANG}}"
+    var description = "{{SITE_DESCRIPTION}}"
+    var homePage = Home()
+    var layout = SiteLayout()
+
+    var pages: [any Page] {
+        About()
+    }
+}
+
+let report = try Website().publish()
+print("✅ \(report.files.count) files written to \(report.outputDirectory)")
