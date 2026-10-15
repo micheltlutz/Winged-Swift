@@ -30,6 +30,8 @@ and an entry in the [`wingedswift-migrate` skill](.claude/skills/wingedswift-mig
 - **2.3** — `winged new --template` (bundled minimal/landing/blog/docs or a git URL), live reload,
   `serve --open` with port fallback, Tailwind inside `winged build`, `winged add`, and
   `winged deploy github-pages`.
+- **2.4** — a dependency-free Markdown renderer, front matter, `Content/` pages with
+  `@Environment(\.content)`, tag pages, and feeds from dated content. 2.1–2.4 ship as **2.4.0**.
 
 ## [2.1 — Modern Swift builders](https://github.com/micheltlutz/Winged-Swift/milestone/1)
 

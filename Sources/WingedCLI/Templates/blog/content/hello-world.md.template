@@ -1,0 +1,21 @@
+---
+title: Hello, world
+date: {{TODAY}}
+tags: meta
+description: The first post on {{SITE_TITLE}}.
+---
+
+This blog is generated from Swift with **WingedSwift**, and this post is a Markdown file in
+`Content/posts/`.
+
+Add a post by adding a `.md` file there. It gets:
+
+- a page at `/posts/<file-name>/`,
+- an entry in the RSS feed and the sitemap,
+- a tag page for each of its `tags`.
+
+```swift
+struct Website: Site {
+    var name = "{{SITE_TITLE}}"
+}
+```

@@ -36,17 +36,16 @@ struct ProjectTemplate {
             ])),
         ProjectTemplate(
             name: "blog",
-            summary: "A post list, one page per post under /posts/, and an RSS feed.",
+            summary: "Markdown posts in Content/posts/, a post list, tag pages and an RSS feed.",
             files: [("blog/main.swift.template", "Sources/{{PROJECT_NAME}}/main.swift"),
-                    ("blog/Posts.swift.template", "Sources/{{PROJECT_NAME}}/Posts.swift"),
                     ("blog/Pages.swift.template", "Sources/{{PROJECT_NAME}}/Pages.swift"),
-                    ("blog/SiteLayout.swift.template", "Sources/{{PROJECT_NAME}}/SiteLayout.swift")],
+                    ("blog/SiteLayout.swift.template", "Sources/{{PROJECT_NAME}}/SiteLayout.swift"),
+                    ("blog/content/hello-world.md.template", "Content/posts/hello-world.md")],
             tree: tree("Sources/{{PROJECT_NAME}}/", [
-                ("├── main.swift", "the Site: pages (one per post), feed items — and publish()"),
-                ("├── Posts.swift", "the posts, as data"),
-                ("├── Pages.swift", "Home (post list), PostPage, About"),
+                ("├── main.swift", "the Site: pages, the post layout — and publish()"),
+                ("├── Pages.swift", "Home (post list), PostLayout, About"),
                 ("└── SiteLayout.swift", "the shell shared by every page")
-            ])),
+            ]) + "\n" + line("Content/posts/", "one Markdown file per post, with front matter")),
         ProjectTemplate(
             name: "docs",
             summary: "Documentation with a sidebar of sections and one page per topic.",
@@ -60,10 +59,12 @@ struct ProjectTemplate {
 
     /// Lines up the comments of a source tree for AGENTS.md.
     static func tree(_ root: String, _ entries: [(path: String, comment: String)]) -> String {
-        let width = max((entries.map(\.path.count).max() ?? 0) + 2, 24)
-        return ([root] + entries.map { entry in
-            entry.path.padding(toLength: width, withPad: " ", startingAt: 0) + "# " + entry.comment
-        }).joined(separator: "\n")
+        ([root] + entries.map { line($0.path, $0.comment) }).joined(separator: "\n")
+    }
+
+    /// One tree line, its comment in the column the AGENTS.md template uses.
+    static func line(_ path: String, _ comment: String) -> String {
+        path.padding(toLength: max(path.count + 2, 24), withPad: " ", startingAt: 0) + "# " + comment
     }
 
     static func named(_ name: String) -> ProjectTemplate? {

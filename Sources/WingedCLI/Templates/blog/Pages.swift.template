@@ -1,47 +1,49 @@
+import Foundation
 import WingedSwift
 
 /// Served at `/`: every post, newest first.
 struct Home: Page {
     var title = "{{SITE_TITLE}}"
+    @Environment(\.content) var posts
 
     var body: HTMLTag {
         H1(content: "{{SITE_TITLE}}")
         P(content: "{{SITE_DESCRIPTION}}").addClass("muted")
         Ul {
-            for post in Posts.all {
+            for post in posts where post.path.hasPrefix("/posts/") {
                 Li {
-                    A(href: PostPage(post: post).path, content: post.title)
-                    " "
-                    Time(datetime: Posts.iso(post.date), content: Posts.display(post.date)).addClass("muted")
+                    A(href: post.path, content: post.title)
+                    if let date = post.date {
+                        " "
+                        Time(datetime: Dates.iso(date), content: Dates.display(date)).addClass("muted")
+                    }
                 }
+                .inline()
             }
         }
         .addClass("post-list")
     }
 }
 
-/// One post, served at `/posts/<slug>/`.
-struct PostPage: Page {
-    let post: Post
-
-    var title: String { post.title }
-    var description: String { post.summary }
-    var path: String { "/posts/\(post.slug)/" }
-
-    var body: HTMLTag {
+/// How each Markdown post is laid out inside the site shell.
+struct PostLayout: ContentLayout {
+    func body(page: ContentPage, content: HTMLTag) -> HTMLTag {
         Article {
-            H1(content: post.title)
+            H1(content: page.title)
             P {
-                Time(datetime: Posts.iso(post.date), content: Posts.display(post.date))
-                for tag in post.tags {
+                if let date = page.date {
+                    Time(datetime: Dates.iso(date), content: Dates.display(date))
                     " · "
-                    Span(content: tag).addClass("tag")
+                }
+                "\(page.readingMinutes) min read"
+                for tag in page.tags {
+                    " · "
+                    A(href: ContentPage.tagPath(tag), content: tag).addClass("tag")
                 }
             }
             .addClass("muted")
-            for paragraph in post.paragraphs {
-                P(content: paragraph)
-            }
+            .inline()
+            content
         }
         .addClass("post")
     }
@@ -55,5 +57,19 @@ struct About: Page {
     var body: HTMLTag {
         H1(content: "About")
         P(content: "Written by a human, rendered by Swift.")
+    }
+}
+
+enum Dates {
+    static func display(_ date: Date) -> String {
+        let formatter = DateFormatter()
+        formatter.locale = Locale(identifier: "{{SITE_LANG}}")
+        formatter.dateStyle = .long
+        formatter.timeZone = TimeZone(secondsFromGMT: 0)
+        return formatter.string(from: date)
+    }
+
+    static func iso(_ date: Date) -> String {
+        String(ISO8601DateFormatter().string(from: date).prefix(10))
     }
 }
