@@ -1,26 +1,38 @@
 # Recipes
 
-Copy-pasteable snippets. Every one of them compiles against WingedSwift 2.0.
+Copy-pasteable snippets. Every one of them compiles against WingedSwift 2.3; sections marked with a
+version need at least that one.
 
 ## New site project
 
 ```bash
-winged new MySite            # add --tailwind for a Tailwind setup
+winged new MySite                      # landing page (default); add --tailwind for Tailwind
+winged new MyBlog --template blog      # also: minimal, docs — `winged new --list-templates`
+winged new MySite --template https://github.com/you/starter   # any git starter
 cd MySite
-winged serve --watch         # http://localhost:8000, rebuilds on change
+winged serve --watch --open            # rebuilds and reloads the browser on every change
+winged add page Pricing                # Sources/MySite/Pages/Pricing.swift
+winged add component PriceCard         # Sources/MySite/Components/PriceCard.swift
+winged deploy github-pages --workflow  # .github/workflows/deploy-pages.yml
 ```
 
 ```
-MySite/
+MySite/                     # landing template
 ├── Package.swift
 ├── AGENTS.md               # instructions for the next agent that opens this repo
 ├── Sources/MySite/
-│   ├── main.swift          # the pages and where they are written
+│   ├── main.swift          # the Site — name, URL, pages, layout — and publish()
+│   ├── Pages.swift         # one `Page` per page
 │   ├── SiteLayout.swift    # the shared shell
 │   └── Components.swift    # content + reusable markup
 ├── assets/                 # css, js, images copied to the output
 └── dist/                   # generated — gitignored
 ```
+
+A starter repository for `--template <url>` is any folder of files: `{{PROJECT_NAME}}`,
+`{{SITE_TITLE}}`, `{{SITE_DESCRIPTION}}`, `{{SITE_LANG}}`, `{{YEAR}}`, `{{TODAY}}` and
+`{{WINGED_VERSION}}` are replaced in file contents and in paths (`Sources/{{PROJECT_NAME}}/`), and
+an optional `winged-template.json` with `{"message": "…"}` is printed after creation.
 
 Doing it by hand instead:
 
@@ -477,10 +489,10 @@ export default {
 ```
 
 ```bash
-winged build                                                 # 1. generate dist/
-npx tailwindcss -i ./assets/css/tailwind.input.css \
-                -o ./dist/css/style.css --minify             # 2. build the CSS
+npm install    # once
+winged build   # generates dist/, then runs the package.json `build:css` script (2.3+)
 ```
 
-Running Tailwind before the generator produces a stylesheet missing every class, because the HTML it
-scans does not exist yet.
+`winged build` runs Tailwind *after* the generator on purpose: run before it, Tailwind produces a
+stylesheet missing every class, because the HTML it scans does not exist yet. `--skip-css` turns
+the step off; without `winged`, run `npm run build:css` after generating.

@@ -72,7 +72,8 @@ Sources/
 │   ├── feed/          RSSGenerator
 │   ├── static/        StaticSiteGenerator (writes files, copies assets)
 │   └── templates/     Layout protocol
-└── WingedCLI/         the `winged` command: new / build / serve
+└── WingedCLI/         the `winged` command: new / build / serve / add / deploy
+    └── Templates/     shared/ files + one folder per `winged new --template` starter
 ```
 
 Full API surface: [`.claude/skills/wingedswift/references/tag-catalog.md`](.claude/skills/wingedswift/references/tag-catalog.md)

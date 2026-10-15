@@ -5,6 +5,44 @@ All notable changes to WingedSwift will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased] — 2.3.0
+
+The CLI release. The library API is unchanged, and so is the HTML that sites render. See the
+2.2 → 2.3 section of [MIGRATION.md](MIGRATION.md) for the two CLI behaviours that changed.
+
+### Added
+
+- **`winged new --template minimal|landing|blog|docs`** — four bundled starters on the `Site`
+  model; `landing` stays the default. `winged new --list-templates` prints them (#24).
+- **`winged new --template <https or file URL>`** — clones a starter repository, removes its `.git`
+  and fills `{{PLACEHOLDER}}`s in contents and paths; an optional `winged-template.json` message is
+  shown (#25).
+- **Live reload** — `winged serve --watch` injects a small Server-Sent Events script into the HTML
+  it *serves* (never into `dist/`) and reloads the page after each successful rebuild;
+  `--no-reload` turns it off (#26).
+- **`winged serve --open`**, the next free port when the requested one is taken, and the LAN URL
+  for testing on a phone (#27).
+- **`winged add page|component <Name>`** writes `Sources/<Target>/Pages/<Name>.swift` or
+  `Components/<Name>.swift`, refusing to overwrite (#29).
+- **`winged deploy github-pages`** — `--workflow` writes a GitHub Actions workflow that builds and
+  publishes the site; without it, the built `dist/` is force-pushed as the only commit of
+  `gh-pages` from a throwaway repository (`--dry-run`, `--cname`, `--remote`, `--branch`) (#30).
+- `Scripts/check-version.sh` keeps the CLI and library versions equal, and equal to the release
+  tag; `verify.sh` and the release workflow run it (#31).
+- `verify.sh` builds the library for macOS 10.13, every bundled template, and `winged add` output.
+
+### Changed
+
+- **`winged build` runs the `build:css` script of `package.json`** after generating the site, when
+  `node_modules` exists — the Tailwind scaffold no longer needs a second command. `--skip-css`
+  opts out (#28).
+- `winged serve` flushes its output line by line, so piping it to a file or `tee` shows progress.
+- Bundled templates moved to `Templates/shared/` and `Templates/<name>/`.
+
+### Fixed
+
+- The repository `.gitignore` ignored every folder named `docs/`, including the `docs` template.
+
 ## [Unreleased] — 2.2.0
 
 Additive release: existing scripts built on `Document` and `StaticSiteGenerator` compile unchanged

@@ -81,9 +81,9 @@ print(page.render())
 Or skip the setup entirely — the `winged` CLI scaffolds, builds and previews a site:
 
 ```bash
-winged new MySite     # add --tailwind for a Tailwind project
+winged new MySite     # add --tailwind, or --template blog / docs / minimal
 cd MySite
-winged serve --watch  # http://localhost:8000, rebuilding on every change
+winged serve --watch  # http://localhost:8000, rebuilding and reloading on every change
 ```
 
 ### For Contributors
@@ -694,9 +694,11 @@ site is agent-ready from its first commit.
 ```bash
 swift build -c release          # the binary lands in .build/release/winged
 
-winged new MySite [--tailwind]  # scaffold a project (Package.swift, layout, components, AGENTS.md)
-winged build [--release]        # generate the site into dist/
-winged serve [--watch]          # http://localhost:8000, rebuilding on every change
+winged new MySite [--template minimal|landing|blog|docs|<git url>] [--tailwind]
+winged build [--release]        # generate dist/ (and run the Tailwind build:css script, if any)
+winged serve --watch --open     # http://localhost:8000, rebuilding and live-reloading on change
+winged add page Pricing         # or: winged add component PriceCard
+winged deploy github-pages --workflow   # or push dist/ straight to gh-pages
 ```
 
 `winged serve` includes its own static file server — no `python3 -m http.server`, no dependencies.
