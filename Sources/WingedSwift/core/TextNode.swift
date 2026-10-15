@@ -26,6 +26,11 @@ public final class TextNode: HTMLTag {
         super.init("", attributes: [], children: [], content: nil, escapeContent: false)
     }
 
+    /// Two adjacent nodes as one, without escaping twice.
+    static func joined(_ first: TextNode, _ second: TextNode) -> TextNode {
+        TextNode(first.text + second.text, escape: false)
+    }
+
     public override func write(into output: inout String, options: RenderOptions, indentLevel: Int = 0) {
         if options.pretty {
             output += String(repeating: options.indent, count: indentLevel)

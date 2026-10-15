@@ -49,4 +49,14 @@ public struct HTMLEscape: Sendable {
         
         return result
     }
+
+    /// Reverses ``escape(_:escapeSlashes:)`` — for deriving plain text from rendered markup.
+    static func unescape(_ string: String) -> String {
+        string.replacingOccurrences(of: "&lt;", with: "<")
+            .replacingOccurrences(of: "&gt;", with: ">")
+            .replacingOccurrences(of: "&quot;", with: "\"")
+            .replacingOccurrences(of: "&#x27;", with: "'")
+            .replacingOccurrences(of: "&#x2F;", with: "/")
+            .replacingOccurrences(of: "&amp;", with: "&")
+    }
 }
