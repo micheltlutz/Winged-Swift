@@ -131,11 +131,7 @@ public final class StaticSiteGenerator: Sendable {
         let destinationPath = "\(outputDirectory)/\(destination)"
         try createDirectory(URL(fileURLWithPath: destinationPath).deletingLastPathComponent())
         try removeIfPresent(destinationPath)
-        do {
-            try FileManager.default.copyItem(atPath: source, toPath: destinationPath)
-        } catch {
-            throw .copyFailed(source: source, destination: destinationPath, underlying: error)
-        }
+        try fileSystem({ try FileManager.default.copyItem(atPath: source, toPath: destinationPath) }, orThrow: { .copyFailed(source: source, destination: destinationPath, underlying: $0) })
     }
     
     /// Cleans the output directory by removing all files.
@@ -166,27 +162,27 @@ public final class StaticSiteGenerator: Sendable {
     public func writeFile(content: String, to path: String) throws(WingedError) {
         let fullPath = "\(outputDirectory)/\(path)"
         try createDirectory(URL(fileURLWithPath: fullPath).deletingLastPathComponent())
-        do {
-            try content.write(toFile: fullPath, atomically: true, encoding: .utf8)
-        } catch {
-            throw .writeFailed(path: fullPath, underlying: error)
-        }
+        try fileSystem({ try content.write(toFile: fullPath, atomically: true, encoding: .utf8) }, orThrow: { .writeFailed(path: fullPath, underlying: $0) })
     }
 
     private func createDirectory(_ url: URL) throws(WingedError) {
-        do {
-            try FileManager.default.createDirectory(at: url, withIntermediateDirectories: true)
-        } catch {
-            throw .directoryCreationFailed(path: url.path, underlying: error)
-        }
+        try fileSystem({ try FileManager.default.createDirectory(at: url, withIntermediateDirectories: true) }, orThrow: { .directoryCreationFailed(path: url.path, underlying: $0) })
     }
 
     private func removeIfPresent(_ path: String) throws(WingedError) {
         guard FileManager.default.fileExists(atPath: path) else { return }
+        try fileSystem({ try FileManager.default.removeItem(atPath: path) }, orThrow: { .removeFailed(path: path, underlying: $0) })
+    }
+
+    /// Runs a Foundation file operation, translating its error into a ``WingedError``.
+    private func fileSystem(
+        _ operation: () throws -> Void,
+        orThrow wrap: (any Error) -> WingedError
+    ) throws(WingedError) {
         do {
-            try FileManager.default.removeItem(atPath: path)
+            try operation()
         } catch {
-            throw .removeFailed(path: path, underlying: error)
+            throw wrap(error)
         }
     }
 }
