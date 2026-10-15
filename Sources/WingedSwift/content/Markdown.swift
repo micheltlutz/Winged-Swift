@@ -226,9 +226,9 @@ private struct BlockParser {
         var attributes: [Attribute] = []
         if options.headingIDs {
             let base = Self.slug(Markdown.plainText(text))
-            let count = usedIDs[base, default: 0]
-            usedIDs[base] = count + 1
-            attributes.append(Attribute(key: "id", value: count == 0 ? base : "\(base)-\(count)"))
+            let previousUses = usedIDs[base, default: 0]
+            usedIDs[base] = previousUses + 1
+            attributes.append(Attribute(key: "id", value: previousUses == 0 ? base : "\(base)-\(previousUses)"))
         }
         return HTMLTag("h\(level)", attributes: attributes, children: children)
     }
