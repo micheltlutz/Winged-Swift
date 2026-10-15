@@ -1,0 +1,28 @@
+import WingedSwift
+
+/// A blog: a post list at `/`, one page per post under `/posts/`, and an RSS feed.
+struct Website: Site {
+    var name = "{{SITE_TITLE}}"
+    var url = "https://example.com"
+    var language = "{{SITE_LANG}}"
+    var description = "{{SITE_DESCRIPTION}}"
+    var homePage = Home()
+    var layout = SiteLayout()
+
+    var pages: [any Page] {
+        for post in Posts.all {
+            PostPage(post: post)
+        }
+        About()
+    }
+
+    var feedItems: [FeedItem] {
+        Posts.all.map { post in
+            FeedItem(title: post.title, link: PostPage(post: post).path, summary: post.summary,
+                     date: post.date, categories: post.tags)
+        }
+    }
+}
+
+let report = try Website().publish()
+print("✅ \(report.files.count) files written to \(report.outputDirectory)")
