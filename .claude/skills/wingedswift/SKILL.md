@@ -34,7 +34,8 @@ print(page.render())   // <!DOCTYPE html> … , pretty by default
 2. **Read `references/tag-catalog.md` before writing tags.** It lists every type with both
    initializers — the array form and the builder form. Guessing a type name (`Main`, `Var`,
    `Thead(rows:)`) is the number-one cause of build failures.
-3. Write components as `static func … -> HTMLTag` and compose them; see `references/recipes.md`
+3. Write components as `struct … : Component` (2.1+) or `static func … -> HTMLTag` and compose
+   them; see `references/recipes.md`
    for page skeletons, layouts, SEO heads, loops, tables, forms, sitemap and RSS.
 4. Skim `references/pitfalls.md` — escaping, void elements, `Fragment` vs `RawHTML` and
    `Document` vs `html { }` behave in ways that are obvious once known and silently wrong otherwise.
@@ -63,7 +64,8 @@ Then `./Scripts/generate-tag-catalog.sh` and `./Scripts/verify.sh`.
    for markup you generated (`Script` and `Style` already default to it).
 4. **Void elements take no children** — `img`, `br`, `input`, `meta`, `link`, `source`, `col`, …
 5. **`Fragment` groups tags; `RawHTML` injects a string.**
-6. **Chain the helpers** — `.addClass`, `.setId`, `.dataAttribute`, `.ariaAttribute` return `Self`.
+6. **Chain the helpers** — `.addClass`, `.setId`, `.dataAttribute`, `.ariaAttribute` and the typed
+   setters `.target(.blank)`, `.rel([.noopener])`, `.loading(.lazy)`, `.hidden()` return `Self`.
 7. **`Document` owns the doctype and `lang`;** `html { }` builds the `<html>` element only.
 8. **Rendering is configured per call** with `RenderOptions`, never globally.
 9. **Tag trees are not `Sendable`** — render to a `String` before crossing isolation boundaries.
@@ -75,4 +77,5 @@ Then `./Scripts/generate-tag-catalog.sh` and `./Scripts/verify.sh`.
 | `references/tag-catalog.md` | Before writing any tag — every type and both initializers (generated from source). |
 | `references/recipes.md` | Building a page, layout, SEO head, table, form, sitemap or RSS feed. |
 | `references/pitfalls.md` | Output looks wrong, or before touching escaping / rendering. |
-| `MIGRATION.md` (repo root) | The project is on 1.x and something is deprecated. |
+| `MIGRATION.md` (repo root) | Upgrading between versions, or something is deprecated. |
+| `../wingedswift-migrate/SKILL.md` | Bumping WingedSwift in a site — snapshot, rewrite, diff `dist/`. |

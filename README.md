@@ -678,6 +678,9 @@ This repository ships one:
 - **[Recipes](.claude/skills/wingedswift/references/recipes.md)** and
   **[pitfalls](.claude/skills/wingedswift/references/pitfalls.md)** — page skeletons, SEO heads,
   tables, forms, feeds; and the escaping / void-element / `Fragment` traps.
+- **[MIGRATION.md](MIGRATION.md)** and the
+  **[`wingedswift-migrate` skill](.claude/skills/wingedswift-migrate/SKILL.md)** — how to upgrade a
+  site between versions, written so an agent can do it: snapshot `dist/`, apply the rewrites, diff.
 - **[`./Scripts/verify.sh`](Scripts/verify.sh)** — one command (build + test + lint + catalog + CLI
   + a real render) so an agent can check its own work before claiming it is done.
 

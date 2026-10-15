@@ -178,6 +178,56 @@ enum Components {
 }
 ```
 
+### A component as a type (2.1+)
+
+A `Component` is a type with an `@HTMLBuilder var body`. Use it inside any builder like a tag.
+
+```swift
+struct FeatureCard: Component {
+    let icon: String
+    let title: String
+    let text: String
+
+    var body: HTMLTag {
+        Div {
+            Span(content: icon).addClass("text-3xl")
+            H3(content: title).addClass("text-xl font-bold")
+            P(content: text).addClass("text-gray-300")
+        }
+        .addClass("p-6 bg-gray-800 rounded-lg")
+    }
+}
+
+Div {
+    for feature in features {
+        FeatureCard(icon: feature.icon, title: feature.title, text: feature.text)
+    }
+}
+```
+
+## Text next to inline elements (2.1+)
+
+A bare string in a builder is an escaped text node — no wrapping `<span>`:
+
+```swift
+P {
+    "Read the "
+    A(href: "/docs/", content: "docs")
+    " or open an issue."
+}
+// <p>Read the <a href="/docs/">docs</a> or open an issue.</p>   (compact)
+```
+
+## Typed attributes (2.1+)
+
+```swift
+A(href: "https://github.com/micheltlutz", content: "GitHub")
+    .target(.blank)
+    .rel([.noopener, .noreferrer, .me])
+Img(src: "/img/hero.webp", alt: "Hero").loading(.lazy).decoding(.async)
+Div { … }.hidden().tabIndex(-1).lang("pt-BR")
+```
+
 ## Loops and conditionals
 
 ```swift
@@ -194,6 +244,20 @@ let navigation = Nav {
 let list = Ul {
     posts.map { Li(content: $0.title) }
 }
+
+// optional tags and `if #available` (2.1+)
+let badge: HTMLTag? = post.isNew ? Span(content: "new") : nil
+let header = Header {
+    H2(content: post.title)
+    badge
+}
+
+// conditional attributes (2.1+)
+let email = HTMLTag("input", attributes: {
+    Attribute(key: "type", value: "email")
+    if isRequired { Attribute.boolean("required") }
+    if let placeholder { Attribute(key: "placeholder", value: placeholder) }
+})
 ```
 
 ## Tables

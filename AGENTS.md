@@ -79,7 +79,8 @@ Full API surface: [`.claude/skills/wingedswift/references/tag-catalog.md`](.clau
 (generated — never edit by hand).
 Common mistakes: [`.claude/skills/wingedswift/references/pitfalls.md`](.claude/skills/wingedswift/references/pitfalls.md).
 Copy-pasteable snippets: [`.claude/skills/wingedswift/references/recipes.md`](.claude/skills/wingedswift/references/recipes.md).
-Upgrading from 1.x: [`MIGRATION.md`](MIGRATION.md).
+Upgrading between versions: [`MIGRATION.md`](MIGRATION.md) and the
+[`wingedswift-migrate` skill](.claude/skills/wingedswift-migrate/SKILL.md).
 
 ## Rules
 
@@ -137,7 +138,9 @@ let card: Div = Div { … }
     .ariaAttribute(key: "label", value: "Pricing")
 ```
 
-`addClass` appends, `setId` / `setStyle` / `setRole` replace.
+`addClass` appends, `setId` / `setStyle` / `setRole` replace. Prefer the typed setters over
+`setAttribute` for the attributes they cover — `.target(.blank)`, `.rel([.noopener])`,
+`.loading(.lazy)`, `.decoding(.async)`, `.hidden()`, `.tabIndex(_:)`, `.lang(_:)`; they replace too.
 
 **8. Boolean attributes use `Attribute.boolean`.** `Attribute.boolean("required")` renders
 ` required`, not ` required="true"`.
@@ -186,7 +189,25 @@ try generator.writeFile(content: SitemapGenerator.generate(urls: [
 
 ### A reusable component
 
-Return `HTMLTag` from a `static func` — this is the idiomatic pattern in projects using the library:
+Conform a type to `Component` (2.1+) — its `body` is an `@HTMLBuilder`, and the value can be used
+inside any builder like a tag:
+
+```swift
+struct FeatureCard: Component {
+    let title: String
+    let text: String
+
+    var body: HTMLTag {
+        Div {
+            H3(content: title).addClass("text-xl font-bold")
+            P(content: text).addClass("text-gray-300")
+        }
+        .addClass("p-6 bg-gray-800 rounded-lg")
+    }
+}
+```
+
+Returning `HTMLTag` from a `static func` is equally valid and is what most existing sites do:
 
 ```swift
 enum Components {
@@ -234,6 +255,18 @@ Then run `./Scripts/generate-tag-catalog.sh` so the catalog picks the new elemen
 - Deprecations carry `@available(*, deprecated, message:)` and stay for one major version.
 - Commit messages follow the CHANGELOG vocabulary: `Add:`, `Fix:`, `Change:`.
 - Branch from `develop`, open the PR against `develop`. See `CONTRIBUTING.md`.
+
+## Changes that reach downstream sites
+
+Sites are regenerated from this library, so treat the public API and the rendered bytes as a
+contract:
+
+- Prefer additive changes; deprecate (`@available(*, deprecated, message:)`) before removing, and
+  remove only in a major release.
+- Any change that can break a call site **or** change rendered output gets a section in
+  `MIGRATION.md` (before → after code, the `grep` that finds affected code, and whether the `dist/`
+  diff is expected to be empty) and a row in the table at the end of
+  `.claude/skills/wingedswift-migrate/SKILL.md`.
 
 ## Before you say you are done
 
