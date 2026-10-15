@@ -1,0 +1,40 @@
+import WingedSwift
+
+/// Served at `/`.
+struct Home: Page {
+    var title = "{{SITE_TITLE}}"
+
+    var body: HTMLTag {
+        Section {
+            H1(content: "{{SITE_TITLE}}").addClass("hero-title")
+            P(content: "{{SITE_DESCRIPTION}}").addClass("hero-subtitle")
+            A(href: "#features", content: "See the features").addClass("button")
+        }
+        .addClass("hero")
+
+        Section {
+            H2(content: "Features")
+            Div {
+                for feature in Content.features {
+                    FeatureCard(feature: feature)
+                }
+            }
+            .addClass("grid")
+        }
+        .setId("features")
+        .addClass("features")
+    }
+}
+
+/// Served at `/about/` — the path comes from the type name.
+struct About: Page {
+    var title = "About"
+    var description = "About {{SITE_TITLE}}"
+
+    var body: HTMLTag {
+        Section {
+            H1(content: "About")
+            P(content: "This site is generated from Swift with WingedSwift.")
+        }
+    }
+}

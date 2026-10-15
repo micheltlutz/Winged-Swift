@@ -9,7 +9,8 @@ Two principles shape every item, and are why some of Ignite's ideas are adapted 
 
 - **Zero dependencies in the library.** No Swift macros (they pull in swift-syntax) and no
   third-party Markdown parser. Modern Swift is used through the language itself: result builders,
-  protocols with defaults, `@propertyWrapper`, `@TaskLocal`, typed throws.
+  protocols with defaults, `@propertyWrapper`, associated types, typed throws — without raising the
+  deployment target that sites inherit.
 - **CSS-framework agnostic.** Typed modifiers emit plain attributes, inline style or classes — never
   a bundled Bootstrap or Tailwind.
 
@@ -23,6 +24,9 @@ and an entry in the [`wingedswift-migrate` skill](.claude/skills/wingedswift-mig
 - **2.1** — bare strings and optional tags in builders, `if #available`, control flow in the
   attributes builder, the `Component` protocol, typed attribute setters, `WingedError` with typed
   throws, and the migration skill. Additive; output byte-identical.
+- **2.2** — the `Site` / `Page` / `PageLayout` model with `publish()`, `@Environment` (scoped,
+  no global state), generated head meta tags, sitemap, robots.txt, RSS/Atom/JSON feeds and `404.html`.
+  Additive; scripts keep rendering byte-identical output.
 
 ## [2.1 — Modern Swift builders](https://github.com/micheltlutz/Winged-Swift/milestone/1)
 
@@ -34,7 +38,7 @@ builders · #15 typed throws / `WingedError` · #16 `Component` · #17 typed att
 A declarative site, inspired by Ignite's `Site` / `StaticPage` and `site.publish()`: describe the
 site and its pages as types, and let `publish()` write pages, assets, SEO meta, sitemap and feeds.
 
-#18 `Site` protocol + `publish()` · #19 `Page` protocol · #20 `@Environment` on `@TaskLocal`
+#18 `Site` protocol + `publish()` · #19 `Page` protocol · #20 `@Environment`, scoped per render
 (no global singleton) · #21 SEO, sitemap and RSS generated on publish · #22 `robots.txt`, Atom and
 JSON Feed · #23 `404.html`.
 

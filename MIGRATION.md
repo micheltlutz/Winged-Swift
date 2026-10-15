@@ -27,6 +27,87 @@ our current version and <version>, rebuild, and show me the dist/ diff before co
 Stop and ask if the diff contains a change the changelog does not explain.
 ```
 
+## 2.1 → 2.2
+
+**Additive. Rendered output is byte-identical** for sites built with `Document` and
+`StaticSiteGenerator`, so `diff -r` must come back empty. Nothing needs rewriting.
+
+### New names that can collide with yours
+
+2.2 adds `Site`, `Page`, `PageLayout`, `PageBuilder`, `EmptyLayout`, `NotFoundPage`,
+`PublishReport`, `Environment`, `EnvironmentValues`, `SiteMetadata`, `PageMetadata`, `FeedItem`,
+`FeedFormat`, `FeedGenerator`, `RobotsRule` and `RobotsGenerator`. A type of yours with the same name
+still wins inside your module, so existing code keeps compiling. Two things to watch:
+
+- If you want to adopt the new model in a module that already has a `Page` or `Site` type, rename
+  yours first. Writing `WingedSwift.Page` does **not** work: the module also exports an
+  `enum WingedSwift` (version metadata), and Swift resolves the qualifier to the enum.
+- In a file that imports both SwiftUI and WingedSwift, `Environment` is ambiguous. Keep the
+  WingedSwift components in files that do not import SwiftUI.
+
+```bash
+grep -rnE "(protocol|struct|class|enum|typealias) (Site|Page|PageLayout|Environment|EnvironmentValues|FeedItem|FeedGenerator)\b" Sources
+```
+
+If you switch over `WingedError` exhaustively (it appeared in 2.1), add the new
+`.duplicatePath` case or a `default:`.
+
+### Optional: moving a script site onto `Site`
+
+This is a rewrite of the site's entry point, not an upgrade step, and it **does change the output**:
+the generated `<head>` replaces whatever SEO tags you assembled by hand. Do it in its own commit,
+after the upgrade's diff is clean.
+
+```swift
+// 2.0 / 2.1 — a script
+let home = SiteLayout(title: "RideKeeper", description: "…").page { H1(content: "Hi") }
+let generator = StaticSiteGenerator(outputDirectory: "dist")
+try generator.clean()
+try generator.generate(document: home, to: "index.html")
+try generator.copyAsset(from: "assets/css", to: "css")
+try generator.writeFile(content: SitemapGenerator.generate(urls: [...]), to: "sitemap.xml")
+
+// 2.2 — a site
+struct Home: Page {
+    var title = "RideKeeper"
+    var body: HTMLTag { H1(content: "Hi") }
+}
+
+struct MainLayout: PageLayout {
+    func head() -> [HTMLTag] { Link(href: "/css/style.css", rel: "stylesheet") }
+    func body(content: HTMLTag) -> [HTMLTag] { Header { … }; MainTag(children: [content]); Footer { … } }
+}
+
+struct RideKeeper: Site {
+    var name = "RideKeeper"
+    var url = "https://ridekeeper.example"
+    var description = "…"
+    var homePage = Home()
+    var layout = MainLayout()
+    var pages: [any Page] { About(); Pricing() }
+}
+
+try RideKeeper().publish()
+```
+
+Mapping, piece by piece:
+
+| Script | Site model |
+| --- | --- |
+| a `Document` per page | a `struct … : Page` with `title` and `body` |
+| your `SiteLayout.page { }` shell | a `PageLayout` — `head()` for stylesheets/scripts, `body(content:)` for the chrome |
+| `SEO.complete(…)` / `SEO.common(…)` and `Title(…)` in the head | delete them: `publish()` writes charset, viewport, title, description, canonical, Open Graph and Twitter tags |
+| `generate(document:to:)` paths | `Page.path` — the type name by default (`About` → `/about/`); set `path` to keep an existing URL such as `/about.html` |
+| `copyAsset(from: "assets/css", to: "css")` | automatic: everything inside `assets/` is copied to the output root |
+| hand-written `sitemap.xml` / `robots.txt` | automatic; `isInSitemap = false` hides a page, `robotsRules` changes robots |
+| `RSSGenerator` | `feedItems` and `feedFormat` on the site |
+| `projectRoot` / `inProject(…)` helpers in `main.swift` | delete them: `publish()` finds the package root itself |
+
+**Keep your URLs.** Before deleting the script, list its output paths
+(`cd /tmp/dist-before && find . -name '*.html'`) and make sure every one of them is still produced —
+set `path` on the pages whose slug would differ. Then diff: the differences should be confined to
+`<head>`, `sitemap.xml`, `robots.txt` and the new `404.html`.
+
 ## 2.0 → 2.1
 
 **Additive. Rendered output is byte-identical**, so `diff -r` must come back empty. Two edge cases

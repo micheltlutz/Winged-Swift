@@ -112,6 +112,15 @@ line, so the browser sees whitespace between the text and the inline element —
 `name !`. When spacing between inline pieces matters, render that page `.compact`, or keep the text
 inside the element (`Strong(content: "\(name)!")`).
 
+## `Site` / `Page` properties must match the requirement's type
+
+Protocol defaults only apply when you do not declare the property. The requirements are
+non-optional `String`s (`description`, `image`, `author`) so that `var description = "…"` matches.
+If you write `var description: String? = "…"` it is a *different* property: it compiles without a
+warning, the protocol default (empty) wins, and the meta tag disappears. `homePage`, `layout` and
+`errorPage` are associated types, so write `var layout = MainLayout()` —
+`var layout: any PageLayout = MainLayout()` does not compile.
+
 ## Boolean attributes
 
 ```swift

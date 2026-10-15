@@ -1,35 +1,47 @@
 import WingedSwift
 
-/// The shell every page shares: head, navigation and footer.
-struct SiteLayout {
-    let title: String
-    let description: String
+/// The shell every page shares. The site already writes the charset, viewport, title,
+/// description, canonical link and social tags; the layout adds the stylesheet and the chrome.
+struct SiteLayout: PageLayout {
+    func head() -> [HTMLTag] {
+        Link(href: "/css/style.css", rel: "stylesheet")
+    }
 
-    /// Wraps the given content in the site shell and returns a complete document.
-    func page(@HTMLFragmentBuilder content: () -> [HTMLTag]) -> Document {
-        Document(lang: "{{SITE_LANG}}") {
-            Fragment(children: SEO.common(title: title, description: description))
-            Title(content: title)
-            Link(href: "/css/style.css", rel: "stylesheet")
-        } body: {
-            Header {
-                Nav {
-                    A(href: "/", content: "{{SITE_TITLE}}").addClass("logo")
-                    Ul {
-                        Li { A(href: "/", content: "Home") }
-                        Li { A(href: "/about/", content: "About") }
+    func body(content: HTMLTag) -> [HTMLTag] {
+        SiteHeader()
+        MainTag(children: [content]).addClass("container")
+        SiteFooter()
+    }
+}
+
+/// The navigation, built from the site's pages.
+struct SiteHeader: Component {
+    @Environment(\.site) var site
+    @Environment(\.pages) var pages
+
+    var body: HTMLTag {
+        Header {
+            Nav {
+                A(href: "/", content: site.name).addClass("logo")
+                Ul {
+                    for page in pages where page.path != "/404.html" {
+                        Li { A(href: page.path, content: page.path == "/" ? "Home" : page.title) }
                     }
-                    .addClass("nav-links")
                 }
+                .addClass("nav-links")
             }
-            .addClass("site-header")
-
-            MainTag(children: content()).addClass("container")
-
-            Footer {
-                P(content: "© {{YEAR}} {{SITE_TITLE}}")
-            }
-            .addClass("site-footer")
         }
+        .addClass("site-header")
+    }
+}
+
+struct SiteFooter: Component {
+    @Environment(\.site) var site
+
+    var body: HTMLTag {
+        Footer {
+            P(content: "© {{YEAR}} \(site.name)")
+        }
+        .addClass("site-footer")
     }
 }

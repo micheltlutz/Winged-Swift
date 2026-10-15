@@ -49,6 +49,7 @@ struct New: ParsableCommand {
 
         try scaffolder.write("Package.swift.template", to: "Package.swift")
         try scaffolder.write("main.swift.template", to: "Sources/\(name)/main.swift")
+        try scaffolder.write("Pages.swift.template", to: "Sources/\(name)/Pages.swift")
         try scaffolder.write("SiteLayout.swift.template", to: "Sources/\(name)/SiteLayout.swift")
         try scaffolder.write("Components.swift.template", to: "Sources/\(name)/Components.swift")
         try scaffolder.write("AGENTS.md.template", to: "AGENTS.md")

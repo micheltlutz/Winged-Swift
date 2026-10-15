@@ -5,14 +5,16 @@ Read this before changing anything.
 
 ## How this project works
 
-`swift run` executes `Sources/{{PROJECT_NAME}}/main.swift`, which builds a tree of `HTMLTag`
-objects and writes HTML files into `dist/`. There is no server and no runtime: everything happens
-at build time.
+`swift run` executes `Sources/{{PROJECT_NAME}}/main.swift`. It declares the site as a `Site` and
+calls `publish()`, which renders every `Page` through the layout and writes `dist/` — pages,
+assets, `404.html`, `sitemap.xml` and `robots.txt`. There is no server and no runtime: everything
+happens at build time.
 
 ```
 Sources/{{PROJECT_NAME}}/
-├── main.swift          # the pages and what gets written where
-├── SiteLayout.swift    # the shell shared by every page (head, nav, footer)
+├── main.swift          # the Site: name, URL, pages, layout — and publish()
+├── Pages.swift         # one `Page` type per page
+├── SiteLayout.swift    # the shell shared by every page (head extras, nav, footer)
 └── Components.swift    # content data + reusable markup
 assets/                 # css/js/images copied into dist/
 dist/                   # generated — do not edit by hand
@@ -34,10 +36,13 @@ dist/                   # generated — do not edit by hand
    if an element has no type, use `HTMLTag("element-name") { … }` or `RawHTML("<svg …>")`.
 3. **Content is escaped by default.** Pass raw text — never pre-escape. `escapeContent: false` is
    only for markup you generated yourself.
-4. **Add a page** by creating a `Document` in `main.swift` with `SiteLayout(...).page { … }` and
-   adding it to the `generateMultiple(documents:)` list.
+4. **Add a page** by declaring a `struct … : Page` in `Pages.swift` (a `title` and a `body`; the
+   path comes from the type name, `Pricing` → `/pricing/`) and listing it in `pages` in
+   `main.swift`. Do not add `<title>` or SEO meta tags — `publish()` writes them from the page.
+   Set `url` in `main.swift` to the real domain before deploying; canonical links and the sitemap
+   use it.
 5. **Add a section or card** as a `struct … : Component` with a `body` in `Components.swift`
-   (a `static func … -> HTMLTag` works too), then use it in `main.swift`. Keep the copy in
+   (a `static func … -> HTMLTag` works too), then use it in a page. Keep the copy in
    `Content`, not inline in the markup.
 6. **Style with classes**, chained: `.addClass("card")`, `.addClasses(["grid", "gap-4"])`. Edit the
    CSS in `assets/css/`.

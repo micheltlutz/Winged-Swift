@@ -23,6 +23,28 @@ if swift build 2>&1 | tail -5; then ok "build"; else fail "build"; fi
 step "swift test"
 if swift test 2>&1 | tail -5; then ok "tests"; else fail "tests"; fi
 
+step "deployment floor (macOS 10.13)"
+# The package declares no `platforms`, so sites inherit the toolchain's default floor. Newer
+# toolchains build for the SDK's minimum and hide APIs that need macOS 10.15 (`@TaskLocal`,
+# newer Foundation options) — CI and older toolchains do not. Build once against 10.13.
+if [ "$(uname)" = "Darwin" ]; then
+    FLOOR_ARGS=()
+    if swift build --help 2>&1 | grep -q -- "--build-system"; then
+        FLOOR_ARGS+=(--build-system native)
+    fi
+    FLOOR_LOG="$(mktemp)"
+    if swift build "${FLOOR_ARGS[@]}" --scratch-path .build/floor --target WingedSwift \
+        -Xswiftc -target -Xswiftc "$(uname -m)-apple-macosx10.13" > "$FLOOR_LOG" 2>&1; then
+        ok "library builds for macOS 10.13"
+    else
+        fail "library needs a newer macOS than 10.13"
+        grep -E "error:" "$FLOOR_LOG" | sort -u | head -10
+    fi
+    rm -f "$FLOOR_LOG"
+else
+    printf "\033[1;33m⚠️  not macOS — skipped\033[0m\n"
+fi
+
 step "swiftlint"
 if command -v swiftlint > /dev/null 2>&1; then
     if swiftlint lint --strict --quiet; then ok "lint"; else fail "lint"; fi

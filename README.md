@@ -21,7 +21,8 @@ This library is created to be fully independent, not requiring integration with 
 - 🚀 **Fast**: Compile-time HTML generation
 - 🎨 **Modern**: Full HTML5 support with semantic tags
 - 📱 **SEO-Ready**: Built-in Open Graph and Twitter Cards
-- 🛠️ **Static Sites**: Complete static site generation tools
+- 🛠️ **Static Sites**: declare a `Site` and its `Page`s, call `publish()` — head meta tags, sitemap,
+  robots.txt, RSS/Atom/JSON feeds and `404.html` included
 - 🌍 **Cross-Platform**: Works on macOS, Linux, and Windows
 - 🤝 **Open Source**: MIT licensed, contributions welcome!
 

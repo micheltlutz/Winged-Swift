@@ -44,14 +44,16 @@ import Testing
 
         let source = try read("Sources/DemoSite/main.swift")
         #expect(source.contains("Demo Site"))
-        #expect(source.contains("StaticSiteGenerator"))
+        #expect(source.contains("struct Website: Site"))
+        #expect(source.contains("publish()"))
     }
 
-    @Test func scaffoldedLayoutUsesTheDocumentAPI() throws {
+    @Test func scaffoldedLayoutUsesTheSiteModel() throws {
         try makeScaffolder().write("SiteLayout.swift.template", to: "SiteLayout.swift")
 
         let layout = try read("SiteLayout.swift")
-        #expect(layout.contains("Document(lang: \"pt-BR\")"))
+        #expect(layout.contains("struct SiteLayout: PageLayout"))
+        #expect(layout.contains("@Environment(\\.pages)"))
         #expect(!layout.contains("{{"))
     }
 

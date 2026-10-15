@@ -26,6 +26,8 @@ public enum WingedError: Error, Sendable, CustomStringConvertible {
     case copyFailed(source: String, destination: String, underlying: any Error)
     /// A file or directory could not be removed.
     case removeFailed(path: String, underlying: any Error)
+    /// Two pages of a ``Site`` resolve to the same path.
+    case duplicatePath(String)
 
     public var description: String {
         switch self {
@@ -39,6 +41,8 @@ public enum WingedError: Error, Sendable, CustomStringConvertible {
             return "Could not copy \(source) to \(destination): \(underlying.localizedDescription)"
         case .removeFailed(let path, let underlying):
             return "Could not remove \(path): \(underlying.localizedDescription)"
+        case .duplicatePath(let path):
+            return "Two pages are published at \(path)"
         }
     }
 }
