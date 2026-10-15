@@ -99,9 +99,18 @@ compare compact output to avoid indentation noise.
 ## Attribute order and duplicates
 
 Attributes render in insertion order and are **not** deduplicated, except by the helpers that
-explicitly replace: `setId`, `setStyle` and `setRole`. `addClass` appends, so calling it twice with
+explicitly replace: `setId`, `setStyle`, `setRole` and the typed setters (`target`, `rel`,
+`loading`, `decoding`, `hidden`, `tabIndex`, `lang`). `addClass` appends, so calling it twice with
 the same class emits it twice. Convenience parameters (`href`, `src`, `type`) are appended by the
 initializer — if you also pass the same key inside `attributes`, both are rendered.
+
+## Text nodes and pretty printing
+
+A bare string in a builder (`P { "Hello, "; Strong(content: name) }`) becomes a `TextNode`. In
+compact output it sits flush against its neighbours. In pretty output every child goes on its own
+line, so the browser sees whitespace between the text and the inline element — `name!` can become
+`name !`. When spacing between inline pieces matters, render that page `.compact`, or keep the text
+inside the element (`Strong(content: "\(name)!")`).
 
 ## Boolean attributes
 

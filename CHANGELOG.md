@@ -5,6 +5,35 @@ All notable changes to WingedSwift will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased] — 2.1.0
+
+Additive release: no 2.0 call site changes meaning and rendered output is byte-identical (the golden
+fixtures are untouched). See the 2.0 → 2.1 section of [MIGRATION.md](MIGRATION.md) for the two
+edge cases that can need a one-line fix.
+
+### Added
+
+- **Bare strings in builders** become escaped text via the new `TextNode`:
+  `P { "Made with "; Strong(content: "Swift") }` (#14).
+- **Optional tags in builders** — a `HTMLTag?` renders only when non-`nil` (#14).
+- **`if #available` in every builder** (`buildLimitedAvailability`) (#12).
+- **`HTMLAttributesBuilder` control flow** — `if`, `if let`, `for` and `Attribute?` (#13).
+- **`Component` protocol**: a type with an `@HTMLBuilder var body`, usable inline in any builder
+  and renderable on its own. `static func … -> HTMLTag` components remain valid (#16).
+- **Typed attribute modifiers**: `.target(_: LinkTarget)`, `.rel(_: [LinkRelation])`,
+  `.loading(_: LoadingStrategy)`, `.decoding(_: DecodingHint)`, `.hidden(_:)`, `.tabIndex(_:)`,
+  `.lang(_:)` (#17).
+- **`WingedError`**, the single error type thrown by `StaticSiteGenerator` (#15).
+- **`wingedswift-migrate` skill** (`.claude/skills/wingedswift-migrate/`) — a step-by-step procedure
+  a coding agent follows to upgrade a site, with a `dist/` diff as the safety net.
+
+### Changed
+
+- **`StaticSiteGenerator` uses typed throws** — every method is `throws(WingedError)`.
+  `copyAsset(from:to:)` now fails with `.assetNotFound` before touching the output directory (#15).
+- `winged new` scaffolds `FeatureCard` as a `Component`, and the generated `AGENTS.md` points to
+  the migration skill.
+
 ## [2.0.0] - 2026-08-11
 
 Nothing was removed: every 1.x call site still compiles and renders byte-identical markup, covered
