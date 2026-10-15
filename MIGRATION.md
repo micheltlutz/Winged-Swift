@@ -27,6 +27,25 @@ our current version and <version>, rebuild, and show me the dist/ diff before co
 Stop and ask if the diff contains a change the changelog does not explain.
 ```
 
+## 2.2 → 2.3
+
+**The library API and rendered output are unchanged** — `diff -r` must come back empty. Two CLI
+behaviours changed:
+
+- **`winged build` now runs `npm run build:css`** after generating the site when `package.json`
+  has that script and `node_modules` exists. If your build script already runs
+  `winged build && npm run build:css`, the CSS is simply built twice; drop the second command, or
+  pass `--skip-css` to keep your own step. If `node_modules` is missing you get a warning, not a
+  failure.
+- **`winged serve --watch` injects a live-reload `<script>` into the pages it serves.** The files
+  in `dist/` are never modified. If a test of yours scrapes the dev server, use `--no-reload`.
+
+`winged serve` also moves to the next free port when the one requested is taken (it used to fail),
+and prints the port it chose.
+
+Optional adoption: `winged add page|component`, `winged deploy github-pages --workflow`, and
+`winged new --template` for new projects.
+
 ## 2.1 → 2.2
 
 **Additive. Rendered output is byte-identical** for sites built with `Document` and

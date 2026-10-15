@@ -1,0 +1,59 @@
+import WingedSwift
+
+/// Served at `/`: every post, newest first.
+struct Home: Page {
+    var title = "{{SITE_TITLE}}"
+
+    var body: HTMLTag {
+        H1(content: "{{SITE_TITLE}}")
+        P(content: "{{SITE_DESCRIPTION}}").addClass("muted")
+        Ul {
+            for post in Posts.all {
+                Li {
+                    A(href: PostPage(post: post).path, content: post.title)
+                    " "
+                    Time(datetime: Posts.iso(post.date), content: Posts.display(post.date)).addClass("muted")
+                }
+            }
+        }
+        .addClass("post-list")
+    }
+}
+
+/// One post, served at `/posts/<slug>/`.
+struct PostPage: Page {
+    let post: Post
+
+    var title: String { post.title }
+    var description: String { post.summary }
+    var path: String { "/posts/\(post.slug)/" }
+
+    var body: HTMLTag {
+        Article {
+            H1(content: post.title)
+            P {
+                Time(datetime: Posts.iso(post.date), content: Posts.display(post.date))
+                for tag in post.tags {
+                    " · "
+                    Span(content: tag).addClass("tag")
+                }
+            }
+            .addClass("muted")
+            for paragraph in post.paragraphs {
+                P(content: paragraph)
+            }
+        }
+        .addClass("post")
+    }
+}
+
+/// Served at `/about/`.
+struct About: Page {
+    var title = "About"
+    var description = "About {{SITE_TITLE}}"
+
+    var body: HTMLTag {
+        H1(content: "About")
+        P(content: "Written by a human, rendered by Swift.")
+    }
+}

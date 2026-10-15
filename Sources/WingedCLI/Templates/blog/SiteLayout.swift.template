@@ -1,0 +1,40 @@
+import WingedSwift
+
+struct SiteLayout: PageLayout {
+    func head() -> [HTMLTag] {
+        Link(href: "/css/style.css", rel: "stylesheet")
+    }
+
+    func body(content: HTMLTag) -> [HTMLTag] {
+        SiteHeader()
+        MainTag(children: [content]).addClass("container")
+        SiteFooter()
+    }
+}
+
+struct SiteHeader: Component {
+    @Environment(\.site) var site
+
+    var body: HTMLTag {
+        Header {
+            Nav {
+                A(href: "/", content: site.name).addClass("logo")
+                Ul {
+                    Li { A(href: "/", content: "Posts") }
+                    Li { A(href: "/about/", content: "About") }
+                    Li { A(href: "/feed.xml", content: "RSS") }
+                }
+                .addClass("nav-links")
+            }
+        }
+        .addClass("site-header")
+    }
+}
+
+struct SiteFooter: Component {
+    @Environment(\.site) var site
+
+    var body: HTMLTag {
+        Footer { P(content: "© {{YEAR}} \(site.name)") }.addClass("site-footer")
+    }
+}

@@ -1,0 +1,22 @@
+import WingedSwift
+
+/// Documentation: a sidebar of sections built from `Docs.sections`, one page per topic.
+struct Website: Site {
+    var name = "{{SITE_TITLE}}"
+    var url = "https://example.com"
+    var language = "{{SITE_LANG}}"
+    var description = "{{SITE_DESCRIPTION}}"
+    var homePage = DocPage(topic: Docs.home)
+    var layout = DocsLayout()
+
+    var pages: [any Page] {
+        for section in Docs.sections {
+            for topic in section.topics {
+                DocPage(topic: topic)
+            }
+        }
+    }
+}
+
+let report = try Website().publish()
+print("✅ \(report.files.count) files written to \(report.outputDirectory)")

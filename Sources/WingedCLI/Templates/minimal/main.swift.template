@@ -1,0 +1,33 @@
+import WingedSwift
+
+/// The smallest WingedSwift site: one page, one layout. Add pages to `pages` as the site grows.
+struct Website: Site {
+    var name = "{{SITE_TITLE}}"
+    var url = "https://example.com"
+    var language = "{{SITE_LANG}}"
+    var description = "{{SITE_DESCRIPTION}}"
+    var homePage = Home()
+    var layout = SiteLayout()
+}
+
+struct Home: Page {
+    var title = "{{SITE_TITLE}}"
+
+    var body: HTMLTag {
+        H1(content: "{{SITE_TITLE}}")
+        P(content: "{{SITE_DESCRIPTION}}")
+    }
+}
+
+struct SiteLayout: PageLayout {
+    func head() -> [HTMLTag] {
+        Link(href: "/css/style.css", rel: "stylesheet")
+    }
+
+    func body(content: HTMLTag) -> [HTMLTag] {
+        MainTag(children: [content]).addClass("container")
+    }
+}
+
+let report = try Website().publish()
+print("✅ \(report.files.count) files written to \(report.outputDirectory)")

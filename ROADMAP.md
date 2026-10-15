@@ -27,6 +27,9 @@ and an entry in the [`wingedswift-migrate` skill](.claude/skills/wingedswift-mig
 - **2.2** — the `Site` / `Page` / `PageLayout` model with `publish()`, `@Environment` (scoped,
   no global state), generated head meta tags, sitemap, robots.txt, RSS/Atom/JSON feeds and `404.html`.
   Additive; scripts keep rendering byte-identical output.
+- **2.3** — `winged new --template` (bundled minimal/landing/blog/docs or a git URL), live reload,
+  `serve --open` with port fallback, Tailwind inside `winged build`, `winged add`, and
+  `winged deploy github-pages`.
 
 ## [2.1 — Modern Swift builders](https://github.com/micheltlutz/Winged-Swift/milestone/1)
 

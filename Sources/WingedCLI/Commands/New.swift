@@ -7,7 +7,7 @@ struct New: ParsableCommand {
     )
 
     @Argument(help: "The name of the project (also the SwiftPM target name).")
-    var name: String
+    var name: String?
 
     @Option(name: .shortAndLong, help: "Where to create the project. Defaults to ./<name>.")
     var path: String?
@@ -24,7 +24,21 @@ struct New: ParsableCommand {
     @Flag(help: "Set the project up for Tailwind CSS instead of plain CSS.")
     var tailwind = false
 
+    @Option(name: .shortAndLong,
+            help: "A bundled template (minimal, landing, blog, docs) or a git URL (https://…).")
+    var template: String = ProjectTemplate.defaultName
+
+    @Flag(help: "List the bundled templates and exit.")
+    var listTemplates = false
+
     func run() throws {
+        if listTemplates {
+            print(ProjectTemplate.listing)
+            return
+        }
+        guard let name else {
+            throw ValidationError("Missing the project name: winged new <name>")
+        }
         let destination = path ?? "./\(name)"
         let root = URL(fileURLWithPath: destination)
 
@@ -33,6 +47,7 @@ struct New: ParsableCommand {
         }
 
         let year = Calendar.current.component(.year, from: Date())
+        let today = String(ISO8601DateFormatter().string(from: Date()).prefix(10))
         let placeholders = [
             "PROJECT_NAME": name,
             "PROJECT_SLUG": name.lowercased().replacingOccurrences(of: " ", with: "-"),
@@ -40,27 +55,28 @@ struct New: ParsableCommand {
             "SITE_DESCRIPTION": description,
             "SITE_LANG": lang,
             "YEAR": String(year),
+            "TODAY": today,
             "WINGED_VERSION": Winged.configuration.version
         ]
 
-        let scaffolder = Scaffolder(root: root, placeholders: placeholders)
-
         Log.step("Creating \(name) in \(root.path)")
 
-        try scaffolder.write("Package.swift.template", to: "Package.swift")
-        try scaffolder.write("main.swift.template", to: "Sources/\(name)/main.swift")
-        try scaffolder.write("Pages.swift.template", to: "Sources/\(name)/Pages.swift")
-        try scaffolder.write("SiteLayout.swift.template", to: "Sources/\(name)/SiteLayout.swift")
-        try scaffolder.write("Components.swift.template", to: "Sources/\(name)/Components.swift")
-        try scaffolder.write("AGENTS.md.template", to: "AGENTS.md")
-        try scaffolder.write("gitignore.template", to: ".gitignore")
+        if RemoteTemplate.isRemote(template) {
+            let message = try RemoteTemplate.create(from: template, at: root, placeholders: placeholders)
+            Log.success("Project created from \(template)")
+            if let message {
+                Log.detail(message)
+            }
+            return
+        }
 
-        if tailwind {
-            try scaffolder.write("tailwind.input.css.template", to: "assets/css/tailwind.input.css")
-            try scaffolder.write("tailwind.config.ts.template", to: "tailwind.config.ts")
-            try scaffolder.write("package.json.template", to: "package.json")
-        } else {
-            try scaffolder.write("style.css.template", to: "assets/css/style.css")
+        guard let project = ProjectTemplate.named(template) else {
+            throw ValidationError("Unknown template \(template). Available:\n\(ProjectTemplate.listing)")
+        }
+        let scaffolder = Scaffolder(root: root, placeholders: placeholders.merging(
+            ["SOURCE_TREE": Scaffolder.fill(project.tree, with: placeholders)]) { $1 })
+        for file in ProjectTemplate.sharedFiles(tailwind: tailwind) + project.files {
+            try scaffolder.write(file.source, to: Scaffolder.fill(file.destination, with: placeholders))
         }
 
         try FileManager.default.createDirectory(
@@ -73,8 +89,7 @@ struct New: ParsableCommand {
         Log.detail("winged serve --watch")
         if tailwind {
             Log.detail("")
-            Log.warning("Tailwind: run `npm install`, then `winged build && npm run build:css`.")
-            Log.detail("Tailwind scans dist/, so the site must be generated before the CSS.")
+            Log.warning("Tailwind: run `npm install` once — `winged build` then runs `npm run build:css` itself.")
         }
     }
 }
@@ -84,16 +99,20 @@ struct Scaffolder {
     let root: URL
     let placeholders: [String: String]
 
+    /// Replaces every `{{KEY}}` in `text`.
+    static func fill(_ text: String, with placeholders: [String: String]) -> String {
+        placeholders.reduce(text) { $0.replacingOccurrences(of: "{{\($1.key)}}", with: $1.value) }
+    }
+
     func write(_ template: String, to relativePath: String) throws {
-        guard let url = Bundle.module.url(forResource: "Templates/\(template)", withExtension: nil)
-                ?? Bundle.module.url(forResource: template, withExtension: nil, subdirectory: "Templates") else {
+        let directory = ("Templates/" + template as NSString).deletingLastPathComponent
+        let file = (template as NSString).lastPathComponent
+        guard let url = Bundle.module.url(forResource: file, withExtension: nil, subdirectory: directory)
+                ?? Bundle.module.url(forResource: "Templates/\(template)", withExtension: nil) else {
             throw ValidationError("Missing bundled template \(template).")
         }
 
-        var contents = try String(contentsOf: url, encoding: .utf8)
-        for (key, value) in placeholders {
-            contents = contents.replacingOccurrences(of: "{{\(key)}}", with: value)
-        }
+        let contents = Self.fill(try String(contentsOf: url, encoding: .utf8), with: placeholders)
 
         let destination = root.appendingPathComponent(relativePath)
         try FileManager.default.createDirectory(

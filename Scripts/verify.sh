@@ -45,6 +45,9 @@ else
     printf "\033[1;33m⚠️  not macOS — skipped\033[0m\n"
 fi
 
+step "version"
+if ./Scripts/check-version.sh; then ok "version"; else fail "version"; fi
+
 step "swiftlint"
 if command -v swiftlint > /dev/null 2>&1; then
     if swiftlint lint --strict --quiet; then ok "lint"; else fail "lint"; fi
@@ -136,6 +139,25 @@ else
         && [ -f "$CLI_DIR/SmokeSite/dist/sitemap.xml" ] \
         && [ -f "$CLI_DIR/SmokeSite/AGENTS.md" ]; then
         ok "winged new + winged build produced a site (from a foreign working directory)"
+
+        # Every bundled template must build, and so must the files `winged add` writes.
+        "$CLI" add page Pricing --path "$CLI_DIR/SmokeSite" >> "$CLI_LOG" 2>&1 \
+            && "$CLI" add component PriceCard --path "$CLI_DIR/SmokeSite" >> "$CLI_LOG" 2>&1 \
+            && (cd / && "$CLI" build --path "$CLI_DIR/SmokeSite" >> "$CLI_LOG" 2>&1) \
+            && ok "winged add page/component output compiles" \
+            || { fail "winged add output does not compile"; tail -20 "$CLI_LOG"; }
+        for TEMPLATE in minimal blog docs; do
+            SITE="$CLI_DIR/Smoke_$TEMPLATE"
+            if "$CLI" new "Smoke_$TEMPLATE" --template "$TEMPLATE" --path "$SITE" >> "$CLI_LOG" 2>&1 \
+                && sed -i.bak "s|.package(url: \"https://github.com/micheltlutz/Winged-Swift.git\", from: \"[^\"]*\")|.package(path: \"$ROOT\")|" "$SITE/Package.swift" \
+                && (cd / && "$CLI" build --path "$SITE" >> "$CLI_LOG" 2>&1) \
+                && [ -f "$SITE/dist/index.html" ] && [ -f "$SITE/dist/404.html" ]; then
+                ok "template $TEMPLATE builds"
+            else
+                fail "template $TEMPLATE does not build"
+                tail -20 "$CLI_LOG"
+            fi
+        done
     else
         fail "the winged CLI smoke test failed"
         tail -20 "$CLI_LOG"

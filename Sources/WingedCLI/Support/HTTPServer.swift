@@ -3,10 +3,62 @@ import Foundation
 #if canImport(Glibc)
 import Glibc
 private let socketStreamType = Int32(SOCK_STREAM.rawValue)
+
+/// Writing to a socket the browser already closed must not kill the server with SIGPIPE.
+private func sendNoSignal(_ socket: Int32, _ buffer: UnsafeRawPointer, _ length: Int) -> Int {
+    send(socket, buffer, length, Int32(MSG_NOSIGNAL))
+}
 #else
 import Darwin
 private let socketStreamType = SOCK_STREAM
+
+/// Writing to a socket the browser already closed must not kill the server with SIGPIPE.
+private func sendNoSignal(_ socket: Int32, _ buffer: UnsafeRawPointer, _ length: Int) -> Int {
+    var on: Int32 = 1
+    setsockopt(socket, SOL_SOCKET, SO_NOSIGPIPE, &on, socklen_t(MemoryLayout<Int32>.size))
+    return send(socket, buffer, length, 0)
+}
 #endif
+
+/// The browsers waiting for a reload, as open Server-Sent Events connections.
+///
+/// The server thread subscribes connections; the watch loop calls ``broadcast()`` after a
+/// successful rebuild. Each event is followed by closing the connection — the reloaded page opens
+/// a new one.
+final class ReloadHub: @unchecked Sendable {
+    private let lock = NSLock()
+    private var connections: [Int32] = []
+
+    /// The number of browsers currently waiting.
+    var count: Int {
+        lock.lock()
+        defer { lock.unlock() }
+        return connections.count
+    }
+
+    func subscribe(_ connection: Int32) {
+        HTTPServer.send(Data(("HTTP/1.1 200 OK\r\nContent-Type: text/event-stream\r\n"
+            + "Cache-Control: no-store\r\nConnection: keep-alive\r\n\r\n: connected\n\n").utf8), to: connection)
+        lock.lock()
+        connections.append(connection)
+        lock.unlock()
+    }
+
+    /// Tells every waiting browser to reload, and closes their connections.
+    /// - Returns: How many browsers were told.
+    @discardableResult
+    func broadcast() -> Int {
+        lock.lock()
+        let waiting = connections
+        connections.removeAll()
+        lock.unlock()
+        for connection in waiting {
+            HTTPServer.send(Data("data: reload\n\n".utf8), to: connection)
+            close(connection)
+        }
+        return waiting.count
+    }
+}
 
 /// A single-threaded static file server, enough to preview a generated site.
 ///
@@ -15,6 +67,16 @@ private let socketStreamType = SOCK_STREAM
 struct HTTPServer: Sendable {
     let root: String
     let port: UInt16
+    /// When set, HTML responses get a live-reload script and `/__winged/reload` streams events.
+    var reloadHub: ReloadHub?
+
+    static let reloadPath = "/__winged/reload"
+
+    init(root: String, port: UInt16, reloadHub: ReloadHub? = nil) {
+        self.root = root
+        self.port = port
+        self.reloadHub = reloadHub
+    }
 
     enum ServerError: Error, CustomStringConvertible {
         case socketFailed
@@ -31,6 +93,11 @@ struct HTTPServer: Sendable {
     }
 
     func run() throws -> Never {
+        serve(listener: try Self.bindListener(port: port))
+    }
+
+    /// Opens a listening socket on `port`, on every interface.
+    static func bindListener(port: UInt16) throws -> Int32 {
         let listener = socket(AF_INET, socketStreamType, 0)
         guard listener >= 0 else { throw ServerError.socketFailed }
 
@@ -55,41 +122,86 @@ struct HTTPServer: Sendable {
             close(listener)
             throw ServerError.listenFailed
         }
+        return listener
+    }
 
+    /// Binds the first free port in `port..<port + attempts`, so a second `winged serve` does not
+    /// fail just because 8000 is taken.
+    static func bindFirstAvailable(from port: UInt16, attempts: Int = 20) throws -> (listener: Int32, port: UInt16) {
+        var candidate = port
+        for _ in 0..<max(attempts, 1) {
+            if let listener = try? bindListener(port: candidate) {
+                return (listener, candidate)
+            }
+            guard candidate < UInt16.max else { break }
+            candidate += 1
+        }
+        throw ServerError.bindFailed(port: port)
+    }
+
+    /// Accepts connections forever on an already bound `listener`.
+    func serve(listener: Int32) -> Never {
         while true {
             let connection = accept(listener, nil, nil)
             guard connection >= 0 else { continue }
-            handle(connection)
-            close(connection)
+            if !handle(connection) {
+                close(connection)
+            }
         }
     }
 
-    private func handle(_ connection: Int32) {
+    /// Answers one request.
+    /// - Returns: `true` when the connection was handed to the reload hub and must stay open.
+    private func handle(_ connection: Int32) -> Bool {
         var buffer = [UInt8](repeating: 0, count: 4096)
         let bytesRead = recv(connection, &buffer, buffer.count, 0)
         guard bytesRead > 0,
               let request = String(bytes: buffer[0..<bytesRead], encoding: .utf8),
               let requestLine = request.split(separator: "\r\n").first else {
-            return
+            return false
         }
 
         let parts = requestLine.split(separator: " ")
         guard parts.count >= 2, parts[0] == "GET" else {
             respond(connection, status: "405 Method Not Allowed", type: "text/plain", body: Data("Only GET is supported.".utf8))
-            return
+            return false
         }
 
         let path = String(parts[1].split(separator: "?").first ?? "/")
+        if let reloadHub, path == Self.reloadPath {
+            reloadHub.subscribe(connection)
+            return true
+        }
         guard let resolved = resolve(path) else {
-            respond(connection, status: "404 Not Found", type: "text/html", body: notFoundBody(for: path))
-            return
+            respond(connection, status: "404 Not Found", type: "text/html", body: withReload(notFoundBody(for: path)))
+            return false
         }
 
         guard let body = FileManager.default.contents(atPath: resolved) else {
             respond(connection, status: "500 Internal Server Error", type: "text/plain", body: Data())
-            return
+            return false
         }
-        respond(connection, status: "200 OK", type: Self.contentType(of: resolved), body: body)
+        let type = Self.contentType(of: resolved)
+        respond(connection, status: "200 OK", type: type, body: type.hasPrefix("text/html") ? withReload(body) : body)
+        return false
+    }
+
+    /// The script served pages get while live reload is on. It is never written to disk.
+    static let reloadScript = "<script>new EventSource(\"\(reloadPath)\").onmessage = () => location.reload()</script>"
+
+    private func withReload(_ html: Data) -> Data {
+        reloadHub == nil ? html : Self.injectReloadScript(into: html)
+    }
+
+    /// Inserts ``reloadScript`` before the last `</body>`, or appends it.
+    static func injectReloadScript(into html: Data) -> Data {
+        guard var text = String(bytes: html, encoding: .utf8) else { return html }
+        if let range = text.range(of: "</body>", options: [.backwards, .caseInsensitive]) {
+            text.insert(contentsOf: reloadScript, at: range.lowerBound)
+        } else {
+            text += reloadScript
+        }
+        return Data(text.utf8)
     }
 
     /// The site's own `404.html` when it has one — what static hosts serve — otherwise a short
@@ -118,6 +230,17 @@ struct HTTPServer: Sendable {
         return FileManager.default.fileExists(atPath: candidate.path) ? candidate.path : nil
     }
 
+    fileprivate static func send(_ data: Data, to connection: Int32) {
+        data.withUnsafeBytes { raw in
+            var sent = 0
+            while sent < raw.count {
+                let written = sendNoSignal(connection, raw.baseAddress!.advanced(by: sent), raw.count - sent)
+                if written <= 0 { return }
+                sent += written
+            }
+        }
+    }
+
     private func respond(_ connection: Int32, status: String, type: String, body: Data) {
         var response = Data("HTTP/1.1 \(status)\r\n".utf8)
         response.append(Data("Content-Type: \(type)\r\n".utf8))
@@ -125,15 +248,7 @@ struct HTTPServer: Sendable {
         response.append(Data("Cache-Control: no-store\r\n".utf8))
         response.append(Data("Connection: close\r\n\r\n".utf8))
         response.append(body)
-
-        response.withUnsafeBytes { raw in
-            var sent = 0
-            while sent < raw.count {
-                let written = send(connection, raw.baseAddress!.advanced(by: sent), raw.count - sent, 0)
-                if written <= 0 { return }
-                sent += written
-            }
-        }
+        Self.send(response, to: connection)
     }
 
     private static let contentTypes = [
