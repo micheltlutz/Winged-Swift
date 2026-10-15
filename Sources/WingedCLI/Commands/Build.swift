@@ -15,13 +15,16 @@ struct Build: ParsableCommand {
     @Flag(help: "Build in release configuration.")
     var release = false
 
+    @Flag(help: "Do not run the package.json build:css script after generating the site.")
+    var skipCSS = false
+
     func run() throws {
-        try Self.build(projectPath: path, output: output, release: release)
+        try Self.build(projectPath: path, output: output, release: release, css: !skipCSS)
     }
 
     /// Builds the site and reports what was written. Shared with `winged serve --watch`.
     @discardableResult
-    static func build(projectPath: String, output: String, release: Bool) throws -> String {
+    static func build(projectPath: String, output: String, release: Bool, css: Bool = true) throws -> String {
         let product = try executableProduct(in: projectPath)
 
         Log.step("Building \(product)")
@@ -51,6 +54,9 @@ struct Build: ParsableCommand {
         let pages = (try? FileManager.default.subpathsOfDirectory(atPath: outputURL.path))?
             .filter { $0.hasSuffix(".html") } ?? []
         Log.success("\(pages.count) page(s) in \(output)/")
+        if css {
+            CSSStep.run(in: projectPath)
+        }
         return outputURL.path
     }
 

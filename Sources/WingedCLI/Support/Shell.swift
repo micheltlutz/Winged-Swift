@@ -61,9 +61,16 @@ enum Shell {
     }
 }
 
+/// Status lines. Written straight to the file descriptor rather than through `print`, whose
+/// buffer would hold a long-running `winged serve` back when its output goes to a file or `tee`.
 enum Log {
-    static func step(_ message: String) { print("▶ \(message)") }
-    static func success(_ message: String) { print("✅ \(message)") }
-    static func warning(_ message: String) { print("⚠️  \(message)") }
-    static func detail(_ message: String) { print("   \(message)") }
+    static func step(_ message: String) { write("▶ \(message)") }
+    static func success(_ message: String) { write("✅ \(message)") }
+    static func warning(_ message: String) { write("⚠️ " + " \(message)") }
+    static func failure(_ message: String) { write("❌ \(message)") }
+    static func detail(_ message: String) { write(" " + "  \(message)") }
+
+    private static func write(_ line: String) {
+        FileHandle.standardOutput.write(Data((line + "\n").utf8))
+    }
 }
