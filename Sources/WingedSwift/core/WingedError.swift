@@ -28,6 +28,10 @@ public enum WingedError: Error, Sendable, CustomStringConvertible {
     case removeFailed(path: String, underlying: any Error)
     /// Two pages of a ``Site`` resolve to the same path.
     case duplicatePath(String)
+    /// A Markdown file's front matter cannot be read.
+    case invalidFrontMatter(file: String, line: Int, reason: String)
+    /// A content file is missing or is not UTF-8.
+    case unreadableContent(path: String)
 
     public var description: String {
         switch self {
@@ -43,6 +47,10 @@ public enum WingedError: Error, Sendable, CustomStringConvertible {
             return "Could not remove \(path): \(underlying.localizedDescription)"
         case .duplicatePath(let path):
             return "Two pages are published at \(path)"
+        case .invalidFrontMatter(let file, let line, let reason):
+            return "\(file):\(line): invalid front matter — \(reason)"
+        case .unreadableContent(let path):
+            return "Could not read \(path) as UTF-8 text"
         }
     }
 }
