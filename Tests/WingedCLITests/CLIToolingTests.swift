@@ -32,7 +32,7 @@ private func receive(_ socket: Int32, until marker: String) -> String {
     var buffer = [UInt8](repeating: 0, count: 1024)
     while !(String(bytes: received, encoding: .utf8) ?? "").contains(marker) {
         let count = recv(socket, &buffer, buffer.count, 0)
-        guard count > 0 else { break }
+        guard count >= 1 else { break }
         received.append(contentsOf: buffer[0..<count])
     }
     return String(bytes: received, encoding: .utf8) ?? ""
