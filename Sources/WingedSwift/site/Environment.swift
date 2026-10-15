@@ -64,9 +64,10 @@ public struct PageMetadata: Sendable, Equatable {
 
 /// Values a page or component can read with ``Environment``.
 ///
-/// ``Site/publish(to:from:)`` sets them for each page with a task-local value, so there is no
-/// global state and two sites can publish concurrently. Outside of a publish they hold empty
-/// defaults; use ``withValues(_:_:)`` to set them in a test or a hand-written script.
+/// ``Site/publish(to:from:)`` sets them for each page, scoped to the current thread for the
+/// duration of the render, so there is no global state and two sites can publish concurrently on
+/// different threads. Outside of a publish they hold empty defaults; use ``withValues(_:_:)`` to
+/// set them in a test or a hand-written script.
 public struct EnvironmentValues: Sendable {
     /// The site being published.
     public var site: SiteMetadata
@@ -88,7 +89,20 @@ public struct EnvironmentValues: Sendable {
         self.pages = pages
     }
 
-    @TaskLocal static var current = EnvironmentValues()
+    private static let threadKey = "WingedSwift.EnvironmentValues"
+
+    /// Holds the values in a thread dictionary, which only stores objects.
+    private final class Box {
+        let values: EnvironmentValues
+        init(_ values: EnvironmentValues) { self.values = values }
+    }
+
+    // Thread-local rather than `@TaskLocal`, which would raise the deployment target to
+    // macOS 10.15 for every site depending on the library. Rendering is synchronous, so the
+    // values cannot leak across a suspension point.
+    static var current: EnvironmentValues {
+        (Thread.current.threadDictionary[threadKey] as? Box)?.values ?? EnvironmentValues()
+    }
 
     /// Runs `body` with `values` as the environment.
     ///
@@ -104,7 +118,11 @@ public struct EnvironmentValues: Sendable {
     /// }
     /// ```
     public static func withValues<T>(_ values: EnvironmentValues, _ body: () throws -> T) rethrows -> T {
-        try $current.withValue(values, operation: body)
+        let dictionary = Thread.current.threadDictionary
+        let previous = dictionary[threadKey]
+        dictionary[threadKey] = Box(values)
+        defer { dictionary[threadKey] = previous }
+        return try body()
     }
 }
 

@@ -22,8 +22,8 @@ including how to move a script site onto the new site model if you want to.
   collects pages with `if`/`for` (#19).
 - **`PageLayout` protocol** for the shell around each page, plus `EmptyLayout`; a site can pick a
   layout per page with `layout(for:)` (#19).
-- **`@Environment` property wrapper** over `EnvironmentValues` (`site`, `page`, `pages`), backed by
-  `@TaskLocal` — no global state. `EnvironmentValues.withValues(_:_:)` sets it outside a publish (#20).
+- **`@Environment` property wrapper** over `EnvironmentValues` (`site`, `page`, `pages`), scoped to the
+  rendering thread — no global state, and no deployment-target bump. `EnvironmentValues.withValues(_:_:)` sets it outside a publish (#20).
 - **Generated head** — charset, viewport, `<title>`, description, author, canonical link, feed link,
   Open Graph and Twitter card tags from the site and page metadata (#21).
 - **`FeedGenerator`** writing RSS 2.0, Atom 1.0 or JSON Feed 1.1 from `FeedItem`s, and

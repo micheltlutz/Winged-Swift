@@ -184,7 +184,7 @@ public struct FeedGenerator: Sendable {
                     tags: item.categories.isEmpty ? nil : item.categories)
             })
         let encoder = JSONEncoder()
-        encoder.outputFormatting = [.prettyPrinted, .sortedKeys, .withoutEscapingSlashes]
+        encoder.outputFormatting = [.prettyPrinted, .sortedKeys]
         // Encoding plain strings and arrays cannot fail.
         let data = (try? encoder.encode(feed)) ?? Data()
         return String(bytes: data, encoding: .utf8) ?? ""

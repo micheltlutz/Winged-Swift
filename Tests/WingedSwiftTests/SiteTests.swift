@@ -186,7 +186,8 @@ private let fixtures = URL(fileURLWithPath: #filePath).deletingLastPathComponent
         let rendered = try #require(DemoSite().document(at: "/about/")).render(.pretty)
         let url = fixtures.appendingPathComponent("site-about.html")
         if ProcessInfo.processInfo.environment["WINGED_UPDATE_FIXTURES"] == "1" { try rendered.write(to: url, atomically: true, encoding: .utf8) }
-        #expect(rendered == (try String(contentsOf: url, encoding: .utf8)))
+        let expected = try String(contentsOf: url, encoding: .utf8)
+        #expect(rendered == expected)
     }
 
     @Test func homeUsesTheSiteNameAsTitle() throws {
@@ -247,6 +248,30 @@ private let fixtures = URL(fileURLWithPath: #filePath).deletingLastPathComponent
         let html = EnvironmentValues.withValues(values) { SiteFooter().render() }
         #expect(html == "<footer><p>© Scripted — /t/</p></footer>")
         #expect(values.site.url == "https://s.example")
+    }
+
+    @Test func environmentNestsAndIsPerThread() async {
+        let outer = EnvironmentValues(site: SiteMetadata(name: "Outer"))
+        let inner = EnvironmentValues(site: SiteMetadata(name: "Inner"))
+        let names = EnvironmentValues.withValues(outer) {
+            let nested = EnvironmentValues.withValues(inner) { EnvironmentValues.current.site.name }
+            return [nested, EnvironmentValues.current.site.name]
+        }
+        #expect(names == ["Inner", "Outer"])
+        #expect(EnvironmentValues.current.site.name.isEmpty)
+
+        let rendered = await withTaskGroup(of: String.self) { group in
+            for name in ["A", "B", "C", "D"] {
+                group.addTask {
+                    EnvironmentValues.withValues(EnvironmentValues(site: SiteMetadata(name: name))) {
+                        Thread.sleep(forTimeInterval: 0.01)
+                        return EnvironmentValues.current.site.name
+                    }
+                }
+            }
+            return await group.reduce(into: []) { $0.append($1) }.sorted()
+        }
+        #expect(rendered == ["A", "B", "C", "D"])
     }
 }
 
