@@ -50,7 +50,7 @@ Run these from the repository root.
 | `swiftlint lint --strict` | Lints; config in `.swiftlint.yml`. |
 | `./Scripts/generate-tag-catalog.sh` | Regenerates the tag catalog from the sources. |
 | `./Scripts/generate-builder-inits.py` | Adds the builder initializer to any tag missing one. |
-| `./Scripts/verify.sh` | **Build + test + lint + catalog + CLI + a real page render.** |
+| `./Scripts/verify.sh` | **Build + test + macOS 10.13 floor + lint + catalog + CLI + a real page render.** |
 
 **Run `./Scripts/verify.sh` before you report that a change is done.** It is the single check that
 covers everything CI does.
@@ -292,6 +292,9 @@ Then run `./Scripts/generate-tag-catalog.sh` so the catalog picks the new elemen
 Sites are regenerated from this library, so treat the public API and the rendered bytes as a
 contract:
 
+- Never add `platforms:` to `Package.swift` or use an API newer than macOS 10.13 without an
+  `@available` gate: sites that declare no platforms would stop resolving. `verify.sh` builds the
+  library for 10.13 to catch this.
 - Prefer additive changes; deprecate (`@available(*, deprecated, message:)`) before removing, and
   remove only in a major release.
 - Any change that can break a call site **or** change rendered output gets a section in
