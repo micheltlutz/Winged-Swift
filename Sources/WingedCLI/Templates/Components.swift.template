@@ -15,9 +15,11 @@ enum Content {
     ]
 }
 
-/// Reusable pieces of markup. A component is a function that returns an `HTMLTag`.
-enum Components {
-    static func featureCard(_ feature: Content.Feature) -> HTMLTag {
+/// A reusable piece of markup. A component is a type with a `body`, usable inside any builder.
+struct FeatureCard: Component {
+    let feature: Content.Feature
+
+    var body: HTMLTag {
         Div {
             Span(content: feature.icon).addClass("card-icon")
             H3(content: feature.title)

@@ -33,13 +33,13 @@ public final class StaticSiteGenerator: Sendable {
     ///   - document: The document to write.
     ///   - path: The relative path where the file will be saved (e.g. `"index.html"`).
     ///   - options: How to format the markup. Defaults to ``RenderOptions/pretty``.
-    /// - Throws: An error if the file cannot be written.
+    /// - Throws: ``WingedError`` if the file cannot be written.
     ///
     /// ## Example
     /// ```swift
     /// try generator.generate(document: homePage, to: "index.html")
     /// ```
-    public func generate(document: Document, to path: String, options: RenderOptions = .pretty) throws {
+    public func generate(document: Document, to path: String, options: RenderOptions = .pretty) throws(WingedError) {
         try writeFile(content: document.render(options), to: path)
     }
 
@@ -48,7 +48,7 @@ public final class StaticSiteGenerator: Sendable {
     /// - Parameters:
     ///   - documents: The documents and the paths to write them to.
     ///   - options: How to format the markup. Defaults to ``RenderOptions/pretty``.
-    /// - Throws: An error if any file cannot be written.
+    /// - Throws: ``WingedError`` if any file cannot be written.
     ///
     /// ## Example
     /// ```swift
@@ -60,7 +60,7 @@ public final class StaticSiteGenerator: Sendable {
     public func generateMultiple(
         documents: [(document: Document, path: String)],
         options: RenderOptions = .pretty
-    ) throws {
+    ) throws(WingedError) {
         for (document, path) in documents {
             try generate(document: document, to: path, options: options)
         }
@@ -73,23 +73,14 @@ public final class StaticSiteGenerator: Sendable {
     ///   - path: The relative path where the file will be saved (e.g., "index.html" or "blog/post.html").
     ///   - pretty: If true, formats the HTML with indentation. Default is true.
     ///   - doctype: If true, prepends "<!DOCTYPE html>" to the file. Default is true.
-    /// - Throws: An error if the file cannot be written.
-    public func generate(page: HTMLTag, to path: String, pretty: Bool = true, doctype: Bool = true) throws {
-        let fullPath = "\(outputDirectory)/\(path)"
-        
-        // Create directory if it doesn't exist
-        let directoryURL = URL(fileURLWithPath: fullPath).deletingLastPathComponent()
-        try FileManager.default.createDirectory(at: directoryURL, withIntermediateDirectories: true)
-        
-        // Generate HTML
+    /// - Throws: ``WingedError`` if the file cannot be written.
+    public func generate(page: HTMLTag, to path: String, pretty: Bool = true, doctype: Bool = true) throws(WingedError) {
         var html = ""
         if doctype {
             html = "<!DOCTYPE html>\n"
         }
         html += page.render(pretty ? .pretty : .compact)
-        
-        // Write to file
-        try html.write(toFile: fullPath, atomically: true, encoding: .utf8)
+        try writeFile(content: html, to: path)
     }
     
     /// Generates multiple HTML pages in one operation.
@@ -98,7 +89,7 @@ public final class StaticSiteGenerator: Sendable {
     ///   - pages: An array of tuples containing (HTMLTag, path, pretty, doctype).
     ///   - pretty: Default pretty print value for all pages. Default is true.
     ///   - doctype: Default doctype value for all pages. Default is true.
-    /// - Throws: An error if any file cannot be written.
+    /// - Throws: ``WingedError`` if any file cannot be written.
     ///
     /// ## Example
     /// ```swift
@@ -112,7 +103,7 @@ public final class StaticSiteGenerator: Sendable {
         _ pages: [(page: HTMLTag, path: String)],
         pretty: Bool = true,
         doctype: Bool = true
-    ) throws {
+    ) throws(WingedError) {
         for (page, path) in pages {
             try generate(page: page, to: path, pretty: pretty, doctype: doctype)
         }
@@ -125,43 +116,36 @@ public final class StaticSiteGenerator: Sendable {
     /// - Parameters:
     ///   - source: The source file or directory path.
     ///   - destination: The destination path relative to the output directory.
-    /// - Throws: An error if the copy operation fails.
+    /// - Throws: ``WingedError/assetNotFound(path:)`` if `source` does not exist, or another
+    ///   ``WingedError`` if the copy fails.
     ///
     /// ## Example
     /// ```swift
     /// try generator.copyAsset(from: "./assets/styles.css", to: "css/styles.css")
     /// try generator.copyAsset(from: "./images", to: "images")
     /// ```
-    public func copyAsset(from source: String, to destination: String) throws {
-        let destinationPath = "\(outputDirectory)/\(destination)"
-        let destinationURL = URL(fileURLWithPath: destinationPath)
-        
-        // Create parent directory if needed
-        let parentDirectory = destinationURL.deletingLastPathComponent()
-        try FileManager.default.createDirectory(at: parentDirectory, withIntermediateDirectories: true)
-        
-        // Remove existing file/directory if present
-        if FileManager.default.fileExists(atPath: destinationPath) {
-            try FileManager.default.removeItem(atPath: destinationPath)
+    public func copyAsset(from source: String, to destination: String) throws(WingedError) {
+        guard FileManager.default.fileExists(atPath: source) else {
+            throw .assetNotFound(path: source)
         }
-        
-        // Copy file or directory
-        try FileManager.default.copyItem(atPath: source, toPath: destinationPath)
+        let destinationPath = "\(outputDirectory)/\(destination)"
+        try createDirectory(URL(fileURLWithPath: destinationPath).deletingLastPathComponent())
+        try removeIfPresent(destinationPath)
+        do {
+            try FileManager.default.copyItem(atPath: source, toPath: destinationPath)
+        } catch {
+            throw .copyFailed(source: source, destination: destinationPath, underlying: error)
+        }
     }
     
     /// Cleans the output directory by removing all files.
     ///
     /// - Parameter createDirectory: If true, recreates the output directory after cleaning. Default is true.
-    /// - Throws: An error if the directory cannot be cleaned.
-    public func clean(createDirectory: Bool = true) throws {
-        let url = URL(fileURLWithPath: outputDirectory)
-        
-        if FileManager.default.fileExists(atPath: outputDirectory) {
-            try FileManager.default.removeItem(at: url)
-        }
-        
+    /// - Throws: ``WingedError`` if the directory cannot be cleaned.
+    public func clean(createDirectory: Bool = true) throws(WingedError) {
+        try removeIfPresent(outputDirectory)
         if createDirectory {
-            try FileManager.default.createDirectory(at: url, withIntermediateDirectories: true)
+            try self.createDirectory(URL(fileURLWithPath: outputDirectory))
         }
     }
     
@@ -172,21 +156,37 @@ public final class StaticSiteGenerator: Sendable {
     /// - Parameters:
     ///   - content: The content to write.
     ///   - path: The relative path where the file will be saved.
-    /// - Throws: An error if the file cannot be written.
+    /// - Throws: ``WingedError`` if the file cannot be written.
     ///
     /// ## Example
     /// ```swift
     /// let sitemap = SitemapGenerator.generate(urls: [...])
     /// try generator.writeFile(content: sitemap, to: "sitemap.xml")
     /// ```
-    public func writeFile(content: String, to path: String) throws {
+    public func writeFile(content: String, to path: String) throws(WingedError) {
         let fullPath = "\(outputDirectory)/\(path)"
-        
-        // Create directory if needed
-        let directoryURL = URL(fileURLWithPath: fullPath).deletingLastPathComponent()
-        try FileManager.default.createDirectory(at: directoryURL, withIntermediateDirectories: true)
-        
-        // Write to file
-        try content.write(toFile: fullPath, atomically: true, encoding: .utf8)
+        try createDirectory(URL(fileURLWithPath: fullPath).deletingLastPathComponent())
+        do {
+            try content.write(toFile: fullPath, atomically: true, encoding: .utf8)
+        } catch {
+            throw .writeFailed(path: fullPath, underlying: error)
+        }
+    }
+
+    private func createDirectory(_ url: URL) throws(WingedError) {
+        do {
+            try FileManager.default.createDirectory(at: url, withIntermediateDirectories: true)
+        } catch {
+            throw .directoryCreationFailed(path: url.path, underlying: error)
+        }
+    }
+
+    private func removeIfPresent(_ path: String) throws(WingedError) {
+        guard FileManager.default.fileExists(atPath: path) else { return }
+        do {
+            try FileManager.default.removeItem(atPath: path)
+        } catch {
+            throw .removeFailed(path: path, underlying: error)
+        }
     }
 }

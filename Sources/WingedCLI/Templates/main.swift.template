@@ -31,7 +31,7 @@ let home = SiteLayout(
         H2(content: "Features")
         Div {
             for feature in Content.features {
-                Components.featureCard(feature)
+                FeatureCard(feature: feature)
             }
         }
         .addClass("grid")

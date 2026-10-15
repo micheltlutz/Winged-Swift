@@ -36,10 +36,19 @@ dist/                   # generated — do not edit by hand
    only for markup you generated yourself.
 4. **Add a page** by creating a `Document` in `main.swift` with `SiteLayout(...).page { … }` and
    adding it to the `generateMultiple(documents:)` list.
-5. **Add a section or card** as a `static func … -> HTMLTag` in `Components.swift`, then use it in
-   `main.swift`. Keep the copy in `Content`, not inline in the markup.
+5. **Add a section or card** as a `struct … : Component` with a `body` in `Components.swift`
+   (a `static func … -> HTMLTag` works too), then use it in `main.swift`. Keep the copy in
+   `Content`, not inline in the markup.
 6. **Style with classes**, chained: `.addClass("card")`, `.addClasses(["grid", "gap-4"])`. Edit the
    CSS in `assets/css/`.
+
+## Upgrading WingedSwift
+
+Read [MIGRATION.md](https://github.com/micheltlutz/Winged-Swift/blob/main/MIGRATION.md) for the
+target version and follow the
+[`wingedswift-migrate` skill](https://github.com/micheltlutz/Winged-Swift/blob/main/.claude/skills/wingedswift-migrate/SKILL.md):
+snapshot `dist/`, bump the dependency, apply the documented rewrites, rebuild, and diff `dist/`
+against the snapshot before committing.
 
 ## Before you say you are done
 
