@@ -101,8 +101,15 @@ compare compact output to avoid indentation noise.
 `href`, `src`, `action`, `formaction`, `poster`, `cite`, `background`, `xlink:href` and `data`
 values that start with `javascript:`, `vbscript:` or `data:text/html` render as `#` — including
 links from Markdown. Browsers ignore case and control characters in the scheme, and so does the
-check. For a script URL you wrote yourself, use `.trustedURL("href", "javascript:print()")` or
-`Attribute.trustedURL(key:value:)`; never pass data through them.
+check. Since 3.0.1 it also decodes character references first, so an unescaped
+`javascript&#58;…` is caught. For a script URL you wrote yourself, use
+`.trustedURL("href", "javascript:print()")` or `Attribute.trustedURL(key:value:)`; never pass data
+through them.
+
+Two attributes the policy does not cover, because they are markup, not URLs: `srcdoc` on
+`<iframe>` is parsed as a whole HTML document, and `on*` handlers (`onclick`, …) are script. Never
+put data in either — attribute escaping keeps them inside their quotes, but the browser still
+runs what they contain.
 
 ## Attribute order and duplicates
 

@@ -24,9 +24,10 @@ WingedSwift generates HTML at build time; it has no runtime and serves nothing. 
 
 - Text content or attribute values that render unescaped.
 - A `javascript:`, `vbscript:` or `data:text/html` URL that survives the script-URL policy in `href`, `src` or another URL attribute.
+- A script URL spelled with character references (`javascript&#58;…`) that renders unchanged.
 - Anything in the `winged` CLI (`new`, `serve`, `deploy`) that writes outside the project, executes untrusted input, or exposes files it should not serve.
 
-Output produced through the explicit opt-outs — `RawHTML`, `escapeContent: false` and `.trustedURL` — is the caller's responsibility and is not considered a vulnerability.
+Output produced through the explicit opt-outs — `RawHTML`, `escapeContent: false` and `.trustedURL` — is the caller's responsibility and is not considered a vulnerability. The same goes for attributes whose value is markup or script rather than a URL, such as `srcdoc` and `on*` event handlers.
 
 ## Security Best Practices
 
