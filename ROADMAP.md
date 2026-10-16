@@ -61,7 +61,7 @@ first) · #31 CLI version from a single source.
 #32 dependency-free Markdown subset · #33 front matter · #34 `Content/` loader and `ArticlePage` ·
 #35 tag pages · #36 language classes on code fences for Prism / highlight.js.
 
-## [3.0 — API cleanup](https://github.com/micheltlutz/Winged-Swift/milestone/5)
+## [3.0 — API cleanup](https://github.com/micheltlutz/Winged-Swift/milestone/5) — shipped in 3.0.0
 
 #37 remove what 2.0 deprecated · #39 script URLs render as `#` unless marked trusted · #40
 `Document.write(toFile:)` streams pages to disk · `enum WingedSwift` → `WingedSwiftVersion`.
