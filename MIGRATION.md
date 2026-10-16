@@ -30,6 +30,31 @@ our current version and <version>, rebuild, and show me the dist/ diff before co
 Stop and ask if the diff contains a change the changelog does not explain.
 ```
 
+## 3.0 → 3.0.1
+
+No source changes. Bump `from: "3.0.1"` and rebuild; the `dist/` diff is empty unless the site has
+one of these two inputs.
+
+**Unescaped URLs with character references now render as `#`** when they decode to a script URL.
+Only values you passed with `escape: false` can be affected:
+
+```bash
+grep -rn "escape: false" Sources | grep -iE "href|src|action|poster|cite|data"
+```
+
+A hit whose value decodes to `javascript:` (for example `javascript&#58;…`) renders `href="#"`
+now. If you wrote it on purpose, use `.trustedURL("href", "javascript:…")` with the plain value.
+
+**Markdown links with parentheses in the URL are fixed.** Pages linking to URLs such as
+`…/Swift_(programming_language)` change from a cut URL followed by `)` to the full URL:
+
+```bash
+grep -rnE "\]\([^)]*\(" Content
+```
+
+The `dist/` diff should show only those links, each gaining its closing `)` inside `href` and
+losing the stray `)` after `</a>`.
+
 ## 2.4 → 3.0
 
 The first release that removes API. Two changes can alter output; everything else fails at

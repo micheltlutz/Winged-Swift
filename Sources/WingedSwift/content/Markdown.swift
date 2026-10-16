@@ -583,7 +583,7 @@ private struct InlineParser {
             index += 1
         }
         guard let end = labelEnd, end + 1 < characters.count, characters[end + 1] == "(" else { return nil }
-        guard let close = characters[(end + 2)...].firstIndex(of: ")") else { return nil }
+        guard let close = destinationEnd(characters, from: end + 2) else { return nil }
         let inside = String(characters[(end + 2)..<close]).trimmingCharacters(in: .whitespaces)
         var url = inside
         var title: String?
@@ -595,7 +595,49 @@ private struct InlineParser {
         if url.hasPrefix("<") && url.hasSuffix(">") {
             url = String(url.dropFirst().dropLast())
         }
-        return Link(label: String(characters[(start + 1)..<end]), url: url, title: title, end: close + 1)
+        return Link(label: String(characters[(start + 1)..<end]), url: unescaped(url), title: title, end: close + 1)
+    }
+
+    /// The `)` that closes a link destination: parentheses inside it must balance, as in
+    /// `/wiki/Swift_(programming_language)`, and a quoted title may hold any of them.
+    func destinationEnd(_ characters: [Character], from start: Int) -> Int? {
+        var depth = 0
+        var inTitle = false
+        var index = start
+        while index < characters.count {
+            let character = characters[index]
+            if character == "\\" {
+                index += 2
+                continue
+            }
+            if inTitle {
+                if character == "\"" { inTitle = false }
+            } else if character == "\"", index > start, characters[index - 1].isWhitespace {
+                inTitle = true
+            } else if character == "(" {
+                depth += 1
+            } else if character == ")" {
+                if depth == 0 { return index }
+                depth -= 1
+            }
+            index += 1
+        }
+        return nil
+    }
+
+    /// Drops the backslash in front of escaped ASCII punctuation, so `/x\)y` links to `/x)y`.
+    func unescaped(_ url: String) -> String {
+        var result = ""
+        var iterator = url.makeIterator()
+        while let character = iterator.next() {
+            if character == "\\", let next = iterator.next() {
+                if !(next.isASCII && next.isPunctuation || next.isASCII && next.isSymbol) { result.append(character) }
+                result.append(next)
+            } else {
+                result.append(character)
+            }
+        }
+        return result
     }
 
     /// `<https://…>` autolinks and, with raw HTML on, inline tags.

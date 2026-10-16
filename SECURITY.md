@@ -2,11 +2,11 @@
 
 ## Reporting a Vulnerability
 
-At Winged-Python, we take security seriously. We welcome and appreciate responsible disclosure of security vulnerabilities.
+At WingedSwift, we take security seriously. We welcome and appreciate responsible disclosure of security vulnerabilities.
 
 If you discover a security vulnerability in this project, please follow these steps to report it:
 
-1. **Privately Notify Us**: Please send an email to [michel@michetlutz.me](mailto:michel@michetlutz.me]) with details of the vulnerability. Please do not disclose the issue publicly until we have had a chance to review and address it.
+1. **Privately Notify Us**: Please send an email to [michel@micheltlutz.me](mailto:michel@micheltlutz.me) with details of the vulnerability. Please do not disclose the issue publicly until we have had a chance to review and address it.
 
 2. **Provide Information**: In your email, include a clear description of the vulnerability, steps to reproduce it, and any supporting documentation or proof-of-concept code.
 
@@ -16,17 +16,25 @@ If you discover a security vulnerability in this project, please follow these st
 
 ## Supported Versions
 
-We strive to support and provide security updates for the latest stable version of Winged-Python. If you are using an older version, we encourage you to update to the latest release to ensure you have access to security patches and enhancements.
+Security fixes are released for the latest major version of WingedSwift (currently 3.x). If you are using an older version, update to the latest release to get security patches — [MIGRATION.md](MIGRATION.md) covers every upgrade step.
+
+## Scope
+
+WingedSwift generates HTML at build time; it has no runtime and serves nothing. The issues that matter most are in the rendered output:
+
+- Text content or attribute values that render unescaped.
+- A `javascript:`, `vbscript:` or `data:text/html` URL that survives the script-URL policy in `href`, `src` or another URL attribute.
+- A script URL spelled with character references (`javascript&#58;…`) that renders unchanged.
+- Anything in the `winged` CLI (`new`, `serve`, `deploy`) that writes outside the project, executes untrusted input, or exposes files it should not serve.
+
+Output produced through the explicit opt-outs — `RawHTML`, `escapeContent: false` and `.trustedURL` — is the caller's responsibility and is not considered a vulnerability. The same goes for attributes whose value is markup or script rather than a URL, such as `srcdoc` and `on*` event handlers.
 
 ## Security Best Practices
 
+When building a site with WingedSwift, we recommend:
 
-To enhance the security of your Winged-Python installation, we recommend following these best practices:
+- Pass raw text and let the library escape it; never pre-escape or build markup with string interpolation.
+- Use `RawHTML`, `escapeContent: false` and `.trustedURL` only for markup and URLs you wrote yourself.
+- Keep WingedSwift and your other dependencies up to date.
 
-- Keep your dependencies up to date.
-- Review and apply security updates promptly.
-- Limit access to your Winged-Python instance to trusted individuals.
-- Regularly review and audit your code for security vulnerabilities.
-- Implement strong authentication and authorization mechanisms.
-
-Thank you for helping us keep Winged-Python secure. Your cooperation and responsible disclosure are greatly appreciated.
+Thank you for helping us keep WingedSwift secure. Your cooperation and responsible disclosure are greatly appreciated.

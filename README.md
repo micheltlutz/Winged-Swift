@@ -64,7 +64,7 @@ WingedSwift is an **open-source project** maintained by the community. I activel
 
 ```swift
 // 1. Add to Package.swift
-.package(url: "https://github.com/micheltlutz/Winged-Swift.git", from: "3.0.0")
+.package(url: "https://github.com/micheltlutz/Winged-Swift.git", from: "3.0.1")
 
 // 2. Import and use
 import WingedSwift
@@ -191,7 +191,7 @@ To add WingedSwift to your project, add the following line to your `Package.swif
 
 ```swift
 dependencies: [
-    .package(url: "https://github.com/micheltlutz/Winged-Swift.git", from: "3.0.0")
+    .package(url: "https://github.com/micheltlutz/Winged-Swift.git", from: "3.0.1")
 ]
 ```
 
@@ -795,7 +795,7 @@ Please note that this project is released with a [Code of Conduct](CODE_OF_CONDU
 
 WingedSwift is actively maintained and welcoming contributions!
 
-- ✅ **Current Version**: 3.0.0
+- ✅ **Current Version**: 3.0.1
 - 🚀 **Status**: Active Development
 - 📈 **Test Coverage**: High
 - 🔄 **Release Cycle**: Regular updates

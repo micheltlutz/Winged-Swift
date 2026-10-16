@@ -5,6 +5,26 @@ All notable changes to WingedSwift will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [3.0.1] - 2026-10-16
+
+Patch release. Output changes only for the two inputs below; see the 3.0 → 3.0.1 section of
+[MIGRATION.md](MIGRATION.md).
+
+### Security
+
+- **The script-URL policy decodes character references first.** An unescaped value
+  (`Attribute(key:value:escape: false)`) such as `javascript&#58;alert(1)`, `java&Tab;script:` or
+  `&#x6A;avascript:` reached the browser intact, which decodes the references and runs the script.
+  The check now reads the value the way the browser does — numeric references with or without `;`,
+  plus `&colon;`, `&Tab;` and `&NewLine;` — and renders `#`. Escaped values were never affected.
+
+### Fixed
+
+- **Markdown link destinations keep balanced parentheses.**
+  `[Swift](https://en.wikipedia.org/wiki/Swift_(programming_language))` used to stop at the first
+  `)`, cutting the URL and leaving a stray `)` in the text. A `)` inside a quoted title and an
+  escaped `\)` are handled too, as CommonMark specifies.
+
 ## [3.0.0] - 2026-10-16
 
 Breaking release. Every removal has a 1:1 replacement; see the 2.4 → 3.0 section of

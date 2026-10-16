@@ -26,7 +26,25 @@ import Testing
 
     @Test func markdownLinksAreCovered() {
         let html = Fragment(children: Markdown.parse("[click](javascript:alert(document.cookie))")).render()
-        #expect(html == "<p><a href=\"#\">click</a>)</p>" || html == "<p><a href=\"#\">click</a></p>")
+        #expect(html == "<p><a href=\"#\">click</a></p>")
+    }
+
+    /// An unescaped value reaches the browser as written, and the browser decodes character
+    /// references before it reads the scheme.
+    @Test(arguments: ["javascript&#58;alert(1)", "javascript&#x3A;x", "javascript&#X3a;x", "javascript&#0058;x",
+                      "javascript&#58x", "javascript&colon;x", "java&Tab;script:x", "java&NewLine;script:x",
+                      "&#x6A;avascript:x", "&#106;avascript:x", "java&#9;script:x", "vbscript&#58;x"])
+    func characterReferencesCannotSpellAScriptURL(url: String) {
+        let tag = HTMLTag("a", attributes: [Attribute(key: "href", value: url, escape: false)])
+        #expect(tag.render() == "<a href=\"#\"></a>")
+    }
+
+    @Test func characterReferencesInSafeURLsAreKept() {
+        #expect(A(href: "javascript&#58;x", content: "x").render() == "<a href=\"javascript&amp;#58;x\">x</a>")
+        #expect(HTMLTag("a", attributes: [Attribute(key: "href", value: "/search?q=a&amp;b=&#58;", escape: false)]).render()
+            == "<a href=\"/search?q=a&amp;b=&#58;\"></a>")
+        #expect(HTMLTag("a", attributes: [Attribute(key: "href", value: "java&COLON;x", escape: false)]).render()
+            == "<a href=\"java&COLON;x\"></a>")
     }
 }
 
