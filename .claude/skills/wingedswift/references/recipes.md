@@ -44,7 +44,7 @@ import PackageDescription
 let package = Package(
     name: "MySite",
     dependencies: [
-        .package(url: "https://github.com/micheltlutz/Winged-Swift.git", from: "2.4.0")
+        .package(url: "https://github.com/micheltlutz/Winged-Swift.git", from: "3.0.0")
     ],
     targets: [
         .executableTarget(
