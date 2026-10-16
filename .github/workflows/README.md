@@ -13,13 +13,15 @@ Este diretório contém os workflows do GitHub Actions para o projeto WingedSwif
 - ✅ Usa Docker container oficial do Swift para Linux
 - ✅ Gera relatórios de cobertura de código
 - ✅ Envia cobertura para Codecov
+- ✅ Executa `Scripts/verify.sh` (o mesmo check que roda localmente)
 - ✅ Executa SwiftLint para verificação de código
 
 **Jobs:**
-- `test-macos`: Executa testes no macOS 13
-- `test-linux`: Executa testes no Ubuntu com Swift Docker (swift:5.10)
-- `coverage`: Gera e envia cobertura de código
-- `lint`: Verifica qualidade do código com SwiftLint
+- `test-macos`: Executa testes no macOS 15 (`macos-15`)
+- `test-linux`: Executa testes no Ubuntu com Swift Docker (`swift:6.0`)
+- `coverage`: Gera e envia cobertura de código (`macos-15`)
+- `verify`: Roda `./Scripts/verify.sh` — build, testes, piso macOS 10.13, lint, catálogo de tags, CLI e render de uma página real
+- `lint`: Verifica qualidade do código com SwiftLint (`--strict`, não bloqueia o PR)
 
 ### 2. Release (`release.yml`)
 
@@ -27,6 +29,7 @@ Este diretório contém os workflows do GitHub Actions para o projeto WingedSwif
 
 **O que faz:**
 - 📦 Cria releases automáticas no GitHub
+- 🔢 Confere com `Scripts/check-version.sh` que a tag, o CLI e a biblioteca têm a mesma versão
 - 📝 Extrai changelog da versão
 - 🏗️ Faz build de release
 - ✅ Executa testes antes de publicar
@@ -103,15 +106,17 @@ Adicione estes badges no README.md:
 # 1. Atualize CHANGELOG.md
 vim CHANGELOG.md
 
-# 2. Atualize versão em WingedSwift.swift
-vim Sources/WingedSwift/WingedSwift.swift
+# 2. Atualize a versão nos dois lugares (devem ser iguais)
+vim Sources/WingedSwift/WingedSwiftVersion.swift
+vim Sources/WingedCLI/Winged.swift
+./Scripts/check-version.sh v3.0.1
 
 # 3. Commit mudanças
 git add .
-git commit -m "Release: version 1.3.0"
+git commit -m "Change: release 3.0.1"
 
 # 4. Criar tag
-git tag v1.3.0
+git tag v3.0.1
 
 # 5. Push com tags
 git push origin main --tags
@@ -161,12 +166,13 @@ swiftlint --fix
 
 ### Adicionar nova versão do Swift
 
-Edite `tests.yml`:
+O `tests.yml` atual não usa matrix (Linux roda em `swift:6.0`). Para testar várias versões, troque a
+imagem fixa por uma matrix:
 
 ```yaml
 strategy:
   matrix:
-    swift-version: ['5.9', '5.10', '5.11']  # Adicione aqui
+    swift-version: ['6.0', '6.1']  # e use image: swift:${{ matrix.swift-version }}
 ```
 
 ### Mudar frequência de build
@@ -212,5 +218,5 @@ Se você tem sugestões para melhorar os workflows:
 ---
 
 **Mantido por:** [@micheltlutz](https://github.com/micheltlutz)  
-**Última atualização:** Outubro 2024
+**Última atualização:** Outubro 2026
 

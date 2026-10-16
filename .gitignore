@@ -124,3 +124,5 @@ $RECYCLE.BIN/
 .env.production.local
 
 GITHUB_PAGES_SETUP.md
+# graphify (local knowledge graph, regenerated per machine)
+graphify-out/
