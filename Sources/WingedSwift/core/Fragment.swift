@@ -48,4 +48,8 @@ public class Fragment: HTMLTag {
             isFirst = false
         }
     }
+
+    public override func copy() -> HTMLTag {
+        Fragment(children: children.map { $0.copy() })
+    }
 }

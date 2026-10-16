@@ -113,4 +113,4 @@ These summarise `MIGRATION.md`. If they disagree, `MIGRATION.md` wins.
 | 2.2 → 2.3 | No | No — diff must be empty | CLI only: `winged build` now runs `npm run build:css` (drop a duplicate step or pass `--skip-css`); `serve --watch` injects a reload script into *served* pages only |
 | 2.3 → 2.4 | Rarely (`site.document(at:)` now `throws`) | No for scripts; a `Site` with a `Content/` folder gains pages | Check for an existing `Content/*.md` before upgrading a `Site`-model project; set `contentDirectory` to opt out |
 | 2.0 → 2.4.0 (one release) | Apply the four rows above in order | — | 2.1–2.4 shipped together as 2.4.0 |
-| 2.x → 3.0 | Yes | See its section | Deprecated 2.0 members are removed — clear all WingedSwift deprecation warnings on the latest 2.x **before** bumping to 3.0 |
+| 2.4 → 3.0 | Yes — compile errors with 1:1 replacements | Only for `javascript:`/`vbscript:`/`data:text/html` URLs (now `#`) and for `render()` after a global `xhtmlSelfClosing` flip | Clear every WingedSwift deprecation warning on 2.4 **first**; `WingedSwift.version` → `WingedSwiftVersion.current`; run the script-URL grep and mark intended ones `.trustedURL(...)` |

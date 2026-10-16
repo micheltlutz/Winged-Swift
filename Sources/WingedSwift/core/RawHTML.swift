@@ -22,4 +22,8 @@ public class RawHTML: HTMLTag {
         }
         output += raw
     }
+
+    public override func copy() -> HTMLTag {
+        RawHTML(raw)
+    }
 }

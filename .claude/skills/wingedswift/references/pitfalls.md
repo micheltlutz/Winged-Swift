@@ -91,10 +91,18 @@ page.render(.pretty)   // indented
 page.render(RenderOptions(pretty: true, indent: "\t"))
 ```
 
-`HTMLTag.xhtmlSelfClosing` still exists but is deprecated process-wide state — pass
-`RenderOptions(xhtmlSelfClosing: true)` instead. `<pre>`, `<code>` and `<textarea>` are always
+XHTML-style void elements (`<br />`) come from `RenderOptions(xhtmlSelfClosing: true)`; the old
+global `HTMLTag.xhtmlSelfClosing` was removed in 3.0. `<pre>`, `<code>` and `<textarea>` are always
 rendered compactly, because whitespace inside them is visible text. When diffing generated HTML,
 compare compact output to avoid indentation noise.
+
+## Script URLs render as `#` (3.0+)
+
+`href`, `src`, `action`, `formaction`, `poster`, `cite`, `background`, `xlink:href` and `data`
+values that start with `javascript:`, `vbscript:` or `data:text/html` render as `#` — including
+links from Markdown. Browsers ignore case and control characters in the scheme, and so does the
+check. For a script URL you wrote yourself, use `.trustedURL("href", "javascript:print()")` or
+`Attribute.trustedURL(key:value:)`; never pass data through them.
 
 ## Attribute order and duplicates
 
@@ -145,6 +153,7 @@ it later changes both. Build components with functions that return a fresh tag e
 ```swift
 static func divider() -> HTMLTag { Hr().addClass("my-8") }   // ✅
 let divider = Hr().addClass("my-8")                          // ⚠️ shared node
+let second = divider.copy()                                  // ✅ independent (3.0+)
 ```
 
 For the same reason a tag tree is not `Sendable`. Build and render inside one task, then move the
@@ -152,5 +161,5 @@ For the same reason a tag tree is not `Sendable`. Build and render inside one ta
 
 ## Overriding rendering in a subclass
 
-The overridable primitive is `write(into:options:indentLevel:)`. Overriding `renderCompact()` or
-`renderPretty(_:)` has no effect in 2.0 — the new pipeline never calls them.
+The overridable primitive is `write(into:options:indentLevel:)`. `renderCompact()` and
+`renderPretty(_:)` no longer exist (removed in 3.0).

@@ -105,6 +105,10 @@ final class InlineFlow: HTMLTag {
         super.init("", attributes: [], children: [tag], content: nil, escapeContent: false)
     }
 
+    override func copy() -> HTMLTag {
+        InlineFlow(Fragment(children: children.map { $0.copy() }))
+    }
+
     override func write(into output: inout String, options: RenderOptions, indentLevel: Int = 0) {
         var compact = options
         compact.pretty = false
