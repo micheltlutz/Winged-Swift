@@ -118,6 +118,16 @@ private func md(_ source: String, _ options: MarkdownOptions = MarkdownOptions()
         #expect(md("[q](\"/odd\")") == "<p><a href=\"&quot;/odd&quot;\">q</a></p>")
     }
 
+    @Test func linkDestinationsKeepBalancedParentheses() {
+        #expect(md("[Swift](https://en.wikipedia.org/wiki/Swift_(programming_language))")
+            == "<p><a href=\"https://en.wikipedia.org/wiki/Swift_(programming_language)\">Swift</a></p>")
+        #expect(md("[a](/x(y)(z)) after") == "<p><a href=\"/x(y)(z)\">a</a> after</p>")
+        #expect(md("![i](/a_(b).png)") == "<p><img src=\"/a_(b).png\" alt=\"i\"></p>")
+        #expect(md("[a](/x \"t)\")") == "<p><a href=\"/x\" title=\"t)\">a</a></p>")
+        #expect(md("[a](/x\\)y)") == "<p><a href=\"/x)y\">a</a></p>")
+        #expect(md("[a](/x(y)") == "<p>[a](/x(y)</p>")
+    }
+
     @Test func autolinksAndEscapes() {
         #expect(md("<https://swift.org>") == "<p><a href=\"https://swift.org\">https://swift.org</a></p>")
         #expect(md("<mailto:a@b.c>") == "<p><a href=\"mailto:a@b.c\">mailto:a@b.c</a></p>")

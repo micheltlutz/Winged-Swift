@@ -28,7 +28,7 @@ print(page.render())   // <!DOCTYPE html> … , pretty by default
 ### A. Using WingedSwift in a site project
 
 1. Confirm the dependency: `Package.swift` should contain
-   `.package(url: "https://github.com/micheltlutz/Winged-Swift.git", from: "3.0.0")` and the target
+   `.package(url: "https://github.com/micheltlutz/Winged-Swift.git", from: "3.0.1")` and the target
    should depend on `.product(name: "WingedSwift", package: "Winged-Swift")`. A new project is one
    command: `winged new MySite`.
 2. **Read `references/tag-catalog.md` before writing tags.** It lists every type with both
