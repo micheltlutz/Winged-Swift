@@ -192,19 +192,6 @@ extension HTMLTag {
     public convenience init(_ name: String, @HTMLAttributesBuilder attributes: () -> [Attribute]) {
         self.init(name, attributes: attributes())
     }
-
-    /// Convenience initializer for creating an HTML tag with attributes using a builder.
-    ///
-    /// - Parameters:
-    ///   - name: The name of the HTML tag.
-    ///   - attributes: A closure returning the attributes.
-    ///
-    /// - Warning: The unlabelled trailing closure is ambiguous with the children builder.
-    ///   Use `HTMLTag(_:attributes:)` instead; this initializer is removed in 3.0.
-    @available(*, deprecated, message: "Use HTMLTag(_:attributes:) — the unlabelled form is ambiguous with the children builder.")
-    public convenience init(_ name: String, @HTMLAttributesBuilder _ attributes: () -> [Attribute]) {
-        self.init(name, attributes: attributes())
-    }
 }
 
 /// A result builder for constructing HTML attributes.

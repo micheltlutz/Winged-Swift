@@ -140,6 +140,20 @@ extension HTMLTag {
         replaceAttribute(Attribute(key: "lang", value: code))
     }
 
+    /// Sets a URL attribute that is rendered as given, even if it is a `javascript:` URL.
+    ///
+    /// Script URLs in `href`, `src`, `action` and the other URL attributes render as `#` unless
+    /// they are set this way. Use it only for values you wrote yourself.
+    ///
+    /// - Parameters:
+    ///   - key: The attribute name, such as `"href"`.
+    ///   - value: The URL.
+    /// - Returns: The tag, for chaining.
+    @discardableResult
+    public func trustedURL(_ key: String, _ value: String) -> Self {
+        replaceAttribute(.trustedURL(key: key, value: value))
+    }
+
     private func replaceAttribute(_ attribute: Attribute) -> Self {
         attributes.removeAll { $0.key == attribute.key }
         attributes.append(attribute)

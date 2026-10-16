@@ -40,7 +40,9 @@ public final class StaticSiteGenerator: Sendable {
     /// try generator.generate(document: homePage, to: "index.html")
     /// ```
     public func generate(document: Document, to path: String, options: RenderOptions = .pretty) throws(WingedError) {
-        try writeFile(content: document.render(options), to: path)
+        let fullPath = "\(outputDirectory)/\(path)"
+        try createDirectory(URL(fileURLWithPath: fullPath).deletingLastPathComponent())
+        try document.write(toFile: fullPath, options: options)
     }
 
     /// Writes several documents in one operation.

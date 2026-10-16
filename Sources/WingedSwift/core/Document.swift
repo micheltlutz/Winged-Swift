@@ -85,4 +85,85 @@ public struct Document {
         root().write(into: &output, options: options, indentLevel: 0)
         return output
     }
+
+    /// Writes the document to a file without building the whole page in memory.
+    ///
+    /// The output is byte-for-byte what ``render(_:)`` returns. Each child of `<body>` is rendered
+    /// and flushed in turn, so memory stays bounded by the largest section rather than the page.
+    /// The file is replaced atomically.
+    ///
+    /// - Parameters:
+    ///   - path: The file to write; its directory must exist.
+    ///   - options: How to format the markup. Defaults to ``RenderOptions/pretty``.
+    /// - Throws: ``WingedError/writeFailed(path:underlying:)`` if the file cannot be written.
+    public func write(toFile path: String, options: RenderOptions = .pretty) throws(WingedError) {
+        let temporary = path + ".winged-tmp"
+        // `OutputStream(toFileAtPath:)` only returns nil for an empty path; failures surface on write.
+        guard let output = OutputStream(toFileAtPath: temporary, append: false) else { throw .writeFailed(path: path, underlying: CocoaError(.fileWriteUnknown)) }
+        output.open()
+        var failed = false
+        var buffer = ""
+        func emit(_ text: String, flush: Bool = false) {
+            buffer += text
+            guard flush || buffer.utf8.count >= 64 * 1024, !failed else { return }
+            let bytes = Array(buffer.utf8)
+            buffer.removeAll(keepingCapacity: true)
+            var offset = 0
+            while offset < bytes.count {
+                let written = bytes[offset...].withUnsafeBufferPointer { output.write($0.baseAddress!, maxLength: $0.count) }
+                guard written > 0 else {
+                    failed = true
+                    return
+                }
+                offset += written
+            }
+        }
+
+        writePieces(into: { emit($0, flush: $1) }, options: options)
+        emit("", flush: true)
+        output.close()
+        do {
+            guard !failed else { throw output.streamError ?? CocoaError(.fileWriteUnknown) }
+            if FileManager.default.fileExists(atPath: path) {
+                try FileManager.default.removeItem(atPath: path)
+            }
+            try FileManager.default.moveItem(atPath: temporary, toPath: path)
+        } catch {
+            try? FileManager.default.removeItem(atPath: temporary)
+            throw .writeFailed(path: path, underlying: error)
+        }
+    }
+
+    /// Produces the markup of ``render(_:)`` in pieces: `<body>`'s children one at a time.
+    func writePieces(into emit: (String, Bool) -> Void, options: RenderOptions) {
+        let root = root()
+        // A body with content or no children renders like any other tag; stream only the common
+        // case of a body made of sections.
+        guard body.content == nil, !body.children.isEmpty else {
+            emit(render(options), false)
+            return
+        }
+        emit("<!DOCTYPE html>\n" + root.openingTag(), false)
+        if options.pretty {
+            let bodyIndent = options.indent
+            var head = "\n"
+            head.reserveCapacity(1024)
+            self.head.write(into: &head, options: options, indentLevel: 1)
+            emit(head + "\n" + bodyIndent + body.openingTag(), false)
+            for child in body.children {
+                var rendered = ""
+                child.write(into: &rendered, options: options, indentLevel: 2)
+                if !rendered.isEmpty {
+                    emit("\n" + rendered, false)
+                }
+            }
+            emit("\n" + bodyIndent + "</body>\n</html>", false)
+        } else {
+            emit(head.render(options) + body.openingTag(), false)
+            for child in body.children {
+                emit(child.render(options), false)
+            }
+            emit("</body></html>", false)
+        }
+    }
 }
