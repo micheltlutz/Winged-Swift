@@ -114,10 +114,12 @@ RawHTML("<svg viewBox=\"0 0 24 24\"><path d=\"M4 4h16\"/></svg>")
 Watch the names that differ from the HTML element because the word is a Swift keyword:
 `MainTag` → `<main>`, `VarTag` → `<var>`.
 
-**3. Content is escaped, attributes are escaped.** `P(content: "<b>hi</b>")` renders
-`&lt;b&gt;hi&lt;/b&gt;`. That is the correct default. Opt out only for markup you produced
-yourself: `P(content: someHTML, escapeContent: false)`. `Script` and `Style` already default to
-`escapeContent: false`, because escaping would corrupt JS and CSS.
+**3. Content is escaped, attributes are escaped, script URLs are neutralised.**
+`P(content: "<b>hi</b>")` renders `&lt;b&gt;hi&lt;/b&gt;`. That is the correct default. Opt out
+only for markup you produced yourself: `P(content: someHTML, escapeContent: false)`. `Script` and
+`Style` already default to `escapeContent: false`, because escaping would corrupt JS and CSS. A
+`javascript:` URL in `href`, `src` and the other URL attributes renders as `#`;
+`.trustedURL("href", …)` is the explicit opt-out for a value you wrote.
 
 **4. Never pre-escape.** Pass raw text and let the library escape it once. Passing `"&amp;"` gets
 you `&amp;amp;`.
@@ -284,8 +286,7 @@ Then run `./Scripts/generate-tag-catalog.sh` so the catalog picks the new elemen
   `## Example` block.
 - Comments explain *why*, not *what*. The existing code has very few of them; match that.
 - Tests are Swift Testing (`@Suite`, `@Test`, `#expect`). Assert on rendered strings, not on
-  internal tree shape. `DeprecatedAPITests` is the one XCTest file left, on purpose — see its
-  header comment.
+  internal tree shape.
 - Deprecations carry `@available(*, deprecated, message:)` and stay for one major version.
 - Commit messages follow the CHANGELOG vocabulary: `Add:`, `Fix:`, `Change:`.
 - Branch from `develop`, open the PR against `develop`. See `CONTRIBUTING.md`.

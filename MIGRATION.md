@@ -30,6 +30,70 @@ our current version and <version>, rebuild, and show me the dist/ diff before co
 Stop and ask if the diff contains a change the changelog does not explain.
 ```
 
+## 2.4 → 3.0
+
+The first release that removes API. Two changes can alter output; everything else fails at
+compile time with a clear message.
+
+**Before bumping:** be on 2.4.x with zero WingedSwift deprecation warnings (`swift build 2>&1 |
+grep deprecated`). Every removed member was deprecated in 2.0 and has a direct replacement.
+
+### Removed (compile errors, mechanical fixes)
+
+| Removed | Replacement |
+| --- | --- |
+| `render(pretty: true)` / `render(pretty: false)` | `render(.pretty)` / `render()` |
+| `renderCompact()` | `render()` |
+| `renderPretty(indentLevel:)` | `render(.pretty)` |
+| `HTMLTag.xhtmlSelfClosing = true` | `render(RenderOptions(xhtmlSelfClosing: true))` |
+| `HTMLTag("dialog") { Attribute(…) }` (unlabelled attributes builder) | `HTMLTag("dialog", attributes: { Attribute(…) })` |
+| `WingedSwift.version` / `.author` / `.contact` | `WingedSwiftVersion.current` / `.author` / `.contact` |
+
+```bash
+grep -rnE "render\(pretty:|renderCompact\(|renderPretty\(|xhtmlSelfClosing *=|WingedSwift\.(version|author|contact|VERSION)" Sources Tests
+```
+
+`render()` with no argument still renders compact markup — it is now
+`render(_ options: RenderOptions = .compact)`. **Watch for:** 2.x code that flipped
+`HTMLTag.xhtmlSelfClosing = true` and then called `render()` got `<br />`; after the rewrite it
+must pass `RenderOptions(xhtmlSelfClosing: true)` explicitly or the output changes to `<br>`.
+
+The `enum WingedSwift` was renamed so the module name is usable again: `WingedSwift.Page`,
+`WingedSwift.Environment` now disambiguate a clash with your own types.
+
+### Output change 1 — script URLs render as `#`
+
+URL attributes (`href`, `src`, `action`, `formaction`, `poster`, `cite`, `background`,
+`xlink:href`, `data`) whose value starts with `javascript:`, `vbscript:` or `data:text/html` —
+ignoring case, spaces and control characters — render as `#`. This also covers Markdown links.
+
+```bash
+grep -rniE "javascript:|vbscript:|data:text/html" Sources Content
+```
+
+For each hit you wrote yourself and want to keep, mark it trusted:
+
+```swift
+// 2.x
+A(href: "javascript:print()", content: "Print")
+// 3.0
+A(href: "#", content: "Print").trustedURL("href", "javascript:print()")
+```
+
+The `dist/` diff should show only `href="#"` replacements for the hits the grep found.
+
+### Output change 2 — none for byte content, but documents are streamed
+
+`StaticSiteGenerator.generate(document:to:)` now writes through `Document.write(toFile:)`, which
+streams `<body>` section by section and replaces the file atomically. The bytes are identical to
+`render(_:)`; only memory use and the temporary `.winged-tmp` file during a write differ.
+
+### Subclasses
+
+If you subclassed `HTMLTag` and overrode `render(pretty:)`, `renderCompact()` or
+`renderPretty(indentLevel:)`, those overrides no longer compile — override
+`write(into:options:indentLevel:)` (see "Overriding rendering in a subclass" below).
+
 ## 2.3 → 2.4
 
 **Sites built with `Document` + `StaticSiteGenerator` render byte-identical output** — `diff -r`
@@ -234,9 +298,9 @@ setters replace instead of appending. Re-run the `dist/` diff after converting.
 
 ## 1.x → 2.0
 
-**Nothing was removed.** Every 1.x call site still compiles and produces byte-identical markup —
-that is covered by `DeprecatedAPITests`. What changed is the toolchain floor and what the API
-*recommends*. The deprecated members are removed in 3.0.
+**Nothing was removed in 2.0.** Every 1.x call site kept compiling and producing byte-identical
+markup. What changed is the toolchain floor and what the API *recommends*. The deprecated members
+were removed in 3.0 — see the 2.4 → 3.0 section.
 
 ### 1. Toolchain: Swift 6.0+
 

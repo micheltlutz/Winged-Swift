@@ -5,6 +5,34 @@ All notable changes to WingedSwift will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased] — 3.0.0
+
+Breaking release. Every removal has a 1:1 replacement; see the 2.4 → 3.0 section of
+[MIGRATION.md](MIGRATION.md) and the `wingedswift-migrate` skill.
+
+### Added
+
+- **Script-URL policy**: `href`, `src`, `action`, `formaction`, `poster`, `cite`, `background`,
+  `xlink:href` and `data` values starting with `javascript:`, `vbscript:` or `data:text/html`
+  render as `#` (case, spaces and control characters are ignored, as browsers do). Opt out per
+  value with `Attribute.trustedURL(key:value:)` or `.trustedURL(_:_:)` (#39).
+- **`Document.write(toFile:options:)`** streams the page to disk section by section and replaces the
+  file atomically; `StaticSiteGenerator.generate(document:to:)` uses it. Output is byte-identical
+  to `render(_:)` (#40).
+
+### Changed
+
+- **`enum WingedSwift` is now `WingedSwiftVersion`** (`current`, `author`, `contact`), so
+  `WingedSwift.Page` can disambiguate a type again.
+- `render(_ options: RenderOptions = .compact)` — one method; `render()` keeps returning compact
+  markup.
+
+### Removed
+
+- `render(pretty:indentLevel:)`, `renderCompact()`, `renderPretty(indentLevel:)`,
+  `HTMLTag.xhtmlSelfClosing` and the unlabelled `HTMLTag(_:_:)` attributes initializer, all
+  deprecated since 2.0 (#37). `DeprecatedAPITests`, the last XCTest suite, goes with them.
+
 ## [2.4.0] - 2026-10-15
 
 The first release since 2.0.0. It bundles four milestones: modern builders and `Component`,
