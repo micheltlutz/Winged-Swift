@@ -88,11 +88,17 @@ The `dist/` diff should show only `href="#"` replacements for the hits the grep 
 streams `<body>` section by section and replaces the file atomically. The bytes are identical to
 `render(_:)`; only memory use and the temporary `.winged-tmp` file during a write differ.
 
+### New in 3.0, optional
+
+`tag.copy()` returns an independent deep copy — use it instead of building a helper function when
+you want to reuse a configured tag in several places.
+
 ### Subclasses
 
 If you subclassed `HTMLTag` and overrode `render(pretty:)`, `renderCompact()` or
 `renderPretty(indentLevel:)`, those overrides no longer compile — override
-`write(into:options:indentLevel:)` (see "Overriding rendering in a subclass" below).
+`write(into:options:indentLevel:)` (see "Overriding rendering in a subclass" below). A subclass
+that keeps state of its own should also override `copy()`.
 
 ## 2.3 → 2.4
 

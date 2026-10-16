@@ -16,6 +16,8 @@ Breaking release. Every removal has a 1:1 replacement; see the 2.4 → 3.0 secti
   `xlink:href` and `data` values starting with `javascript:`, `vbscript:` or `data:text/html`
   render as `#` (case, spaces and control characters are ignored, as browsers do). Opt out per
   value with `Attribute.trustedURL(key:value:)` or `.trustedURL(_:_:)` (#39).
+- **`HTMLTag.copy()`** — a deep, independent copy that renders like the original, for reusing a
+  node without sharing it. Closes the value-type RFC: tags stay a class (#38).
 - **`Document.write(toFile:options:)`** streams the page to disk section by section and replaces the
   file atomically; `StaticSiteGenerator.generate(document:to:)` uses it. Output is byte-identical
   to `render(_:)` (#40).

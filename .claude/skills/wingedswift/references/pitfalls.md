@@ -153,6 +153,7 @@ it later changes both. Build components with functions that return a fresh tag e
 ```swift
 static func divider() -> HTMLTag { Hr().addClass("my-8") }   // ✅
 let divider = Hr().addClass("my-8")                          // ⚠️ shared node
+let second = divider.copy()                                  // ✅ independent (3.0+)
 ```
 
 For the same reason a tag tree is not `Sendable`. Build and render inside one task, then move the

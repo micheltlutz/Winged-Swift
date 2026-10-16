@@ -63,12 +63,14 @@ first) · #31 CLI version from a single source.
 
 ## [3.0 — API cleanup](https://github.com/micheltlutz/Winged-Swift/milestone/5)
 
-#37 remove what 2.0 deprecated (`render(pretty:indentLevel:)`, `renderCompact()`,
-`renderPretty(indentLevel:)`, `HTMLTag.xhtmlSelfClosing`, the unlabelled `HTMLTag(_:_:)`) ·
-#38 RFC: value-type tags · #39 RFC: `javascript:` URL policy · #40 streaming render to a
-`FileHandle`.
+#37 remove what 2.0 deprecated · #39 script URLs render as `#` unless marked trusted · #40
+`Document.write(toFile:)` streams pages to disk · `enum WingedSwift` → `WingedSwiftVersion`.
 
-Before bumping a site to 3.0, clear every WingedSwift deprecation warning on the latest 2.x.
+**#38, value-type tags — decided: tags stay a class.** Structs would make trees `Sendable` (parallel
+rendering) and remove accidental node sharing, but a whole site renders in milliseconds, sharing is
+rare and now solved by `HTMLTag.copy()`, and the rewrite would break every custom subclass and
+every tool that walks the tree (Winged Studio's generator among them) for no measurable gain.
+Revisit only if parallel rendering of very large sites becomes a real need.
 
 ## Not scheduled yet
 

@@ -106,6 +106,28 @@ open class HTMLTag {
     }
 
     /// Appends the attribute list of an opening tag.
+    /// A deep copy of the tag and its subtree.
+    ///
+    /// `HTMLTag` is a class, so putting one instance in two places shares the node: mutating it
+    /// later changes both. Copy a tag you want to reuse and change independently. The copy renders
+    /// exactly like the original; it is typed `HTMLTag` because element types such as `Div` add
+    /// no state of their own.
+    ///
+    /// A subclass that overrides ``write(into:options:indentLevel:)`` and keeps its own state must
+    /// override this method too, as `Fragment`, `RawHTML` and `TextNode` do.
+    ///
+    /// - Returns: An independent tree.
+    ///
+    /// ## Example
+    /// ```swift
+    /// let card = Div { P(content: "Card") }.addClass("card")
+    /// let highlighted = card.copy().addClass("highlight")   // `card` keeps one class
+    /// ```
+    open func copy() -> HTMLTag {
+        HTMLTag(name, attributes: attributes, children: children.map { $0.copy() },
+                content: content, escapeContent: false)
+    }
+
     /// `<name attributes>`, without children or the closing tag.
     func openingTag() -> String {
         var output = "<\(name)"

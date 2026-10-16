@@ -113,3 +113,29 @@ import Testing
         #expect(div.render() == div.render(.compact))
     }
 }
+
+@Suite struct CopyTests {
+    @Test func copiesAreIndependent() {
+        let card = Div { P(content: "Card") }.addClass("card")
+        let highlighted = card.copy().addClass("highlight")
+        #expect(card.render() == "<div class=\"card\"><p>Card</p></div>")
+        #expect(highlighted.render() == "<div class=\"card highlight\"><p>Card</p></div>")
+        highlighted.children.first?.addChild(Span(content: "new"))
+        #expect(card.render() == "<div class=\"card\"><p>Card</p></div>")
+    }
+
+    @Test func specialNodesKeepTheirRendering() {
+        let tree = Div {
+            "text & more"
+            RawHTML("<svg></svg>")
+            Fragment { Em(content: "a"); Em(content: "b") }
+            P { "inline "; Strong(content: "x") }.inline()
+            Pre(children: [Code(content: "keep\n" + String(repeating: " ", count: 2) + "spaces")])
+        }
+        for options in [RenderOptions.compact, .pretty] {
+            #expect(tree.copy().render(options) == tree.render(options))
+        }
+        let markdown = Fragment(children: Markdown.parse("Hello *you*\n\n- a"))
+        #expect(markdown.copy().render(.pretty) == markdown.render(.pretty))
+    }
+}

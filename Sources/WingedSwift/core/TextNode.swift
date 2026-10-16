@@ -37,4 +37,8 @@ public final class TextNode: HTMLTag {
         }
         output += text
     }
+
+    public override func copy() -> HTMLTag {
+        TextNode(text, escape: false)
+    }
 }
